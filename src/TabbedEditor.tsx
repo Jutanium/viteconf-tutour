@@ -53,9 +53,10 @@ export const TabbedEditor: Component<Props> = (props) => {
   const tablistItemClass =
     props.tablistItemClass ||
     ((selected: boolean, file: FileData, index: number) => {
-      const base = `border-b font-mono font-semibold px-1 text-sm border-r-0`;
-      const highlighted = selected && `bg-gray-200 border-b-2`;
-      return `${base} ${highlighted}`;
+      const base = `border-b-2 font-mono font-semibold px-1 text-sm border-r-0`;
+      const highlighted = selected && `bg-gray-200`;
+      const alternate = index % 2 === 0 && `border-gray-400`;
+      return `${base} ${highlighted} ${alternate}`;
     });
 
   return (
