@@ -20,13 +20,13 @@ interface Props {
 
 export const TabbedEditor: Component<Props> = (props) => {
   const [getSelectedTab, setSelectedTab] = createSignal(
-    props.fileStates[0].file.pathName
+    props.fileStates[0].data.pathName
   );
 
   const editorEntries = mapArray(
     () => props.fileStates,
     (fileState) => [
-      fileState.file.pathName,
+      fileState.data.pathName,
       <FileEditor
         fileState={fileState}
         theme={props.theme}
@@ -43,9 +43,13 @@ export const TabbedEditor: Component<Props> = (props) => {
     props.tablistItemClass ||
     ((selected: boolean, file: FileData, index: number) => {
       const base = `border-b-2 font-mono font-semibold px-1 text-sm border-r-0`;
-      const highlighted = selected && `bg-gray-200`;
-      const alternate = index % 2 === 0 && `border-gray-400`;
-      return `${base} ${highlighted} ${alternate}`;
+      const highlighted = selected
+        ? `bg-gray-200 border-blue-400 dark:bg-black`
+        : `dark:bg-gray-500`;
+      const dark = `dark:text-white`;
+      const alternate =
+        !selected && (index % 2 === 0 ? "border-gray-400" : "border-gray-700");
+      return `${base} ${dark} ${highlighted} ${alternate}`;
     });
 
   return (
@@ -53,7 +57,7 @@ export const TabbedEditor: Component<Props> = (props) => {
       <div role="tablist" class={tablistClass()}>
         <For each={props.fileStates}>
           {(fileState, i) => {
-            const file = fileState.file;
+            const file = fileState.data;
             const selected = () => file.pathName === getSelectedTab();
             return (
               <button

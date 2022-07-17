@@ -1,4 +1,4 @@
-import { Component, createMemo } from "solid-js";
+import { Component, createEffect, createMemo } from "solid-js";
 import { FileEditor } from "./FileEditor";
 import { basicDark } from "cm6-theme-basic-dark";
 import { basicLight } from "cm6-theme-basic-light";
@@ -21,8 +21,20 @@ const App: Component = () => {
   });
 
   const prefersDark = usePrefersDark();
+
   const theme = createMemo(() => {
     return prefersDark() ? basicDark : basicLight;
+  });
+
+  createEffect(() => {
+    console.log("dark mode", prefersDark());
+    if (prefersDark()) {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
   });
 
   const [fileStates, setFileStates] = createStore([testState, jsState]);
@@ -32,7 +44,7 @@ const App: Component = () => {
     setFileStates([
       ...fileStates,
       createFileState(
-        Object.assign({}, jsState.file, {
+        Object.assign({}, jsState.data, {
           pathName: `${fileStates.length + 1}.js`,
         })
       ),

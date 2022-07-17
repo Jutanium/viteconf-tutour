@@ -13,6 +13,7 @@ specifiers:
   '@codemirror/view': ^6.0.3
   '@lezer/highlight': ^1.0.0
   '@solid-primitives/media': ^2.0.0
+  '@unocss/reset': ^0.44.3
   cm6-theme-basic-dark: ^0.2.0
   cm6-theme-basic-light: ^0.2.0
   codemirror: ^6.0.1
@@ -37,6 +38,7 @@ dependencies:
   '@codemirror/view': 6.0.3
   '@lezer/highlight': 1.0.0
   '@solid-primitives/media': 2.0.0_solid-js@1.4.7
+  '@unocss/reset': 0.44.3
   cm6-theme-basic-dark: 0.2.0_wqop65vucds5rlbqur4ownxkk4
   cm6-theme-basic-light: 0.2.0_wqop65vucds5rlbqur4ownxkk4
   codemirror: 6.0.1
@@ -738,7 +740,6 @@ packages:
 
   /@unocss/reset/0.44.3:
     resolution: {integrity: sha512-QXy46EP9UvM4emAtHYG/tBAnkUut9qXMDAPIaUq10fxTRYU5el3F6C61660Ybj+sBeIOUqpO2lYv2KKf3lQowA==}
-    dev: true
 
   /@unocss/scope/0.44.3:
     resolution: {integrity: sha512-FflZQ1O6+n9/pIJmhrYcD/cflvXUZNYEMEITIwg2GEr35eUf8tAceBzb/JNGOu2A0il6bOo0PrSwJsnevJIqkA==}
