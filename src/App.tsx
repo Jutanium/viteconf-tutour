@@ -1,8 +1,8 @@
 import { Component, createEffect, createMemo } from "solid-js";
 import { FileEditor } from "./FileEditor";
-import { basicDark } from "cm6-theme-basic-dark";
-import { basicLight } from "cm6-theme-basic-light";
 import { usePrefersDark } from "@solid-primitives/media";
+import { defaultDark } from "./codemirror/defaultDark";
+import { defaultLight } from "./codemirror/defaultLight";
 
 import { createFileState, FileState } from "./state";
 import { TabbedEditor } from "./TabbedEditor";
@@ -23,7 +23,7 @@ const App: Component = () => {
   const prefersDark = usePrefersDark();
 
   const theme = createMemo(() => {
-    return prefersDark() ? basicDark : basicLight;
+    return prefersDark() ? defaultDark : defaultLight;
   });
 
   createEffect(() => {

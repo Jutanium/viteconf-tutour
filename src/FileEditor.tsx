@@ -4,6 +4,7 @@ import baseExtensions from "./codemirror/baseExtensions";
 import { EditorView } from "codemirror";
 import {
   Compartment,
+  EditorState,
   Extension,
   StateEffect,
   StateField,
@@ -13,7 +14,12 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
 import { FileType, FileData, getFileType } from "./projectData";
-import { DecorationSet, Decoration } from "@codemirror/view";
+import {
+  DecorationSet,
+  Decoration,
+  showTooltip,
+  Tooltip,
+} from "@codemirror/view";
 
 const languageExtensions: { [Language in FileType]: () => Extension } = {
   js: () => javascript(),
@@ -36,9 +42,42 @@ export const FileEditor: Component<Props> = (props) => {
 
   const themeExtension = new Compartment();
 
+  const cursorTooltipField = StateField.define<readonly Tooltip[]>({
+    create: getCursorTooltips,
+
+    update(tooltips, tr) {
+      if (!tr.docChanged && !tr.selection) return tooltips;
+      return getCursorTooltips(tr.state);
+    },
+
+    provide: (f) => showTooltip.computeN([f], (state) => state.field(f)),
+  });
+
+  function getCursorTooltips(state: EditorState): readonly Tooltip[] {
+    return state.selection.ranges
+      .filter((range) => range.empty)
+      .map((range) => {
+        let line = state.doc.lineAt(range.head);
+        let text = line.number + ":" + (range.head - line.from);
+        return {
+          pos: range.head,
+          above: true,
+          strictSide: true,
+          arrow: true,
+          create: () => {
+            let dom = document.createElement("div");
+            dom.className = "dark:text-black text-white p-1";
+            dom.textContent = text;
+            return { dom };
+          },
+        };
+      });
+  }
+
   const view = new EditorView({
     extensions: [
       baseExtensions,
+      cursorTooltipField,
       languageExtensions[getFileType(props.fileState.data.pathName)](),
       themeExtension.of(props.theme),
     ],
