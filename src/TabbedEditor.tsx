@@ -1,12 +1,5 @@
 import { Extension } from "@codemirror/state";
-import {
-  Component,
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  mapArray,
-} from "solid-js";
+import { Component, createMemo, createSignal, For, mapArray } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { FileEditor } from "./FileEditor";
 import { FileData } from "./projectData";
@@ -30,11 +23,7 @@ export const TabbedEditor: Component<Props> = (props) => {
     props.fileStates[0].file.pathName
   );
 
-  createEffect(() => {
-    console.log(entries());
-  });
-
-  const entries = mapArray(
+  const editorEntries = mapArray(
     () => props.fileStates,
     (fileState) => [
       fileState.file.pathName,
@@ -46,7 +35,7 @@ export const TabbedEditor: Component<Props> = (props) => {
     ]
   );
 
-  const editors = createMemo(() => Object.fromEntries(entries()));
+  const editors = createMemo(() => Object.fromEntries(editorEntries()));
 
   const rootClass = props.rootClass || (() => "w-full h-full flex flex-col");
   const tablistClass = props.tablistClass || (() => "w-full flex px-1");
@@ -79,7 +68,7 @@ export const TabbedEditor: Component<Props> = (props) => {
           }}
         </For>
       </div>
-      {editors()[getSelectedTab()]}
+      <Dynamic component={editors()[getSelectedTab()]} />
     </div>
   );
 };
