@@ -4,7 +4,7 @@ import { Extension } from "@codemirror/state";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-const base00 = "#2E3235",
+const base00 = "#1E1E1E",
   base01 = "#DDDDDD",
   base02 = "#B9D2FF",
   base03 = "#b0b0b0",
@@ -26,7 +26,7 @@ const invalid = base09,
   highlightBackground = base02 + "30",
   background = base00,
   tooltipBackground = base01,
-  selection = "#202325",
+  selection = "#add6ff",
   cursor = base01;
 
 /// The editor theme styles for Basic Dark.
@@ -43,7 +43,7 @@ export const defaultDarkTheme = EditorView.theme(
 
     ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
     "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: selection },
+      { backgroundColor: selection, opacity: 0.5 },
 
     ".cm-panels": { backgroundColor: darkBackground, color: base03 },
     ".cm-panels.cm-panels-top": { borderBottom: "2px solid black" },
@@ -104,6 +104,9 @@ export const defaultDarkTheme = EditorView.theme(
         backgroundColor: highlightBackground,
         color: base03,
       },
+    },
+    ".cm-t-link": {
+      backgroundColor: "#57534e",
     },
   },
   { dark: true }

@@ -35,7 +35,7 @@ const invalid = "#d30102",
   highlightBackground = darkBackground,
   background = "#ffffff",
   tooltipBackground = base01,
-  selection = darkBackground,
+  selection = "#ACCEF7",
   cursor = base01;
 
 /// The editor theme styles for Basic Light.
@@ -97,6 +97,7 @@ export const defaultLightTheme = EditorView.theme(
       border: "none",
       backgroundColor: tooltipBackground,
     },
+
     ".cm-tooltip .cm-tooltip-arrow:before": {
       borderTopColor: "transparent",
       borderBottomColor: "transparent",
@@ -110,6 +111,9 @@ export const defaultLightTheme = EditorView.theme(
         backgroundColor: highlightBackground,
         color: base03,
       },
+    },
+    ".cm-t-link": {
+      backgroundColor: "#57534e",
     },
   },
   { dark: false }

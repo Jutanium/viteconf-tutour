@@ -14,13 +14,13 @@ export interface Range {
   to: number;
 }
 
-export interface LineRange {
-  fromLine: number;
-  toLine: number;
-}
+// export interface LineRange {
+//   fromLine: number;
+//   toLine: number;
+// }
 
 export interface CodeLink {
-  selection: Range | LineRange;
+  selection: Range;
   id: string;
 }
 
