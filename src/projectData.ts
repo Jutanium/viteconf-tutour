@@ -7,7 +7,7 @@ export interface FileData {
   codeLinks: CodeLink[];
 }
 
-export interface ContentNode {}
+export interface ContentNodeData {}
 
 export interface Range {
   from: number;
@@ -24,13 +24,13 @@ export interface CodeLink {
   id: string;
 }
 
-export interface Slide {
+export interface SlideData {
   files: FileData[];
-  content: ContentNode[];
+  content: ContentNodeData[];
 }
 
 export interface ProjectData {
-  slides: Slide[];
+  slides: SlideData[];
   config: {};
 }
 
