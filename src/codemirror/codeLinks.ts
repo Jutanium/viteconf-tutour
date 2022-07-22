@@ -49,6 +49,8 @@ export function injectExtensions(
 
     update({ marks, allDecorations }, transaction) {
       marks = marks.map(transaction.changes);
+      console.log(marks);
+      // allDecorations = allDecorations.map(transaction.changes);
 
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
@@ -60,13 +62,14 @@ export function injectExtensions(
           marks = marks.update({
             add: [codeLinkMark(id).range(from, to)],
           });
+
+          console.log(marks);
         }
       }
 
-      //TODO: only run this for marks that have changed
+      //TODO: only run this for marks that ave changed
 
-      console.time("update");
-
+      allDecorations = Decoration.none;
       const iter = marks.iter();
       while (iter.value) {
         const { from, to } = iter;
@@ -103,12 +106,12 @@ export function injectExtensions(
 
         decorations.sort((a, b) => a.from - b.from);
 
-        allDecorations = Decoration.set(decorations);
+        allDecorations = allDecorations.update({
+          add: decorations,
+        });
 
         iter.next();
       }
-
-      console.timeEnd("update");
 
       return {
         marks,
@@ -190,12 +193,14 @@ export function injectExtensions(
     on(
       () => fileState.getCodeLinks(),
       (codeLinks) => {
+        // codeLinks.forEach((codeLink) =>
         console.log("code link effect", codeLinks);
-        codeLinks.forEach((codeLink) =>
+        if (codeLinks.length) {
           view.dispatch({
-            effects: [newCodeLinkEffect.of(codeLink)],
-          })
-        );
+            effects: [newCodeLinkEffect.of(codeLinks[codeLinks.length - 1])],
+          });
+        }
+        // );
       }
     )
   );
