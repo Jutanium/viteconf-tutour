@@ -103,9 +103,7 @@ export function injectExtensions(
 
         decorations.sort((a, b) => a.from - b.from);
 
-        allDecorations = allDecorations.update({
-          add: decorations,
-        });
+        allDecorations = Decoration.set(decorations);
 
         iter.next();
       }
