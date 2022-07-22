@@ -1,7 +1,6 @@
 import {
   EditorState,
   RangeSet,
-  RangeValue,
   StateEffect,
   StateField,
 } from "@codemirror/state";
@@ -13,47 +12,26 @@ import {
   GutterMarker,
   showTooltip,
   Tooltip,
+  WidgetType,
 } from "@codemirror/view";
 import { createEffect, on } from "solid-js";
-import { CodeLink } from "../projectData";
+import { CodeLink, FromToRange } from "../projectData";
 import { FileState } from "../state";
 
-export const newCodeLinkEffect = StateEffect.define<CodeLink>();
-
-const codeLinkMark = (id) =>
-  Decoration.mark({
-    class: "cm-t-link",
-    id,
-  });
-
-const codeLinkFirstLineMark = (id) =>
-  Decoration.mark({
-    class: "cm-t-link cm-t-link-first-line",
-    id,
-  });
-
-const codeLinkLastLineMark = (id) =>
-  Decoration.mark({
-    class: "cm-t-link cm-t-link-last-line",
-  });
-
-const codeLinkBetweenLine = (id) =>
-  Decoration.line({
-    class: "cm-t-link",
-  });
-
-class CodeLinkRangeValue extends RangeValue {
+export const newCodeLinkEffect = StateEffect.define<{
   id: string;
-  constructor(id: string) {
-    super();
-    this.id = id;
-  }
-}
+  selection: FromToRange;
+}>();
+export const replaceWithNewCodeLink = StateEffect.define<{
+  from: number;
+  to: number;
+  id: string;
+}>();
 
 interface Args {
   view: EditorView;
   tooltipButton: (clickHandler: () => void) => HTMLElement;
-  widget: (codeLinkId: string) => Node;
+  widget: (codeLinkId: string) => HTMLElement;
   fileState: FileState;
 }
 
@@ -63,19 +41,69 @@ export function injectExtensions({
   fileState,
   widget,
 }: Args) {
+  class CodeLinkWidget extends WidgetType {
+    id: string;
+
+    constructor(id: string) {
+      super();
+      this.id = id;
+    }
+
+    toDOM(view: EditorView): HTMLElement {
+      return widget(this.id);
+    }
+
+    destroy(dom) {
+      console.log("destroyed");
+    }
+  }
+
+  const codeLinkMark = (id) =>
+    Decoration.mark({
+      class: "cm-t-link",
+      id,
+    });
+
+  const codeLinkFirstLineMark = (id) =>
+    Decoration.mark({
+      class: "cm-t-link cm-t-link-first-line",
+      id,
+    });
+
+  const codeLinkLastLineMark = (id) =>
+    Decoration.mark({
+      class: "cm-t-link cm-t-link-last-line",
+    });
+
+  const codeLinkBetweenLine = (id) =>
+    Decoration.line({
+      class: "cm-t-link",
+    });
+
+  const codeLinkReplace = (id) =>
+    Decoration.replace({
+      widget: new CodeLinkWidget(id),
+      id,
+    });
+
   let markIds = [];
 
   const codeLinkField = StateField.define<{
-    marks: RangeSet<CodeLinkRangeValue>;
+    marks: DecorationSet;
+    inserts: DecorationSet;
     allDecorations: DecorationSet;
   }>({
     create() {
-      return { marks: RangeSet.empty, allDecorations: Decoration.none };
+      return {
+        marks: Decoration.none,
+        allDecorations: Decoration.none,
+        inserts: Decoration.none,
+      };
     },
 
-    update({ marks, allDecorations }, transaction) {
+    update({ marks, inserts, allDecorations }, transaction) {
       marks = marks.map(transaction.changes);
-      console.log(marks);
+      inserts = inserts.map(transaction.changes);
 
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
@@ -84,25 +112,35 @@ export function injectExtensions({
             id,
           } = effect.value;
 
-          marks = marks.update({
-            add: [new CodeLinkRangeValue(id).range(from, to)],
+          if (from - to) {
+            marks = marks.update({
+              add: [codeLinkMark(id).range(from, to)],
+            });
+          }
+          continue;
+        }
+        if (effect.is(replaceWithNewCodeLink)) {
+          const { from, to, id } = effect.value;
+          inserts = inserts.update({
+            add: [codeLinkReplace(id).range(from, to)],
           });
+          continue;
         }
       }
 
       allDecorations = Decoration.none;
 
-      const iter = marks.iter();
+      const decorations = [];
+
+      let iter = marks.iter();
 
       let stillPresentIds: string[] = [];
 
       while (iter.value) {
         const { from, to } = iter;
-        const id = iter.value.id;
+        const id = iter.value.spec.id;
         stillPresentIds.push(id);
         fileState.setCodeLink(id, { selection: { from, to } });
-
-        const decorations = [];
 
         const startLine = transaction.newDoc.lineAt(from);
         const endLine = transaction.newDoc.lineAt(to);
@@ -131,14 +169,25 @@ export function injectExtensions({
           }
         }
 
-        decorations.sort((a, b) => a.from - b.from);
-
-        allDecorations = allDecorations.update({
-          add: decorations,
-        });
-
         iter.next();
       }
+
+      const iiter = inserts.iter();
+      while (iiter.value) {
+        const { from, to } = iiter;
+        const id = iiter.value.spec.id;
+        stillPresentIds.push(id);
+        fileState.setCodeLink(id, { position: from });
+        console.log(stillPresentIds);
+        decorations.push(codeLinkReplace(id).range(from, to));
+        iiter.next();
+      }
+
+      decorations.sort((a, b) => a.from - b.from);
+
+      allDecorations = allDecorations.update({
+        add: decorations,
+      });
 
       markIds
         .filter((id) => !stillPresentIds.includes(id))
@@ -150,6 +199,7 @@ export function injectExtensions({
 
       return {
         marks,
+        inserts,
         allDecorations,
       };
     },
@@ -191,13 +241,28 @@ export function injectExtensions({
         above: true,
         arrow: true,
         create: () => {
-          const clickHandler = () =>
+          const clickHandler = () => {
+            if (range.from - range.to === 0) {
+              view.dispatch({
+                changes: {
+                  from: range.from,
+                  insert: " ",
+                },
+                effects: replaceWithNewCodeLink.of({
+                  from: range.from,
+                  to: range.from + 1,
+                  id: `${range.from}-${range.from + 1}`,
+                }),
+              });
+              return;
+            }
             view.dispatch({
               effects: newCodeLinkEffect.of({
                 selection: { from: range.from, to: range.to },
-                id: `-${range.from}-${range.to}`,
+                id: `${range.from}-${range.to}`,
               }),
             });
+          };
           return { dom: tooltipButton(clickHandler) };
         },
       };
@@ -242,7 +307,7 @@ export function injectExtensions({
         const { from, to, value } = iter;
         const line = view.state.doc.lineAt(from);
         gutterSet = gutterSet.update({
-          add: [new CodeLinkMarker(value.id).range(line.from)],
+          add: [new CodeLinkMarker(value.spec.id).range(line.from)],
         });
         iter.next();
       }

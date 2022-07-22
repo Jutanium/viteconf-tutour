@@ -9,7 +9,7 @@ export interface FileData {
 
 export interface ContentNodeData {}
 
-export interface Range {
+export interface FromToRange {
   from: number;
   to: number;
 }
@@ -19,10 +19,9 @@ export interface Range {
 //   toLine: number;
 // }
 
-export interface CodeLink {
-  selection: Range;
+export type CodeLink = {
   id: string;
-}
+} & ({ selection: FromToRange } | { position: number });
 
 export interface SlideData {
   files: FileData[];

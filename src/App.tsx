@@ -39,7 +39,7 @@ const App: Component = () => {
 
   const [fileStates, setFileStates] = createStore([testState, jsState]);
 
-  function buttonClick() {
+  function addFile() {
     // const fileState = createFileState({})
     setFileStates([
       ...fileStates,
@@ -47,9 +47,14 @@ const App: Component = () => {
     ]);
   }
 
+  function printData() {
+    console.log(fileStates[0].getCodeLinks());
+  }
+
   return (
     <>
-      <button onClick={buttonClick}>add file</button>
+      <button onClick={addFile}>add file</button>
+      <button onClick={printData}>data</button>
       <div>
         <TabbedEditor fileStates={fileStates} theme={theme()} />
       </div>

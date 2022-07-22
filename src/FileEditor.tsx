@@ -72,7 +72,7 @@ export const FileEditor: Component<Props> = (props) => {
     const clicked = () => {
       console.log(codeLinkId);
     };
-    return (<button onClick={clicked}>💬</button>) as Node;
+    return (<button onClick={clicked}>💬</button>) as HTMLElement;
   };
 
   injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
