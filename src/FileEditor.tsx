@@ -68,7 +68,7 @@ export const FileEditor: Component<Props> = (props) => {
       </div>
     ) as HTMLElement;
 
-  injectExtensions(view, tooltipButton);
+  injectExtensions(view, tooltipButton, props.fileState);
 
   onMount(() => {
     console.log("mounted", props.fileState.data.pathName);

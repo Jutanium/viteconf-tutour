@@ -9,9 +9,9 @@ import { TabbedEditor } from "./TabbedEditor";
 import { createStore } from "solid-js/store";
 const App: Component = () => {
   const testState = createFileState({
-    doc: "\n\n\n<div></div>\n",
+    doc: "beginning\n\n\n<div></div>\n",
     pathName: "testFile.html",
-    codeLinks: [],
+    codeLinks: [{ selection: { from: 1, to: 4 }, id: "test" }],
   });
 
   const jsState = createFileState({

@@ -1,15 +1,11 @@
 import { createStore, Store } from "solid-js/store";
 import {
+  CodeLink,
   ContentNodeData,
   FileData,
   ProjectData,
   SlideData,
 } from "./projectData";
-
-export interface FileState {
-  readonly data: Store<FileData>;
-  setDoc(string): void;
-}
 
 export interface ContentNodeState {
   readonly data: Store<ContentNodeData>;
@@ -29,13 +25,32 @@ export interface ProjectState {
   serialize(): ProjectData;
 }
 
+export interface FileState {
+  readonly data: Store<FileData>;
+  setDoc(string): void;
+  addCodeLink(from: number, to: number): void;
+  getCodeLinks(): CodeLink[];
+}
+
 export function createFileState(fileData: FileData): FileState {
   const [state, setState] = createStore<FileData>(fileData);
 
   return {
     data: state,
+
     setDoc(newDoc: string) {
       setState("doc", newDoc);
+    },
+
+    getCodeLinks(): CodeLink[] {
+      return state.codeLinks;
+    },
+
+    addCodeLink(from, to) {
+      setState("codeLinks", (links) => [
+        ...links,
+        { selection: { from, to }, id: `${from}-${to}` },
+      ]);
     },
   };
 }

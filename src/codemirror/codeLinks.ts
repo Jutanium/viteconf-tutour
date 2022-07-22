@@ -6,32 +6,41 @@ import {
   showTooltip,
   Tooltip,
 } from "@codemirror/view";
+import { createEffect, on } from "solid-js";
+import { CodeLink } from "../projectData";
+import { FileState } from "../state";
 
-export const newCodeLinkEffect = StateEffect.define<{
-  from: number;
-  to: number;
-}>();
+export const newCodeLinkEffect = StateEffect.define<CodeLink>();
 
-const codeLinkMark = Decoration.mark({
-  class: "cm-t-link",
-});
+const codeLinkMark = (id) =>
+  Decoration.mark({
+    class: "cm-t-link",
+    id,
+  });
 
-const codeLinkFirstLineMark = Decoration.mark({
-  class: "cm-t-link cm-t-link-first-line pb-1 pr-full",
-});
+const codeLinkFirstLineMark = (id) =>
+  Decoration.mark({
+    class: "cm-t-link cm-t-link-first-line",
+    id,
+  });
 
-const codeLinkLastLineMark = Decoration.mark({
-  class: "cm-t-link cm-t-link-last-line pt-1 -ml-1 pl-1",
-});
+const codeLinkLastLineMark = (id) =>
+  Decoration.mark({
+    class: "cm-t-link cm-t-link-last-line",
+  });
 
-const codeLinkBetweenLine = Decoration.line({
-  class: "cm-t-link",
-});
+const codeLinkBetweenLine = (id) =>
+  Decoration.line({
+    class: "cm-t-link",
+  });
 
 export function injectExtensions(
   view: EditorView,
-  tooltipButton: (clickHandler: () => void) => HTMLElement
+  tooltipButton: (clickHandler: () => void) => HTMLElement,
+  fileState: FileState
 ) {
+  let latestDoc = null;
+
   const codeLinkField = StateField.define<DecorationSet>({
     create() {
       return Decoration.none;
@@ -39,39 +48,20 @@ export function injectExtensions(
 
     update(decorationSet, transaction) {
       decorationSet = decorationSet.map(transaction.changes);
+      latestDoc = transaction.newDoc;
+
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
-          const { from, to } = effect.value;
+          const {
+            selection: { from, to },
+            id,
+          } = effect.value;
+
           const startLine = transaction.newDoc.lineAt(from);
           const endLine = transaction.newDoc.lineAt(to);
 
-          const marks = [];
-
-          const createMarkOrLine = (mark: Decoration, from, to) =>
-            from - to === 0
-              ? codeLinkBetweenLine.range(from)
-              : mark.range(from, to);
-
-          // marks.push(codeLinkBetweenMark.range(startLine.from));
-          if (startLine.number - endLine.number == 0) {
-            marks.push(codeLinkMark.range(from, to));
-          } else {
-            marks.push(
-              createMarkOrLine(codeLinkFirstLineMark, from, startLine.to)
-            );
-            if (endLine.number - startLine.number > 1) {
-              for (let i = startLine.number + 1; i < endLine.number; i++) {
-                marks.push(
-                  codeLinkBetweenLine.range(transaction.newDoc.line(i).from)
-                );
-              }
-            }
-            if (to - endLine.from > 0) {
-              marks.push(codeLinkLastLineMark.range(endLine.from, to));
-            }
-          }
-
-          marks.sort((a, b) => a.from - b.from);
+          let marks = [];
+          marks.push(codeLinkMark("test id").range(from, to));
 
           decorationSet = decorationSet.update({
             add: [...marks],
@@ -80,7 +70,55 @@ export function injectExtensions(
       }
       return decorationSet;
     },
-    provide: (field) => EditorView.decorations.from(field),
+    provide: (field) =>
+      EditorView.decorations.from(field, (value) => {
+        let allDecorations = Decoration.set([]);
+        const iter = value.iter();
+
+        while (iter.value) {
+          const { from, to } = iter;
+          const id = iter.value.spec.id;
+
+          let marks = [];
+
+          console.log("provide runs", view.state.doc, latestDoc);
+          const startLine = latestDoc.lineAt(from);
+          const endLine = latestDoc.lineAt(to);
+
+          const createMarkOrLine = (mark: Decoration, from, to) =>
+            from - to === 0
+              ? codeLinkBetweenLine(id).range(from)
+              : mark.range(from, to);
+
+          // marks.push(codeLinkBetweenMark.range(startLine.from));
+          if (startLine.number - endLine.number == 0) {
+            marks.push(codeLinkMark("test id").range(from, to));
+          } else {
+            marks.push(
+              createMarkOrLine(codeLinkFirstLineMark(id), from, startLine.to)
+            );
+            if (endLine.number - startLine.number > 1) {
+              for (let i = startLine.number + 1; i < endLine.number; i++) {
+                marks.push(
+                  codeLinkBetweenLine(id).range(latestDoc.line(i).from)
+                );
+              }
+            }
+            if (to - endLine.from > 0) {
+              marks.push(codeLinkLastLineMark(id).range(endLine.from, to));
+            }
+          }
+
+          marks.sort((a, b) => a.from - b.from);
+
+          allDecorations = allDecorations.update({
+            add: marks,
+          });
+
+          iter.next();
+        }
+        return allDecorations;
+      }),
   });
 
   const cursorTooltipField = StateField.define<readonly Tooltip[]>({
@@ -93,17 +131,6 @@ export function injectExtensions(
 
     provide: (f) => showTooltip.computeN([f], (state) => state.field(f)),
   });
-
-  function addCodeLink(from, to) {
-    view.dispatch({
-      effects: [
-        newCodeLinkEffect.of({
-          from,
-          to,
-        }),
-      ],
-    });
-  }
 
   function getCursorTooltips(state: EditorState): readonly Tooltip[] {
     return state.selection.ranges
@@ -130,14 +157,48 @@ export function injectExtensions(
           above: true,
           arrow: true,
           create: () => {
-            const clickHandler = () => addCodeLink(range.from, range.to);
+            const clickHandler = () =>
+              fileState.addCodeLink(range.from, range.to);
             return { dom: tooltipButton(clickHandler) };
           },
         };
       });
   }
 
-  view.dispatch({
-    effects: StateEffect.appendConfig.of([codeLinkField, cursorTooltipField]),
+  const codeLinkTheme = EditorView.theme({
+    // ".cm-t-link:last-child": {
+    //   paddingRight: "100%",
+    // },
+    ".cm-t-link-first-line": {
+      paddingRight: "100%",
+      paddingBottom: "2px",
+    },
+    ".cm-t-link-last-line": {
+      paddingLeft: "1em",
+      marginLeft: "-1em",
+      paddingTop: "2px",
+    },
   });
+
+  view.dispatch({
+    effects: StateEffect.appendConfig.of([
+      codeLinkField,
+      cursorTooltipField,
+      codeLinkTheme,
+    ]),
+  });
+
+  createEffect(
+    on(
+      () => fileState.getCodeLinks(),
+      (codeLinks) => {
+        console.log("code link effect", codeLinks);
+        codeLinks.forEach((codeLink) =>
+          view.dispatch({
+            effects: [newCodeLinkEffect.of(codeLink)],
+          })
+        );
+      }
+    )
+  );
 }
