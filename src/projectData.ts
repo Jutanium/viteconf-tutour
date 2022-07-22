@@ -4,7 +4,7 @@ export type FilePath = `${string}.${FileType}`;
 export interface FileData {
   doc: string;
   pathName: FilePath;
-  codeLinks: CodeLink[];
+  codeLinks: Record<string, CodeLink>;
 }
 
 export interface ContentNodeData {}

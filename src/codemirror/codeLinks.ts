@@ -1,8 +1,16 @@
-import { EditorState, StateEffect, StateField } from "@codemirror/state";
+import {
+  EditorState,
+  RangeSet,
+  RangeValue,
+  StateEffect,
+  StateField,
+} from "@codemirror/state";
 import {
   Decoration,
   DecorationSet,
   EditorView,
+  gutter,
+  GutterMarker,
   showTooltip,
   Tooltip,
 } from "@codemirror/view";
@@ -34,23 +42,40 @@ const codeLinkBetweenLine = (id) =>
     class: "cm-t-link",
   });
 
-export function injectExtensions(
-  view: EditorView,
-  tooltipButton: (clickHandler: () => void) => HTMLElement,
-  fileState: FileState
-) {
+class CodeLinkRangeValue extends RangeValue {
+  id: string;
+  constructor(id: string) {
+    super();
+    this.id = id;
+  }
+}
+
+interface Args {
+  view: EditorView;
+  tooltipButton: (clickHandler: () => void) => HTMLElement;
+  widget: (codeLinkId: string) => Node;
+  fileState: FileState;
+}
+
+export function injectExtensions({
+  view,
+  tooltipButton,
+  fileState,
+  widget,
+}: Args) {
+  let markIds = [];
+
   const codeLinkField = StateField.define<{
-    marks: DecorationSet;
+    marks: RangeSet<CodeLinkRangeValue>;
     allDecorations: DecorationSet;
   }>({
     create() {
-      return { marks: Decoration.none, allDecorations: Decoration.none };
+      return { marks: RangeSet.empty, allDecorations: Decoration.none };
     },
 
     update({ marks, allDecorations }, transaction) {
       marks = marks.map(transaction.changes);
       console.log(marks);
-      // allDecorations = allDecorations.map(transaction.changes);
 
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
@@ -60,20 +85,22 @@ export function injectExtensions(
           } = effect.value;
 
           marks = marks.update({
-            add: [codeLinkMark(id).range(from, to)],
+            add: [new CodeLinkRangeValue(id).range(from, to)],
           });
-
-          console.log(marks);
         }
       }
 
-      //TODO: only run this for marks that ave changed
-
       allDecorations = Decoration.none;
+
       const iter = marks.iter();
+
+      let stillPresentIds: string[] = [];
+
       while (iter.value) {
         const { from, to } = iter;
-        const id = iter.value.spec.id;
+        const id = iter.value.id;
+        stillPresentIds.push(id);
+        fileState.setCodeLink(id, { selection: { from, to } });
 
         const decorations = [];
 
@@ -87,7 +114,7 @@ export function injectExtensions(
 
         // marks.push(codeLinkBetweenMark.range(startLine.from));
         if (startLine.number - endLine.number == 0) {
-          decorations.push(codeLinkMark("test id").range(from, to));
+          decorations.push(codeLinkMark(id).range(from, to));
         } else {
           decorations.push(
             createMarkOrLine(codeLinkFirstLineMark(id), from, startLine.to)
@@ -113,6 +140,14 @@ export function injectExtensions(
         iter.next();
       }
 
+      markIds
+        .filter((id) => !stillPresentIds.includes(id))
+        .forEach((id) => {
+          fileState.setCodeLink(id, undefined);
+        });
+
+      markIds = stillPresentIds;
+
       return {
         marks,
         allDecorations,
@@ -134,36 +169,39 @@ export function injectExtensions(
   });
 
   function getCursorTooltips(state: EditorState): readonly Tooltip[] {
-    return state.selection.ranges
-      .filter((range) => !range.empty)
-      .map((range) => {
-        const text = state.doc.slice(range.from, range.to);
-        const nonEmptyLine = [...text.iterLines()].findIndex(
-          (line) => line.length > 0
-        );
-        let from, to;
-        if (nonEmptyLine === -1) {
-          from = range.from;
-          to = range.to;
-        } else {
-          const line = text.lineAt(nonEmptyLine + 1);
-          from = range.from + line.from;
-          to = range.from + line.to;
-        }
+    return state.selection.ranges.map((range) => {
+      const text = state.doc.slice(range.from, range.to);
+      const nonEmptyLine = [...text.iterLines()].findIndex(
+        (line) => line.length > 0
+      );
+      let from, to;
+      if (nonEmptyLine === -1) {
+        from = range.from;
+        to = range.to;
+      } else {
+        const line = text.lineAt(nonEmptyLine + 1);
+        from = range.from + line.from;
+        to = range.from + line.to;
+      }
 
-        // console.log(state.field(codeLinkField));
+      // console.log(state.field(codeLinkField));
 
-        return {
-          pos: from + Math.round((to - from) / 2),
-          above: true,
-          arrow: true,
-          create: () => {
-            const clickHandler = () =>
-              fileState.addCodeLink(range.from, range.to);
-            return { dom: tooltipButton(clickHandler) };
-          },
-        };
-      });
+      return {
+        pos: from + Math.round((to - from) / 2),
+        above: true,
+        arrow: true,
+        create: () => {
+          const clickHandler = () =>
+            view.dispatch({
+              effects: newCodeLinkEffect.of({
+                selection: { from: range.from, to: range.to },
+                id: `-${range.from}-${range.to}`,
+              }),
+            });
+          return { dom: tooltipButton(clickHandler) };
+        },
+      };
+    });
   }
 
   const codeLinkTheme = EditorView.theme({
@@ -181,27 +219,49 @@ export function injectExtensions(
     },
   });
 
-  view.dispatch({
-    effects: StateEffect.appendConfig.of([
-      codeLinkField,
-      cursorTooltipField,
-      codeLinkTheme,
-    ]),
+  class CodeLinkMarker extends GutterMarker {
+    codeLinkId: string;
+
+    constructor(codeLinkId: string) {
+      super();
+      this.codeLinkId = codeLinkId;
+    }
+
+    toDOM() {
+      return widget(this.codeLinkId);
+    }
+  }
+
+  const codeLinkGutter = gutter({
+    markers: (view) => {
+      const ranges = view.state.field(codeLinkField).marks;
+      let gutterSet: RangeSet<GutterMarker> = RangeSet.empty;
+      const iter = ranges.iter();
+
+      while (iter.value) {
+        const { from, to, value } = iter;
+        const line = view.state.doc.lineAt(from);
+        gutterSet = gutterSet.update({
+          add: [new CodeLinkMarker(value.id).range(line.from)],
+        });
+        iter.next();
+      }
+
+      return gutterSet;
+    },
   });
 
-  createEffect(
-    on(
-      () => fileState.getCodeLinks(),
-      (codeLinks) => {
-        // codeLinks.forEach((codeLink) =>
-        console.log("code link effect", codeLinks);
-        if (codeLinks.length) {
-          view.dispatch({
-            effects: [newCodeLinkEffect.of(codeLinks[codeLinks.length - 1])],
-          });
-        }
-        // );
-      }
-    )
-  );
+  view.dispatch({
+    effects: [
+      StateEffect.appendConfig.of([
+        codeLinkField,
+        cursorTooltipField,
+        codeLinkTheme,
+        codeLinkGutter,
+      ]),
+      ...fileState
+        .getCodeLinks()
+        .map((codeLink) => newCodeLinkEffect.of(codeLink)),
+    ],
+  });
 }

@@ -8,17 +8,17 @@ import { createFileState, FileState } from "./state";
 import { TabbedEditor } from "./TabbedEditor";
 import { createStore } from "solid-js/store";
 const App: Component = () => {
-  const testState = createFileState({
-    doc: "beginning\n\n\n<div></div>\n",
-    pathName: "testFile.html",
-    codeLinks: [{ selection: { from: 1, to: 4 }, id: "test" }],
-  });
+  const testState = createFileState(
+    "beginning\n\n\n<div></div>\n",
+    "testFile.html",
+    [{ selection: { from: 1, to: 4 }, id: "test" }]
+  );
 
-  const jsState = createFileState({
-    doc: "\n\n\nconsole.log('hi')\n",
-    pathName: "testScript.js",
-    codeLinks: [],
-  });
+  const jsState = createFileState(
+    "\n\n\nconsole.log('hi')\n",
+    "testScript.js",
+    []
+  );
 
   const prefersDark = usePrefersDark();
 
@@ -43,11 +43,7 @@ const App: Component = () => {
     // const fileState = createFileState({})
     setFileStates([
       ...fileStates,
-      createFileState(
-        Object.assign({}, jsState.data, {
-          pathName: `${fileStates.length + 1}.js`,
-        })
-      ),
+      createFileState(jsState.data.doc, `${fileStates.length + 1}.js`, []),
     ]);
   }
 

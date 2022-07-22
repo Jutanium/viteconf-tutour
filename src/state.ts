@@ -3,6 +3,7 @@ import {
   CodeLink,
   ContentNodeData,
   FileData,
+  FilePath,
   ProjectData,
   SlideData,
 } from "./projectData";
@@ -28,29 +29,38 @@ export interface ProjectState {
 export interface FileState {
   readonly data: Store<FileData>;
   setDoc(string): void;
-  addCodeLink(from: number, to: number): void;
+  // addCodeLink(from: number, to: number): void;
+  // updateCodeLink(id: string, codeLink: CodeLink): void;
   getCodeLinks(): CodeLink[];
+  setCodeLink(id: string, codeLink: Omit<CodeLink, "id">): void;
 }
 
-export function createFileState(fileData: FileData): FileState {
-  const [state, setState] = createStore<FileData>(fileData);
+export function createFileState(
+  doc: string,
+  pathName: FilePath,
+  codeLinks: CodeLink[]
+): FileState {
+  const [state, setState] = createStore<FileData>({
+    doc,
+    pathName,
+    codeLinks: Object.fromEntries(
+      codeLinks.map((codeLink) => [codeLink.id, codeLink])
+    ),
+  });
 
   return {
     data: state,
 
-    setDoc(newDoc: string) {
+    setDoc(newDoc) {
       setState("doc", newDoc);
     },
 
     getCodeLinks(): CodeLink[] {
-      return state.codeLinks;
+      return Object.values(state.codeLinks);
     },
 
-    addCodeLink(from, to) {
-      setState("codeLinks", (links) => [
-        ...links,
-        { selection: { from, to }, id: `${from}-${to}` },
-      ]);
+    setCodeLink(id, codeLink) {
+      setState("codeLinks", id, codeLink);
     },
   };
 }

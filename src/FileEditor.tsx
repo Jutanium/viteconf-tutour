@@ -68,7 +68,14 @@ export const FileEditor: Component<Props> = (props) => {
       </div>
     ) as HTMLElement;
 
-  injectExtensions(view, tooltipButton, props.fileState);
+  const widget = (codeLinkId: string) => {
+    const clicked = () => {
+      console.log(codeLinkId);
+    };
+    return (<button onClick={clicked}>💬</button>) as Node;
+  };
+
+  injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
 
   onMount(() => {
     console.log("mounted", props.fileState.data.pathName);
