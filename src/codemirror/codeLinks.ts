@@ -39,16 +39,16 @@ export function injectExtensions(
   tooltipButton: (clickHandler: () => void) => HTMLElement,
   fileState: FileState
 ) {
-  let latestDoc = null;
-
-  const codeLinkField = StateField.define<DecorationSet>({
+  const codeLinkField = StateField.define<{
+    marks: DecorationSet;
+    allDecorations: DecorationSet;
+  }>({
     create() {
-      return Decoration.none;
+      return { marks: Decoration.none, allDecorations: Decoration.none };
     },
 
-    update(decorationSet, transaction) {
-      decorationSet = decorationSet.map(transaction.changes);
-      latestDoc = transaction.newDoc;
+    update({ marks, allDecorations }, transaction) {
+      marks = marks.map(transaction.changes);
 
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
@@ -57,68 +57,68 @@ export function injectExtensions(
             id,
           } = effect.value;
 
-          const startLine = transaction.newDoc.lineAt(from);
-          const endLine = transaction.newDoc.lineAt(to);
-
-          let marks = [];
-          marks.push(codeLinkMark("test id").range(from, to));
-
-          decorationSet = decorationSet.update({
-            add: [...marks],
+          marks = marks.update({
+            add: [codeLinkMark(id).range(from, to)],
           });
         }
       }
-      return decorationSet;
-    },
-    provide: (field) =>
-      EditorView.decorations.from(field, (value) => {
-        let allDecorations = Decoration.set([]);
-        const iter = value.iter();
 
-        while (iter.value) {
-          const { from, to } = iter;
-          const id = iter.value.spec.id;
+      //TODO: only run this for marks that have changed
 
-          let marks = [];
+      console.time("update");
 
-          console.log("provide runs", view.state.doc, latestDoc);
-          const startLine = latestDoc.lineAt(from);
-          const endLine = latestDoc.lineAt(to);
+      const iter = marks.iter();
+      while (iter.value) {
+        const { from, to } = iter;
+        const id = iter.value.spec.id;
 
-          const createMarkOrLine = (mark: Decoration, from, to) =>
-            from - to === 0
-              ? codeLinkBetweenLine(id).range(from)
-              : mark.range(from, to);
+        const decorations = [];
 
-          // marks.push(codeLinkBetweenMark.range(startLine.from));
-          if (startLine.number - endLine.number == 0) {
-            marks.push(codeLinkMark("test id").range(from, to));
-          } else {
-            marks.push(
-              createMarkOrLine(codeLinkFirstLineMark(id), from, startLine.to)
-            );
-            if (endLine.number - startLine.number > 1) {
-              for (let i = startLine.number + 1; i < endLine.number; i++) {
-                marks.push(
-                  codeLinkBetweenLine(id).range(latestDoc.line(i).from)
-                );
-              }
-            }
-            if (to - endLine.from > 0) {
-              marks.push(codeLinkLastLineMark(id).range(endLine.from, to));
+        const startLine = transaction.newDoc.lineAt(from);
+        const endLine = transaction.newDoc.lineAt(to);
+
+        const createMarkOrLine = (mark: Decoration, from, to) =>
+          from - to === 0
+            ? codeLinkBetweenLine(id).range(from)
+            : mark.range(from, to);
+
+        // marks.push(codeLinkBetweenMark.range(startLine.from));
+        if (startLine.number - endLine.number == 0) {
+          decorations.push(codeLinkMark("test id").range(from, to));
+        } else {
+          decorations.push(
+            createMarkOrLine(codeLinkFirstLineMark(id), from, startLine.to)
+          );
+          if (endLine.number - startLine.number > 1) {
+            for (let i = startLine.number + 1; i < endLine.number; i++) {
+              decorations.push(
+                codeLinkBetweenLine(id).range(transaction.newDoc.line(i).from)
+              );
             }
           }
-
-          marks.sort((a, b) => a.from - b.from);
-
-          allDecorations = allDecorations.update({
-            add: marks,
-          });
-
-          iter.next();
+          if (to - endLine.from > 0) {
+            decorations.push(codeLinkLastLineMark(id).range(endLine.from, to));
+          }
         }
-        return allDecorations;
-      }),
+
+        decorations.sort((a, b) => a.from - b.from);
+
+        allDecorations = allDecorations.update({
+          add: decorations,
+        });
+
+        iter.next();
+      }
+
+      console.timeEnd("update");
+
+      return {
+        marks,
+        allDecorations,
+      };
+    },
+    provide: (field) =>
+      EditorView.decorations.from(field, (field) => field.allDecorations),
   });
 
   const cursorTooltipField = StateField.define<readonly Tooltip[]>({
