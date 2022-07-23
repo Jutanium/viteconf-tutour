@@ -7,6 +7,7 @@ import { defaultLight } from "./codemirror/defaultLight";
 import { createFileState, FileState } from "./state";
 import { TabbedEditor } from "./TabbedEditor";
 import { createStore } from "solid-js/store";
+
 const App: Component = () => {
   const testState = createFileState(
     "beginning\n\n\n<div></div>\n",
@@ -55,7 +56,7 @@ const App: Component = () => {
     <>
       <button onClick={addFile}>add file</button>
       <button onClick={printData}>data</button>
-      <div>
+      <div class="h-96">
         <TabbedEditor fileStates={fileStates} theme={theme()} />
       </div>
     </>

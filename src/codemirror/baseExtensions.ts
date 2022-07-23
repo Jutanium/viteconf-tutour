@@ -39,18 +39,4 @@ export default [
   crosshairCursor(),
   highlightActiveLine(),
   highlightSelectionMatches(),
-  // EditorView.theme({
-  //   ".cm-selectionBackground": {
-  //     borderStyle: "solid",
-  //     borderColor: "#60a5fa",
-  //     borderLeftWidth: "1px",
-  //     borderRightWidth: "1px",
-  //   },
-  //   ".cm-selectionBackground:first-of-type": {
-  //     borderTopWidth: "1px",
-  //   },
-  //   ".cm-selectionBackground:last-of-type": {
-  //     borderBottomWidth: "1px",
-  //   },
-  // }),
 ];

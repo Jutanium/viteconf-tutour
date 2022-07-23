@@ -53,6 +53,9 @@ export const FileEditor: Component<Props> = (props) => {
       baseExtensions,
       languageExtensions[getFileType(props.fileState.data.pathName)](),
       themeExtension.of(props.theme),
+      EditorView.editorAttributes.of({
+        class: rootClass(props.fileState.data),
+      }),
     ],
     doc: props.fileState.data.doc,
     dispatch: (transaction) => {
@@ -98,5 +101,5 @@ export const FileEditor: Component<Props> = (props) => {
     )
   );
 
-  return <div class={rootClass(props.fileState.data)}>{view.dom}</div>;
+  return view.dom;
 };
