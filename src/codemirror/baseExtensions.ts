@@ -32,7 +32,7 @@ export default [
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
-  bracketMatching(),
+  // bracketMatching(),
   closeBrackets(),
   autocompletion(),
   rectangularSelection(),

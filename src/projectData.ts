@@ -8,20 +8,16 @@ export interface FileData {
 }
 
 export interface ContentNodeData {}
-
-export interface FromToRange {
-  from: number;
-  to: number;
-}
-
 // export interface LineRange {
 //   fromLine: number;
 //   toLine: number;
 // }
 
 export type CodeLink = {
+  from: number;
+  to?: number;
   id: string;
-} & ({ selection: FromToRange } | { position: number });
+};
 
 export interface SlideData {
   files: FileData[];

@@ -15,17 +15,14 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { createEffect, on } from "solid-js";
-import { CodeLink, FromToRange } from "../projectData";
+import { CodeLink } from "../projectData";
 import { FileState } from "../state";
 
 export const newCodeLinkEffect = StateEffect.define<{
-  id: string;
-  selection: FromToRange;
-}>();
-export const replaceWithNewCodeLink = StateEffect.define<{
   from: number;
   to: number;
   id: string;
+  replace?: boolean;
 }>();
 
 interface Args {
@@ -107,23 +104,20 @@ export function injectExtensions({
 
       for (const effect of transaction.effects) {
         if (effect.is(newCodeLinkEffect)) {
-          const {
-            selection: { from, to },
-            id,
-          } = effect.value;
+          const { from, to, id, replace } = effect.value;
+
+          if (replace) {
+            inserts = inserts.update({
+              add: [codeLinkReplace(id).range(from, to)],
+            });
+            continue;
+          }
 
           if (from - to) {
             marks = marks.update({
               add: [codeLinkMark(id).range(from, to)],
             });
           }
-          continue;
-        }
-        if (effect.is(replaceWithNewCodeLink)) {
-          const { from, to, id } = effect.value;
-          inserts = inserts.update({
-            add: [codeLinkReplace(id).range(from, to)],
-          });
           continue;
         }
       }
@@ -140,7 +134,7 @@ export function injectExtensions({
         const { from, to } = iter;
         const id = iter.value.spec.id;
         stillPresentIds.push(id);
-        fileState.setCodeLink(id, { selection: { from, to } });
+        fileState.setCodeLink(id, { from, to });
 
         const startLine = transaction.newDoc.lineAt(from);
         const endLine = transaction.newDoc.lineAt(to);
@@ -177,7 +171,7 @@ export function injectExtensions({
         const { from, to } = iiter;
         const id = iiter.value.spec.id;
         stillPresentIds.push(id);
-        fileState.setCodeLink(id, { position: from });
+        fileState.setCodeLink(id, { from });
         console.log(stillPresentIds);
         decorations.push(codeLinkReplace(id).range(from, to));
         iiter.next();
@@ -206,6 +200,21 @@ export function injectExtensions({
     provide: (field) =>
       EditorView.decorations.from(field, (field) => field.allDecorations),
   });
+
+  function addCodeLink(codeLink: CodeLink) {
+    const inserting =
+      !Number.isInteger(codeLink.to) || codeLink.from - codeLink.to === 0;
+    const effect = newCodeLinkEffect.of({
+      from: codeLink.from,
+      to: inserting ? codeLink.from + 1 : codeLink.to,
+      id: codeLink.id,
+      replace: inserting,
+    });
+    view.dispatch({
+      ...(inserting && { from: codeLink.from, insert: " " }),
+      effects: effect,
+    });
+  }
 
   const cursorTooltipField = StateField.define<readonly Tooltip[]>({
     create: getCursorTooltips,
@@ -242,25 +251,10 @@ export function injectExtensions({
         arrow: true,
         create: () => {
           const clickHandler = () => {
-            if (range.from - range.to === 0) {
-              view.dispatch({
-                changes: {
-                  from: range.from,
-                  insert: " ",
-                },
-                effects: replaceWithNewCodeLink.of({
-                  from: range.from,
-                  to: range.from + 1,
-                  id: `${range.from}-${range.from + 1}`,
-                }),
-              });
-              return;
-            }
-            view.dispatch({
-              effects: newCodeLinkEffect.of({
-                selection: { from: range.from, to: range.to },
-                id: `${range.from}-${range.to}`,
-              }),
+            addCodeLink({
+              from: range.from,
+              to: range.to,
+              id: `${fileState.data.pathName}-${range.from}-${range.to}`,
             });
           };
           return { dom: tooltipButton(clickHandler) };
@@ -324,9 +318,8 @@ export function injectExtensions({
         codeLinkTheme,
         codeLinkGutter,
       ]),
-      ...fileState
-        .getCodeLinks()
-        .map((codeLink) => newCodeLinkEffect.of(codeLink)),
     ],
   });
+
+  fileState.getCodeLinks().forEach(addCodeLink);
 }

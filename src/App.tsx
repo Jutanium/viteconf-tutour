@@ -11,7 +11,7 @@ const App: Component = () => {
   const testState = createFileState(
     "beginning\n\n\n<div></div>\n",
     "testFile.html",
-    [{ selection: { from: 1, to: 4 }, id: "test" }]
+    [{ from: 1, to: 4, id: "test" }]
   );
 
   const jsState = createFileState(
