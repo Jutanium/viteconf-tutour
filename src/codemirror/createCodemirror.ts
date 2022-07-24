@@ -3,7 +3,7 @@ import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
 import { markdown } from "@codemirror/lang-markdown";
-import { Extension, Transaction, Compartment } from "@codemirror/state";
+import { ChangeSet, Compartment, Extension } from "@codemirror/state";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
 import { FileType } from "../state/projectData";
@@ -20,42 +20,55 @@ const languageExtensions: { [Language in FileType]: () => Extension } = {
   md: () => markdown(),
 };
 
-const createCodemirror = (options: {
+interface Options {
   language: FileType;
   rootClass?: string;
   staticExtension?: Extension;
   reactiveExtension?: Accessor<Extension>;
   startingDoc: string;
-  onUpdate?: (transaction: Transaction, view: EditorView) => void;
-}) => {
+  onUpdate?: (changes: ChangeSet, view: EditorView) => void;
+}
+
+const createCodemirror = (options: Options) => {
   const languageExtension = languageExtensions[options.language]();
   const reactiveCompartment = new Compartment();
+
+  const ifOption = <T extends keyof Options>(
+    optionName: T,
+    extensionFromOption: (option: Options[T]) => Extension
+  ): Extension[] =>
+    options[optionName] ? [extensionFromOption(options[optionName])] : [];
 
   const extensions = [
     baseExtensions,
     languageExtension,
-    ...(options.staticExtension ? [options.staticExtension] : []),
-    ...(options.reactiveExtension
-      ? [reactiveCompartment.of(options.reactiveExtension())]
-      : []),
-    ...(options.rootClass
-      ? [
-          EditorView.editorAttributes.of({
-            class: options.rootClass,
-          }),
-        ]
-      : []),
+    ...ifOption("staticExtension", (value) => value),
+    ...ifOption("reactiveExtension", (value) =>
+      reactiveCompartment.of(value())
+    ),
+    ...ifOption("rootClass", (value) =>
+      EditorView.editorAttributes.of({
+        class: value,
+      })
+    ),
+    ...ifOption("onUpdate", (value) =>
+      EditorView.updateListener.of((update) => {
+        if (update.changes) {
+          value(update.changes, view);
+        }
+      })
+    ),
   ];
 
   const view = new EditorView({
     extensions,
     doc: options.startingDoc,
-    dispatch: (transaction) => {
-      view.update([transaction]);
-      if (options.onUpdate) {
-        options.onUpdate(transaction, view);
-      }
-    },
+    // dispatch: (transaction) => {
+    //   view.update([transaction]);
+    //   if (options.onUpdate) {
+    //     options.onUpdate(transaction, view);
+    //   }
+    // },
   });
 
   createEffect(
