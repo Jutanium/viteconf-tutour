@@ -30,6 +30,11 @@ const TiptapExperiment: Component<{}> = (props) => {
         }),
       ];
     },
+    editorProps: {
+      attributes: {
+        class: "prose",
+      },
+    },
     content: initialContent,
     autofocus: true,
     editable: true,

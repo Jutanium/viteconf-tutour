@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@unocss/preset-typography": "^0.44.7",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.12",
     "typescript": "^4.7.4",

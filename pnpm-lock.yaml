@@ -16,12 +16,14 @@ specifiers:
   '@tiptap/core': ^2.0.0-beta.182
   '@tiptap/extension-bubble-menu': 2.0.0-beta.61
   '@tiptap/starter-kit': ^2.0.0-beta.191
+  '@unocss/preset-typography': ^0.44.7
   '@unocss/reset': ^0.44.3
   codemirror: ^6.0.1
   prettier: ^2.7.1
   prettier-plugin-tailwindcss: ^0.1.12
   solid-app-router: ^0.4.1
   solid-js: ^1.4.7
+  solid-tiptap: ^0.3.3
   typescript: ^4.7.4
   unocss: ^0.44.3
   vite: ^3.0.0
@@ -47,8 +49,10 @@ dependencies:
   codemirror: 6.0.1
   solid-app-router: 0.4.1_solid-js@1.4.7
   solid-js: 1.4.7
+  solid-tiptap: 0.3.3_cb2o4xv3ucbipufj36a4kgft64
 
 devDependencies:
+  '@unocss/preset-typography': 0.44.7
   prettier: 2.7.1
   prettier-plugin-tailwindcss: 0.1.12_prettier@2.7.1
   typescript: 4.7.4
@@ -879,6 +883,10 @@ packages:
     resolution: {integrity: sha512-UXKEefjIRqsGzd3IpsblCHv5udUuTRFrhg9sH6VCAgM+5D8vJwVkWJMcpnvKD9Bue915qFHqkXVc/A4DlUv5gw==}
     dev: true
 
+  /@unocss/core/0.44.7:
+    resolution: {integrity: sha512-EPs3IxvPdzxEkEynAyCqyJX25IPp5RtFK3mFdgmXGvigwpgq9sxJBzQRXmYNtDeZriSyiwjYmc9yclLEJH3IiA==}
+    dev: true
+
   /@unocss/inspector/0.44.3:
     resolution: {integrity: sha512-iOfUqa89d/S+YLHQV0ERjyv9Nz4H9vV8c0cZgtwScgJSkrX9Gf/XQ8A1osv9Ues97bfotLIdDSfzVbk76MEZdQ==}
     dependencies:
@@ -918,6 +926,12 @@ packages:
     resolution: {integrity: sha512-rpb0+CgICzBZoREnG7tDxc3d5i297C/o1WtDoPVCVf9SXpKbdBG1BvS+esAjGdflSZtD/tKU9jjq0yCrORMhWA==}
     dependencies:
       '@unocss/core': 0.44.3
+    dev: true
+
+  /@unocss/preset-typography/0.44.7:
+    resolution: {integrity: sha512-2YAkIuClWIgi0F95VFMz0cY8wPmngpxlKE8wRNF29hZ5Qvz+MfFDe6ECypApKUDMP2+dfhAHwXu9MlN/Vgnr5A==}
+    dependencies:
+      '@unocss/core': 0.44.7
     dev: true
 
   /@unocss/preset-uno/0.44.3:
@@ -1919,6 +1933,17 @@ packages:
       '@babel/types': 7.18.8
       solid-js: 1.4.7
     dev: true
+
+  /solid-tiptap/0.3.3_cb2o4xv3ucbipufj36a4kgft64:
+    resolution: {integrity: sha512-3G0b9RJI2PliCyMUX1r2EhIYxUiufSJCWRx6PG1Ai3s0r4L6ZtXnuqV5swpCc1MTx8oYZ4ifPS0i298pUr1E+g==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@tiptap/core': ^2.0.0-beta.102
+      solid-js: ^1.2.0
+    dependencies:
+      '@tiptap/core': 2.0.0-beta.182
+      solid-js: 1.4.7
+    dev: false
 
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
