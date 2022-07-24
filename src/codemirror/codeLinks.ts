@@ -211,7 +211,7 @@ export function injectExtensions({
       replace: inserting,
     });
     view.dispatch({
-      ...(inserting && { from: codeLink.from, insert: " " }),
+      ...(inserting && { changes: { from: codeLink.from, insert: " " } }),
       effects: effect,
     });
   }

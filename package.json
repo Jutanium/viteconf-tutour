@@ -29,8 +29,13 @@
     "@codemirror/view": "^6.0.3",
     "@lezer/highlight": "^1.0.0",
     "@solid-primitives/media": "^2.0.0",
+    "@tiptap/core": "^2.0.0-beta.182",
+    "@tiptap/extension-bubble-menu": "2.0.0-beta.61",
+    "@tiptap/starter-kit": "^2.0.0-beta.191",
     "@unocss/reset": "^0.44.3",
     "codemirror": "^6.0.1",
-    "solid-js": "^1.4.7"
+    "solid-app-router": "^0.4.1",
+    "solid-js": "^1.4.7",
+    "solid-tiptap": "^0.3.3"
   }
 }
