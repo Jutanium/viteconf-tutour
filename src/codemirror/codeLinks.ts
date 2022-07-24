@@ -15,8 +15,8 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { createEffect, on } from "solid-js";
-import { CodeLink } from "../projectData";
-import { FileState } from "../state";
+import { CodeLink } from "../state/projectData";
+import { FileState } from "../state/state";
 
 export const newCodeLinkEffect = StateEffect.define<{
   from: number;

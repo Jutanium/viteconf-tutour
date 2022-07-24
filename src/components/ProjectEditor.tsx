@@ -1,9 +1,10 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import { Component, createEffect, createMemo } from "solid-js";
 import { createStore } from "solid-js/store";
-import { defaultDark } from "./codemirror/defaultDark";
-import { defaultLight } from "./codemirror/defaultLight";
-import { createFileState } from "./state";
+import { defaultDark } from "../codemirror/defaultDark";
+import { defaultLight } from "../codemirror/defaultLight";
+import { createFileState } from "../state/state";
+import { ThemeProvider, useTheme } from "../state/theme";
 import { TabbedEditor } from "./TabbedEditor";
 
 const ProjectEditor: Component<{}> = (props) => {
@@ -21,8 +22,11 @@ const ProjectEditor: Component<{}> = (props) => {
 
   const prefersDark = usePrefersDark();
 
-  const theme = createMemo(() => {
-    return prefersDark() ? defaultDark : defaultLight;
+  const themeExtension = createMemo(() => {
+    const theme = useTheme();
+    return prefersDark()
+      ? theme.codemirror.darkTheme
+      : theme.codemirror.lightTheme;
   });
 
   createEffect(() => {
@@ -40,7 +44,7 @@ const ProjectEditor: Component<{}> = (props) => {
 
   return (
     <div class="h-96">
-      <TabbedEditor fileStates={fileStates} theme={theme()} />
+      <TabbedEditor fileStates={fileStates} themeExtension={themeExtension()} />
     </div>
   );
 };

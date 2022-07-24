@@ -113,7 +113,7 @@ export const defaultLightTheme = EditorView.theme(
       },
     },
     ".cm-t-link": {
-      backgroundColor: "#57534e",
+      backgroundColor: "yellow",
     },
   },
   { dark: false }

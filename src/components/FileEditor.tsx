@@ -1,6 +1,13 @@
-import { Component, createEffect, on, onCleanup, onMount } from "solid-js";
-import { createFileState, FileState } from "./state";
-import baseExtensions from "./codemirror/baseExtensions";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+} from "solid-js";
+import { createFileState, FileState } from "../state/state";
+import baseExtensions from "../codemirror/baseExtensions";
 import { EditorView } from "codemirror";
 import {
   Compartment,
@@ -17,7 +24,12 @@ import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
-import { FileType, FileData, getFileType, CodeLink } from "./projectData";
+import {
+  FileType,
+  FileData,
+  getFileType,
+  CodeLink,
+} from "../state/projectData";
 import {
   DecorationSet,
   Decoration,
@@ -25,7 +37,8 @@ import {
   Tooltip,
 } from "@codemirror/view";
 
-import { injectExtensions } from "./codemirror/codeLinks";
+import { injectExtensions } from "../codemirror/codeLinks";
+import { useTheme } from "../state/theme";
 
 const languageExtensions: { [Language in FileType]: () => Extension } = {
   js: () => javascript(),
@@ -39,22 +52,21 @@ const languageExtensions: { [Language in FileType]: () => Extension } = {
 
 interface Props {
   fileState: FileState;
-  theme: Extension;
-  rootClass?: (file: FileData) => string;
+  themeExtension: Extension;
 }
 
 export const FileEditor: Component<Props> = (props) => {
-  const rootClass = props.rootClass || (() => "w-full h-full");
+  const theme = useTheme();
 
-  const themeExtension = new Compartment();
+  const themeCompartment = new Compartment();
 
   const view = new EditorView({
     extensions: [
       baseExtensions,
       languageExtensions[getFileType(props.fileState.data.pathName)](),
-      themeExtension.of(props.theme),
+      themeCompartment.of(props.themeExtension),
       EditorView.editorAttributes.of({
-        class: rootClass(props.fileState.data),
+        class: theme.codemirror.root(props.fileState.data),
       }),
     ],
     doc: props.fileState.data.doc,
@@ -64,6 +76,7 @@ export const FileEditor: Component<Props> = (props) => {
     },
   });
 
+  const [signal, setSignal] = createSignal(5);
   const tooltipButton = (addCodeLink: () => void) =>
     (
       <div class="dark:text-black text-white p-1">
@@ -91,10 +104,10 @@ export const FileEditor: Component<Props> = (props) => {
 
   createEffect(
     on(
-      () => props.theme,
+      () => props.themeExtension,
       (newTheme) => {
         view.dispatch({
-          effects: themeExtension.reconfigure(newTheme),
+          effects: themeCompartment.reconfigure(newTheme),
         });
       },
       { defer: true }
