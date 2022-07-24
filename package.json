@@ -24,6 +24,7 @@
     "@codemirror/lang-html": "^6.1.0",
     "@codemirror/lang-javascript": "^6.0.1",
     "@codemirror/lang-json": "^6.0.0",
+    "@codemirror/lang-markdown": "^6.0.0",
     "@codemirror/language": "^6.2.0",
     "@codemirror/search": "^6.0.0",
     "@codemirror/state": "^6.1.0",
@@ -35,6 +36,8 @@
     "@tiptap/starter-kit": "^2.0.0-beta.191",
     "@unocss/reset": "^0.44.3",
     "codemirror": "^6.0.1",
+    "prosemirror-markdown": "^1.9.3",
+    "prosemirror-model": "^1.18.1",
     "solid-app-router": "^0.4.1",
     "solid-js": "^1.4.7",
     "solid-tiptap": "^0.3.3"

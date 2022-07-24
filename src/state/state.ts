@@ -1,4 +1,5 @@
 import { createStore, Store } from "solid-js/store";
+import { FileEditor } from "../components/FileEditor";
 import {
   CodeLink,
   ContentNodeData,
@@ -7,24 +8,6 @@ import {
   ProjectData,
   SlideData,
 } from "./projectData";
-
-export interface ContentNodeState {
-  readonly data: Store<ContentNodeData>;
-  setData(string): void;
-}
-
-export interface SlideState {
-  readonly files: Store<FileState[]>;
-  addFile(file: FileData): void;
-  removeFile(pathName: string): void;
-  serialize(): SlideData;
-}
-
-export interface ProjectState {
-  readonly slides: Store<SlideState[]>;
-  addSlide(insertAfter?: number): void;
-  serialize(): ProjectData;
-}
 
 export interface FileState {
   readonly data: Store<FileData>;
@@ -64,3 +47,33 @@ export function createFileState(
     },
   };
 }
+
+export function createSlideState() {
+  const [files, setFiles] = createStore<FileState[]>([]);
+
+  const addFile = (...args: Parameters<typeof createFileState>) => {
+    setFiles((files) => [...files, createFileState(...args)]);
+  };
+
+  const removeFile = (pathName: string) => {
+    setFiles((files) =>
+      files.filter((file) => file.data.pathName !== pathName)
+    );
+  };
+
+  const serialize: () => SlideData = () => ({
+    files: files.map((file) => file.data),
+    content: [],
+  });
+
+  return {
+    files,
+    addFile,
+    removeFile,
+    serialize,
+  };
+}
+
+export function createProjectState() {}
+
+export type SlideState = ReturnType<typeof createSlideState>;

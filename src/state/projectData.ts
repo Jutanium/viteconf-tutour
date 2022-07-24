@@ -1,4 +1,12 @@
-export type FileType = "html" | "js" | "jsx" | "tsx" | "ts" | "css" | "json";
+export type FileType =
+  | "html"
+  | "js"
+  | "jsx"
+  | "tsx"
+  | "ts"
+  | "css"
+  | "json"
+  | "md";
 export type FilePath = `${string}.${FileType}`;
 
 export interface FileData {
@@ -7,7 +15,7 @@ export interface FileData {
   codeLinks: Record<string, CodeLink>;
 }
 
-export interface ContentNodeData {}
+export interface ContentData {}
 // export interface LineRange {
 //   fromLine: number;
 //   toLine: number;
@@ -21,7 +29,7 @@ export type CodeLink = {
 
 export interface SlideData {
   files: FileData[];
-  content: ContentNodeData[];
+  content: ContentData[];
 }
 
 export interface ProjectData {

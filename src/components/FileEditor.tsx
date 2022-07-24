@@ -1,54 +1,12 @@
-import {
-  Component,
-  createEffect,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-} from "solid-js";
-import { createFileState, FileState } from "../state/state";
-import baseExtensions from "../codemirror/baseExtensions";
-import { EditorView } from "codemirror";
-import {
-  Compartment,
-  EditorState,
-  Extension,
-  Range,
-  RangeSet,
-  RangeSetBuilder,
-  RangeValue,
-  StateEffect,
-  StateField,
-} from "@codemirror/state";
-import { javascript } from "@codemirror/lang-javascript";
-import { html } from "@codemirror/lang-html";
-import { css } from "@codemirror/lang-css";
-import { json } from "@codemirror/lang-json";
-import {
-  FileType,
-  FileData,
-  getFileType,
-  CodeLink,
-} from "../state/projectData";
-import {
-  DecorationSet,
-  Decoration,
-  showTooltip,
-  Tooltip,
-} from "@codemirror/view";
+import { Extension } from "@codemirror/state";
+import { lineNumbers } from "@codemirror/view";
+import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { getFileType } from "../state/projectData";
+import { FileState } from "../state/state";
 
 import { injectExtensions } from "../codemirror/codeLinks";
+import createCodemirror from "../codemirror/createCodemirror";
 import { useTheme } from "../state/theme";
-
-const languageExtensions: { [Language in FileType]: () => Extension } = {
-  js: () => javascript(),
-  ts: () => javascript({ typescript: true }),
-  jsx: () => javascript({ jsx: true }),
-  tsx: () => javascript({ jsx: true, typescript: true }),
-  css: () => css(),
-  json: () => json(),
-  html: () => html(),
-};
 
 interface Props {
   fileState: FileState;
@@ -58,22 +16,13 @@ interface Props {
 export const FileEditor: Component<Props> = (props) => {
   const theme = useTheme();
 
-  const themeCompartment = new Compartment();
-
-  const view = new EditorView({
-    extensions: [
-      baseExtensions,
-      languageExtensions[getFileType(props.fileState.data.pathName)](),
-      themeCompartment.of(props.themeExtension),
-      EditorView.editorAttributes.of({
-        class: theme.codemirror.root(props.fileState.data),
-      }),
-    ],
-    doc: props.fileState.data.doc,
-    dispatch: (transaction) => {
-      view.update([transaction]);
-      props.fileState.setDoc(view.state.doc);
-    },
+  const { view } = createCodemirror({
+    language: getFileType(props.fileState.data.pathName),
+    rootClass: theme.codemirror.root(props.fileState.data),
+    staticExtension: [lineNumbers()],
+    reactiveExtension: () => props.themeExtension,
+    startingDoc: props.fileState.data.doc,
+    onUpdate: (transaction, view) => props.fileState.setDoc(view.state.doc),
   });
 
   const [signal, setSignal] = createSignal(5);
@@ -101,18 +50,6 @@ export const FileEditor: Component<Props> = (props) => {
     view.destroy();
     console.log("cleaned up", props.fileState.data.pathName);
   });
-
-  createEffect(
-    on(
-      () => props.themeExtension,
-      (newTheme) => {
-        view.dispatch({
-          effects: themeCompartment.reconfigure(newTheme),
-        });
-      },
-      { defer: true }
-    )
-  );
 
   return view.dom;
 };

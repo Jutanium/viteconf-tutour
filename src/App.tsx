@@ -8,7 +8,7 @@ const App: Component = () => (
   <>
     <ThemeProvider>
       <Routes>
-        <Route path="/editor" component={ProjectEditor} />
+        <Route path="/" component={ProjectEditor} />
         <Route path="/tiptap" component={TiptapExperiment} />
       </Routes>
     </ThemeProvider>

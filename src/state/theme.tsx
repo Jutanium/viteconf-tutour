@@ -1,4 +1,9 @@
 import { FileData } from "./projectData";
+import { createContext, useContext, ParentComponent } from "solid-js";
+import { createStore } from "solid-js/store";
+import { Extension } from "@codemirror/state";
+import { defaultDark } from "../codemirror/defaultDark";
+import { defaultLight } from "../codemirror/defaultLight";
 
 export interface ThemeConfig {
   tabbedEditorRoot: () => string;
@@ -30,12 +35,6 @@ export const defaultTheme: ThemeConfig = {
     lightTheme: defaultLight,
   },
 };
-
-import { createContext, useContext, ParentComponent } from "solid-js";
-import { createStore } from "solid-js/store";
-import { Extension } from "@codemirror/state";
-import { defaultDark } from "../codemirror/defaultDark";
-import { defaultLight } from "../codemirror/defaultLight";
 
 const ThemeContext = createContext<ThemeConfig>();
 
