@@ -2,8 +2,9 @@ import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
-import { markdown } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { ChangeSet, Compartment, Extension } from "@codemirror/state";
+import { languages } from "@codemirror/language-data";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
 import { FileType } from "../state/projectData";
@@ -17,7 +18,12 @@ const languageExtensions: { [Language in FileType]: () => Extension } = {
   css: () => css(),
   json: () => json(),
   html: () => html(),
-  md: () => markdown(),
+  md: () =>
+    markdown({
+      codeLanguages: languages,
+      defaultCodeLanguage: languageExtensions.tsx(),
+      base: markdownLanguage,
+    }),
 };
 
 interface Options {

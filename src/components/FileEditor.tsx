@@ -22,13 +22,12 @@ export const FileEditor: Component<Props> = (props) => {
     staticExtension: [lineNumbers()],
     reactiveExtension: () => props.themeExtension,
     startingDoc: props.fileState.data.doc,
-    onUpdate: (transaction, view) => props.fileState.setDoc(view.state.doc),
+    onUpdate: (changeSet, view) => props.fileState.setDoc(view.state.doc),
   });
 
-  const [signal, setSignal] = createSignal(5);
   const tooltipButton = (addCodeLink: () => void) =>
     (
-      <div class="dark:text-black text-white p-1">
+      <div class="p-1 text-white ">
         <button onClick={addCodeLink}>Link</button>
       </div>
     ) as HTMLElement;

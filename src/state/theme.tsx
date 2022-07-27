@@ -4,13 +4,14 @@ import { createStore } from "solid-js/store";
 import { Extension } from "@codemirror/state";
 import { defaultDark } from "../codemirror/defaultDark";
 import { defaultLight } from "../codemirror/defaultLight";
+import { oneDark } from "@codemirror/theme-one-dark";
 
 export interface ThemeConfig {
   tabbedEditorRoot: () => string;
   tablist: () => string;
   tablistItem: (selected: boolean, file: FileData, index: number) => string;
   codemirror: {
-    root: (file: FileData) => string;
+    root: (file: FileData | "content") => string;
     darkTheme: Extension;
     lightTheme: Extension;
   };
@@ -30,8 +31,8 @@ export const defaultTheme: ThemeConfig = {
     return `${base} ${dark} ${highlighted} ${alternate}`;
   },
   codemirror: {
-    root: (file: FileData) => "w-full h-full",
-    darkTheme: defaultDark,
+    root: (file: FileData | "content") => "w-full h-full",
+    darkTheme: oneDark,
     lightTheme: defaultLight,
   },
 };
