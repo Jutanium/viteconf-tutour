@@ -19,7 +19,7 @@ export interface ThemeConfig {
 
 export const defaultTheme: ThemeConfig = {
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
-  tablist: () => "w-full flex px-1",
+  tablist: () => "w-full flex",
   tablistItem: (selected: boolean, file: FileData, index: number) => {
     const base = `border-b-2 font-mono font-semibold px-1 text-sm border-r-0`;
     const highlighted = selected

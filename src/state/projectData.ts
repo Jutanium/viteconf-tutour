@@ -15,11 +15,9 @@ export interface FileData {
   codeLinks: Record<string, CodeLink>;
 }
 
-export interface ContentData {}
-// export interface LineRange {
-//   fromLine: number;
-//   toLine: number;
-// }
+export interface ContentData {
+  markdown: string;
+}
 
 export type CodeLink = {
   from: number;
@@ -29,7 +27,7 @@ export type CodeLink = {
 
 export interface SlideData {
   files: FileData[];
-  content: ContentData[];
+  content: ContentData;
 }
 
 export interface ProjectData {

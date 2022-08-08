@@ -1,8 +1,9 @@
+import { Text } from "@codemirror/state";
 import { createStore, Store } from "solid-js/store";
 import { FileEditor } from "../components/FileEditor";
 import {
   CodeLink,
-  ContentNodeData,
+  ContentData,
   FileData,
   FilePath,
   ProjectData,
@@ -11,14 +12,14 @@ import {
 
 export interface FileState {
   readonly data: Store<FileData>;
-  setDoc(string): void;
+  setDoc(doc: Text): void;
   // addCodeLink(from: number, to: number): void;
   // updateCodeLink(id: string, codeLink: CodeLink): void;
   getCodeLinks(): CodeLink[];
   setCodeLink(id: string, codeLink: Omit<CodeLink, "id">): void;
 }
 
-export function createFileState(
+function createFileState(
   doc: string,
   pathName: FilePath,
   codeLinks: CodeLink[]
@@ -35,7 +36,8 @@ export function createFileState(
     data: state,
 
     setDoc(newDoc) {
-      setState("doc", newDoc);
+      const string = newDoc.sliceString(0);
+      setState("doc", string);
     },
 
     getCodeLinks(): CodeLink[] {
@@ -50,6 +52,7 @@ export function createFileState(
 
 export function createSlideState() {
   const [files, setFiles] = createStore<FileState[]>([]);
+  const [content, setContent] = createStore<ContentData>({ markdown: "" });
 
   const addFile = (...args: Parameters<typeof createFileState>) => {
     setFiles((files) => [...files, createFileState(...args)]);
@@ -63,11 +66,17 @@ export function createSlideState() {
 
   const serialize: () => SlideData = () => ({
     files: files.map((file) => file.data),
-    content: [],
+    content,
   });
 
   return {
     files,
+    getMarkdown() {
+      return content.markdown;
+    },
+    setMarkdown(markdown: Text) {
+      setContent("markdown", markdown.sliceString(0));
+    },
     addFile,
     removeFile,
     serialize,

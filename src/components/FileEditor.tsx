@@ -1,6 +1,12 @@
 import { Extension } from "@codemirror/state";
 import { lineNumbers } from "@codemirror/view";
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import { getFileType } from "../state/projectData";
 import { FileState } from "../state/state";
 
@@ -23,6 +29,10 @@ export const FileEditor: Component<Props> = (props) => {
     reactiveExtension: () => props.themeExtension,
     startingDoc: props.fileState.data.doc,
     onUpdate: (changeSet, view) => props.fileState.setDoc(view.state.doc),
+  });
+
+  createEffect(() => {
+    console.log(props.fileState.data.doc);
   });
 
   const tooltipButton = (addCodeLink: () => void) =>

@@ -1,23 +1,20 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import { Component, createEffect, createMemo } from "solid-js";
 import { createStore } from "solid-js/store";
-import { createFileState } from "../state/state";
+import { createFileState, createSlideState } from "../state/state";
 import { ThemeProvider, useTheme } from "../state/theme";
 import { TabbedEditor } from "./TabbedEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
+import { ContentEditor } from "./ContentEditor";
 
 const ProjectEditor: Component<{}> = (props) => {
-  const testState = createFileState(
-    "beginning\n\n\n<div></div>\n",
-    "testFile.html",
-    [{ from: 1, to: 4, id: "test" }]
-  );
+  const testSlide = createSlideState();
 
-  const jsState = createFileState(
-    "\n\n\nconsole.log('hi')\n",
-    "testScript.js",
-    []
-  );
+  testSlide.addFile("beginning\n\n\n<div></div>\n", "testFile.html", [
+    { from: 1, to: 4, id: "test" },
+  ]);
+
+  testSlide.addFile("\n\n\nconsole.log('hi')\n", "testScript.js", []);
 
   const prefersDark = usePrefersDark();
 
@@ -39,14 +36,18 @@ const ProjectEditor: Component<{}> = (props) => {
     }
   });
 
-  const [fileStates, setFileStates] = createStore([testState, jsState]);
-
   return (
     <div class="flex h-96">
       <div class="w-1/2">
-        <MarkdownEditor themeExtension={themeExtension()} />
+        <ContentEditor
+          themeExtension={themeExtension()}
+          slideState={testSlide}
+        />
       </div>
-      <TabbedEditor fileStates={fileStates} themeExtension={themeExtension()} />
+      <TabbedEditor
+        fileStates={testSlide.files}
+        themeExtension={themeExtension()}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { Extension } from "@codemirror/state";
+import { Extension, Text } from "@codemirror/state";
 import { tags } from "@lezer/highlight";
 import { Component } from "solid-js";
 import createCodemirror from "../codemirror/createCodemirror";
@@ -19,9 +19,11 @@ const markdownHighlighting = HighlightStyle.define([
   { tag: tags.heading3, fontSize: "1.2em", fontWeight: "bold" },
 ]);
 
-export const MarkdownEditor: Component<{ themeExtension: Extension }> = (
-  props
-) => {
+export const MarkdownEditor: Component<{
+  themeExtension: Extension;
+  startingMarkdown: string;
+  updateMarkdown: (markdown: Text) => void;
+}> = (props) => {
   const theme = useTheme();
 
   const { view } = createCodemirror({
@@ -29,8 +31,8 @@ export const MarkdownEditor: Component<{ themeExtension: Extension }> = (
     rootClass: theme.codemirror.root("content"),
     staticExtension: [syntaxHighlighting(markdownHighlighting)],
     reactiveExtension: () => props.themeExtension,
-    startingDoc: "",
-    // onUpdate: (transaction, view) => props.fileState.setDoc(view.state.doc),
+    startingDoc: props.startingMarkdown,
+    onUpdate: (transaction, view) => props.updateMarkdown(view.state.doc),
   });
 
   return view.dom;
