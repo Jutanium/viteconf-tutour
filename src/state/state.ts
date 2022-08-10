@@ -74,7 +74,11 @@ export function createSlideState() {
     getMarkdown() {
       return content.markdown;
     },
-    setMarkdown(markdown: Text) {
+    setMarkdown(markdown: Text | string) {
+      if (typeof markdown === "string") {
+        setContent("markdown", markdown);
+        return;
+      }
       setContent("markdown", markdown.sliceString(0));
     },
     addFile,

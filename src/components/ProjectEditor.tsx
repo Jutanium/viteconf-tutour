@@ -16,6 +16,16 @@ const ProjectEditor: Component<{}> = (props) => {
 
   testSlide.addFile("\n\n\nconsole.log('hi')\n", "testScript.js", []);
 
+  testSlide.setMarkdown(`# Testing
+more stuff
+## Asdf
+etc
+### aasdfasdf
+asdf
+#### asdfasdf
+asfasdf
+  `);
+
   const prefersDark = usePrefersDark();
 
   const themeExtension = createMemo(() => {

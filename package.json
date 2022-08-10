@@ -38,6 +38,7 @@
     "@tiptap/starter-kit": "^2.0.0-beta.191",
     "@unocss/reset": "^0.44.3",
     "codemirror": "^6.0.1",
+    "micromark": "^3.0.10",
     "prosemirror-markdown": "^1.9.3",
     "prosemirror-model": "^1.18.1",
     "solid-app-router": "^0.4.1",
