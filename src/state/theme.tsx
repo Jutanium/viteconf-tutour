@@ -5,6 +5,7 @@ import { Extension } from "@codemirror/state";
 import { defaultDark } from "../codemirror/defaultDark";
 import { defaultLight } from "../codemirror/defaultLight";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { EditorView } from "codemirror";
 
 export interface ThemeConfig {
   tabbedEditorRoot: () => string;
@@ -32,7 +33,14 @@ export const defaultTheme: ThemeConfig = {
   },
   codemirror: {
     root: (file: FileData | "content") => "w-full h-full",
-    darkTheme: oneDark,
+    darkTheme: [
+      oneDark,
+      EditorView.theme({
+        ".cm-t-link": {
+          backgroundColor: "#57534e",
+        },
+      }),
+    ],
     lightTheme: defaultLight,
   },
 };

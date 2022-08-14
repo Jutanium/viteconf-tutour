@@ -12,6 +12,10 @@ export const ContentEditor: Component<{
   const [previewMode, setPreviewMode] = createSignal(false);
   const togglePreviewMode = () => setPreviewMode((mode) => !mode);
 
+  createEffect(() => {
+    console.log(props.slideState.getCodeLinks());
+  })
+
   const Preview = () => (
     <MarkdownPreview
       markdown={props.slideState.getMarkdown()}

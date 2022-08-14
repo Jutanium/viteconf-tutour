@@ -24,6 +24,7 @@ function createFileState(
   pathName: FilePath,
   codeLinks: CodeLink[]
 ): FileState {
+
   const [state, setState] = createStore<FileData>({
     doc,
     pathName,
@@ -64,6 +65,10 @@ export function createSlideState() {
     );
   };
 
+  const getCodeLinks = () => {
+    return files.flatMap(f => f.getCodeLinks().map(codeLink => ({...codeLink, pathName: f.data.pathName})));
+  }
+
   const serialize: () => SlideData = () => ({
     files: files.map((file) => file.data),
     content,
@@ -71,6 +76,7 @@ export function createSlideState() {
 
   return {
     files,
+    getCodeLinks,
     getMarkdown() {
       return content.markdown;
     },

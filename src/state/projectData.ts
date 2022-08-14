@@ -22,6 +22,8 @@ export interface ContentData {
 export type CodeLink = {
   from: number;
   to?: number;
+  startLine: number;
+  endLine?: number;
   id: string;
 };
 

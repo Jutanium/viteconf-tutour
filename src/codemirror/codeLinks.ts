@@ -51,7 +51,7 @@ export function injectExtensions({
     }
 
     destroy(dom) {
-      console.log("destroyed");
+      // console.log("destroyed");
     }
   }
 
@@ -134,10 +134,11 @@ export function injectExtensions({
         const { from, to } = iter;
         const id = iter.value.spec.id;
         stillPresentIds.push(id);
-        fileState.setCodeLink(id, { from, to });
 
         const startLine = transaction.newDoc.lineAt(from);
         const endLine = transaction.newDoc.lineAt(to);
+
+        fileState.setCodeLink(id, { from, to, startLine: startLine.number, endLine: endLine.number });
 
         const createMarkOrLine = (mark: Decoration, from, to) =>
           from - to === 0
@@ -171,8 +172,7 @@ export function injectExtensions({
         const { from, to } = iiter;
         const id = iiter.value.spec.id;
         stillPresentIds.push(id);
-        fileState.setCodeLink(id, { from });
-        console.log(stillPresentIds);
+        fileState.setCodeLink(id, { from, startLine: transaction.newDoc.lineAt(from).number });
         decorations.push(codeLinkReplace(id).range(from, to));
         iiter.next();
       }

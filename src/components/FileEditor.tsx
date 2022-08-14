@@ -31,9 +31,9 @@ export const FileEditor: Component<Props> = (props) => {
     onUpdate: (changeSet, view) => props.fileState.setDoc(view.state.doc),
   });
 
-  createEffect(() => {
-    console.log(props.fileState.data.doc);
-  });
+  // createEffect(() => {
+  //   console.log(props.fileState.data.doc);
+  // });
 
   const tooltipButton = (addCodeLink: () => void) =>
     (

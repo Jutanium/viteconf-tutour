@@ -5,7 +5,7 @@ export const MarkdownPreview: Component<{ markdown: string }> = (props) => {
   const result = micromark(props.markdown);
   return (
     <div
-      class="markdown bg-editorblack dark:text-white"
+      class="markdown dark:bg-editorblack dark:text-white"
       innerHTML={result}
     ></div>
   );
