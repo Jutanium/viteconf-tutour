@@ -17,7 +17,7 @@ export interface FileState {
   // addCodeLink(from: number, to: number): void;
   // updateCodeLink(id: string, codeLink: CodeLink): void;
   getCodeLinks(): CodeLink[];
-  setCodeLink(id: string, codeLink: Omit<CodeLink, "id" | "name">): void;
+  setCodeLink(id: string, codeLink: { name?: string } & Omit<CodeLink, "id" | "name">): void;
 }
 
 function createFileState(
@@ -46,10 +46,14 @@ function createFileState(
     },
 
     setCodeLink(id, codeLink) {
+      if (state.codeLinks[id]) {
+        setState("codeLinks", id, codeLink);
+        return;
+      }
       setState(
         "codeLinks",
         id,
-        codeLink ? { id, name: id, ...codeLink } : undefined
+        { id, name: codeLink.name || id, ...codeLink }
       );
     },
   };
@@ -77,6 +81,10 @@ export function createSlideState() {
     );
   };
 
+  const setCodeLink = (codeLink: CodeLinkWithPath) => {
+    files.find(f => f.data.pathName == codeLink.pathName).setCodeLink(codeLink.id, codeLink);
+  }
+
   const serialize: () => SlideData = () => ({
     files: files.map((file) => file.data),
     content,
@@ -85,6 +93,7 @@ export function createSlideState() {
   return {
     files,
     getCodeLinks,
+    setCodeLink,
     getMarkdown() {
       return content.markdown;
     },
@@ -101,6 +110,6 @@ export function createSlideState() {
   };
 }
 
-export function createProjectState() {}
+export function createProjectState() { }
 
 export type SlideState = ReturnType<typeof createSlideState>;

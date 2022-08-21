@@ -23,22 +23,9 @@ interface Props {
 export const TabbedEditor: Component<Props> = (props) => {
   const theme = useTheme();
 
-  const [conductor] = useConductor();
+  const [conductor, actions] = useConductor();
 
-  const [selectedTab, setSelectedTab] = createSignal(
-    props.fileStates[0].data.pathName
-  );
-
-  createEffect(
-    on(
-      () => conductor.updated,
-      () => {
-        if (conductor.currentFile) {
-          setSelectedTab(conductor.currentFile);
-        }
-      }
-    )
-  );
+  actions.navigate(props.fileStates[0].data.pathName);
 
   const editorEntries = mapArray(
     () => props.fileStates,
@@ -59,13 +46,13 @@ export const TabbedEditor: Component<Props> = (props) => {
         <For each={props.fileStates}>
           {(fileState, i) => {
             const file = fileState.data;
-            const selected = () => file.pathName === selectedTab();
+            const selected = () => file.pathName === conductor.currentFile;
             return (
               <button
                 class={theme.tablistItem(selected(), file, i())}
                 role="tab"
                 aria-selected={selected()}
-                onClick={() => setSelectedTab(file.pathName)}
+                onClick={() => actions.navigate(file.pathName)}
               >
                 {file.pathName}
               </button>
@@ -73,7 +60,7 @@ export const TabbedEditor: Component<Props> = (props) => {
           }}
         </For>
       </div>
-      <Dynamic component={editors()[selectedTab()]} />
+      <Dynamic component={editors()[conductor.currentFile]} />
     </div>
   );
 };

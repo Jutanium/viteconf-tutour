@@ -13,7 +13,7 @@ const ProjectEditor: Component<{}> = (props) => {
   const testSlide = createSlideState();
 
   testSlide.addFile("beginning\n\n\n<div></div>\n", "testFile.html", [
-    { from: 1, to: 4, id: "test" },
+    { from: 1, to: 4, id: "test", name: "test" },
   ]);
 
   testSlide.addFile("\n\n\nconsole.log('hi')\n", "testScript.js", []);
