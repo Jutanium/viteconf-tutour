@@ -1,10 +1,19 @@
 import { Extension } from "@codemirror/state";
-import { Component, createMemo, createSignal, For, mapArray } from "solid-js";
+import {
+  Component,
+  createComputed,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  mapArray,
+} from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { FileEditor } from "./FileEditor";
-import { FileData } from "../state/projectData";
-import { FileState } from "../state/state";
-import { useTheme } from "../state/theme";
+import { FileData } from "../../../state/projectData";
+import { FileState } from "../../../state/state";
+import { useTheme } from "../../../providers/theme";
+import { ConductorProvider, useConductor } from "../../../providers/conductor";
 
 interface Props {
   fileStates: FileState[];
@@ -13,8 +22,22 @@ interface Props {
 
 export const TabbedEditor: Component<Props> = (props) => {
   const theme = useTheme();
-  const [getSelectedTab, setSelectedTab] = createSignal(
+
+  const [conductor] = useConductor();
+
+  const [selectedTab, setSelectedTab] = createSignal(
     props.fileStates[0].data.pathName
+  );
+
+  createEffect(
+    on(
+      () => conductor.updated,
+      () => {
+        if (conductor.currentFile) {
+          setSelectedTab(conductor.currentFile);
+        }
+      }
+    )
   );
 
   const editorEntries = mapArray(
@@ -36,7 +59,7 @@ export const TabbedEditor: Component<Props> = (props) => {
         <For each={props.fileStates}>
           {(fileState, i) => {
             const file = fileState.data;
-            const selected = () => file.pathName === getSelectedTab();
+            const selected = () => file.pathName === selectedTab();
             return (
               <button
                 class={theme.tablistItem(selected(), file, i())}
@@ -50,7 +73,7 @@ export const TabbedEditor: Component<Props> = (props) => {
           }}
         </For>
       </div>
-      <Dynamic component={editors()[getSelectedTab()]} />
+      <Dynamic component={editors()[selectedTab()]} />
     </div>
   );
 };

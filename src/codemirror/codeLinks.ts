@@ -172,7 +172,8 @@ export function injectExtensions({
         const { from, to } = iiter;
         const id = iiter.value.spec.id;
         stillPresentIds.push(id);
-        fileState.setCodeLink(id, { from, startLine: transaction.newDoc.lineAt(from).number });
+        const startLine = transaction.newDoc.lineAt(from).number;
+        fileState.setCodeLink(id, { from, startLine, endLine: startLine});
         decorations.push(codeLinkReplace(id).range(from, to));
         iiter.next();
       }
@@ -201,7 +202,7 @@ export function injectExtensions({
       EditorView.decorations.from(field, (field) => field.allDecorations),
   });
 
-  function addCodeLink(codeLink: CodeLink) {
+  function addCodeLink(codeLink: {from: number, to: number, id: string}) {
     const inserting =
       !Number.isInteger(codeLink.to) || codeLink.from - codeLink.to === 0;
     const effect = newCodeLinkEffect.of({
@@ -251,10 +252,20 @@ export function injectExtensions({
         arrow: true,
         create: () => {
           const clickHandler = () => {
+            const startLine = state.doc.lineAt(range.from);
+            const startLinePos = range.from - startLine.from;
+            const endLine = state.doc.lineAt(range.to);
+            const endLinePos = range.to - endLine.from;
             addCodeLink({
               from: range.from,
               to: range.to,
-              id: `${fileState.data.pathName}-${range.from}-${range.to}`,
+              id: `${
+                startLine.number
+              }:${startLinePos}-${
+                endLine.number == startLine.number
+                  ? `${endLinePos}`
+                  : `${endLine.number}:${endLinePos}`
+              }`,
             });
           };
           return { dom: tooltipButton(clickHandler) };

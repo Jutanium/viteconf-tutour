@@ -19,13 +19,18 @@ export interface ContentData {
   markdown: string;
 }
 
-export type CodeLink = {
+export interface CodeLink {
   from: number;
   to?: number;
-  startLine: number;
+  startLine?: number;
   endLine?: number;
   id: string;
-};
+  name: string;
+}
+
+export interface CodeLinkWithPath extends CodeLink {
+  pathName: FilePath;
+}
 
 export interface SlideData {
   files: FileData[];

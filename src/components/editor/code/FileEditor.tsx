@@ -1,18 +1,20 @@
-import { Extension } from "@codemirror/state";
+import { EditorSelection, Extension } from "@codemirror/state";
 import { lineNumbers } from "@codemirror/view";
 import {
   Component,
   createEffect,
   createSignal,
+  on,
   onCleanup,
   onMount,
 } from "solid-js";
-import { getFileType } from "../state/projectData";
-import { FileState } from "../state/state";
+import { getFileType } from "../../../state/projectData";
+import { FileState } from "../../../state/state";
 
-import { injectExtensions } from "../codemirror/codeLinks";
-import createCodemirror from "../codemirror/createCodemirror";
-import { useTheme } from "../state/theme";
+import { injectExtensions } from "../../../codemirror/codeLinks";
+import createCodemirror from "../../../codemirror/createCodemirror";
+import { useTheme } from "../../../providers/theme";
+import { useConductor } from "../../../providers/conductor";
 
 interface Props {
   fileState: FileState;
@@ -21,6 +23,7 @@ interface Props {
 
 export const FileEditor: Component<Props> = (props) => {
   const theme = useTheme();
+  const [conductor] = useConductor();
 
   const { view } = createCodemirror({
     language: getFileType(props.fileState.data.pathName),
@@ -28,7 +31,10 @@ export const FileEditor: Component<Props> = (props) => {
     staticExtension: [lineNumbers()],
     reactiveExtension: () => props.themeExtension,
     startingDoc: props.fileState.data.doc,
-    onUpdate: (changeSet, view) => props.fileState.setDoc(view.state.doc),
+    onUpdate: (updates, view) => {
+      // console.log("updating", updates);
+      props.fileState.setDoc(view.state.doc);
+    },
   });
 
   // createEffect(() => {
@@ -50,6 +56,25 @@ export const FileEditor: Component<Props> = (props) => {
   };
 
   injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
+
+  createEffect(
+    on(
+      () => conductor.updated,
+      () => {
+        if (conductor.currentFile == props.fileState.data.pathName) {
+          const { from, to } = conductor.currentSelection;
+          if (!isNaN(from)) {
+            const selection = !isNaN(to)
+              ? EditorSelection.range(from, to)
+              : EditorSelection.cursor(from);
+            view.dispatch({
+              selection,
+            });
+          }
+        }
+      }
+    )
+  );
 
   onMount(() => {
     console.log("mounted", props.fileState.data.pathName);

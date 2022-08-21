@@ -1,4 +1,4 @@
-import { FileData } from "./projectData";
+import { FileData } from "../state/projectData";
 import { createContext, useContext, ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Extension } from "@codemirror/state";

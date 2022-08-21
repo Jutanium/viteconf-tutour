@@ -1,9 +1,13 @@
 import { Extension } from "@codemirror/state";
 import { Component, createEffect, createSignal } from "solid-js";
-import { SlideState } from "../state/state";
+import { SlideState } from "../../../state/state";
 
 import { MarkdownEditor } from "./MarkdownEditor";
 import { MarkdownPreview } from "./MarkdownPreview";
+
+import { useConductor } from "../../../providers/conductor";
+import CodeLinkLabel from "./CodeLinkLabel";
+
 
 export const ContentEditor: Component<{
   themeExtension: Extension;
@@ -22,8 +26,14 @@ export const ContentEditor: Component<{
     ></MarkdownPreview>
   );
 
+
   return (
     <div class="w-full h-full flex flex-col">
+      <div class="flex gap-2">
+        <For each={props.slideState.getCodeLinks()}>
+          {(codeLink, i) => <CodeLinkLabel codeLink={codeLink} />}
+        </For>
+      </div>
       <div class="dark:bg-gray-600 dark:text-white">
         <button onClick={togglePreviewMode} class="px-1">
           Preview

@@ -9,6 +9,7 @@ import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
 import { FileType } from "../state/projectData";
 import baseExtensions from "./baseExtensions";
+import { ViewUpdate } from "@codemirror/view";
 
 const languageExtensions: { [Language in FileType]: () => Extension } = {
   js: () => javascript(),
@@ -32,7 +33,7 @@ interface Options {
   staticExtension?: Extension;
   reactiveExtension?: Accessor<Extension>;
   startingDoc: string;
-  onUpdate?: (changes: ChangeSet, view: EditorView) => void;
+  onUpdate?: (changes: ViewUpdate, view: EditorView) => void;
 }
 
 const createCodemirror = (options: Options) => {
@@ -60,7 +61,7 @@ const createCodemirror = (options: Options) => {
     ...ifOption("onUpdate", (value) =>
       EditorView.updateListener.of((update) => {
         if (update.changes) {
-          value(update.changes, view);
+          value(update, view);
         }
       })
     ),

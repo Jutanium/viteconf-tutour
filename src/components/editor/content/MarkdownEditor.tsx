@@ -2,8 +2,8 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { Extension, Text } from "@codemirror/state";
 import { tags } from "@lezer/highlight";
 import { Component } from "solid-js";
-import createCodemirror from "../codemirror/createCodemirror";
-import { useTheme } from "../state/theme";
+import createCodemirror from "../../../codemirror/createCodemirror";
+import { useTheme } from "../../../providers/theme";
 
 const markdownHighlighting = HighlightStyle.define([
   {

@@ -1,11 +1,12 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import { Component, createEffect, createMemo } from "solid-js";
 import { createStore } from "solid-js/store";
-import { createFileState, createSlideState } from "../state/state";
-import { ThemeProvider, useTheme } from "../state/theme";
-import { TabbedEditor } from "./TabbedEditor";
-import { MarkdownEditor } from "./MarkdownEditor";
-import { ContentEditor } from "./ContentEditor";
+import { createFileState, createSlideState } from "../../state/state";
+import { ThemeProvider, useTheme } from "../../providers/theme";
+import { TabbedEditor } from "./code/TabbedEditor";
+import { MarkdownEditor } from "./content/MarkdownEditor";
+import { ContentEditor } from "./content/ContentEditor";
+import { ConductorProvider } from "../../providers/conductor";
 
 const ProjectEditor: Component<{}> = (props) => {
   const testSlide = createSlideState();
@@ -47,18 +48,20 @@ asfasdf
   });
 
   return (
-    <div class="flex h-96">
-      <div class="w-1/2">
-        <ContentEditor
+    <ConductorProvider>
+      <div class="flex h-96">
+        <div class="w-1/2">
+          <ContentEditor
+            themeExtension={themeExtension()}
+            slideState={testSlide}
+          />
+        </div>
+        <TabbedEditor
+          fileStates={testSlide.files}
           themeExtension={themeExtension()}
-          slideState={testSlide}
         />
       </div>
-      <TabbedEditor
-        fileStates={testSlide.files}
-        themeExtension={themeExtension()}
-      />
-    </div>
+    </ConductorProvider>
   );
 };
 

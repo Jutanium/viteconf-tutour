@@ -1,8 +1,9 @@
 import { Text } from "@codemirror/state";
 import { createStore, Store } from "solid-js/store";
-import { FileEditor } from "../components/FileEditor";
+import { FileEditor } from "../components/editor/code/FileEditor";
 import {
   CodeLink,
+  CodeLinkWithPath,
   ContentData,
   FileData,
   FilePath,
@@ -16,7 +17,7 @@ export interface FileState {
   // addCodeLink(from: number, to: number): void;
   // updateCodeLink(id: string, codeLink: CodeLink): void;
   getCodeLinks(): CodeLink[];
-  setCodeLink(id: string, codeLink: Omit<CodeLink, "id">): void;
+  setCodeLink(id: string, codeLink: Omit<CodeLink, "id" | "name">): void;
 }
 
 function createFileState(
@@ -24,7 +25,6 @@ function createFileState(
   pathName: FilePath,
   codeLinks: CodeLink[]
 ): FileState {
-
   const [state, setState] = createStore<FileData>({
     doc,
     pathName,
@@ -46,7 +46,11 @@ function createFileState(
     },
 
     setCodeLink(id, codeLink) {
-      setState("codeLinks", id, codeLink);
+      setState(
+        "codeLinks",
+        id,
+        codeLink ? { id, name: id, ...codeLink } : undefined
+      );
     },
   };
 }
@@ -65,9 +69,13 @@ export function createSlideState() {
     );
   };
 
-  const getCodeLinks = () => {
-    return files.flatMap(f => f.getCodeLinks().map(codeLink => ({...codeLink, pathName: f.data.pathName})));
-  }
+  const getCodeLinks: () => CodeLinkWithPath[] = () => {
+    return files.flatMap((f) =>
+      f
+        .getCodeLinks()
+        .map((codeLink) => ({ ...codeLink, pathName: f.data.pathName }))
+    );
+  };
 
   const serialize: () => SlideData = () => ({
     files: files.map((file) => file.data),
