@@ -7,6 +7,7 @@ import { TabbedEditor } from "./code/TabbedEditor";
 import { MarkdownEditor } from "./content/MarkdownEditor";
 import { ContentEditor } from "./content/ContentEditor";
 import { ConductorProvider } from "../../providers/conductor";
+import { Repl } from "../eval/Repl";
 
 const ProjectEditor: Component<{}> = (props) => {
   const testSlide = createSlideState();
@@ -60,6 +61,7 @@ asfasdf
           fileStates={testSlide.files}
           themeExtension={themeExtension()}
         />
+        <Repl fileStates={testSlide.files} />
       </div>
     </ConductorProvider>
   );

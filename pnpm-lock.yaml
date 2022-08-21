@@ -16,11 +16,13 @@ specifiers:
   '@codemirror/view': ^6.0.3
   '@lezer/highlight': ^1.0.0
   '@solid-primitives/media': ^2.0.0
+  '@solid-primitives/scheduled': ^1.0.0
   '@tiptap/core': ^2.0.0-beta.182
   '@tiptap/extension-bubble-menu': 2.0.0-beta.61
   '@tiptap/starter-kit': ^2.0.0-beta.191
   '@unocss/preset-typography': ^0.44.7
   '@unocss/reset': ^0.44.3
+  '@webcontainer/api': ^0.0.5
   codemirror: ^6.0.1
   micromark: ^3.0.10
   prettier: ^2.7.1
@@ -34,6 +36,8 @@ specifiers:
   unocss: ^0.44.3
   vite: ^3.0.0
   vite-plugin-solid: ^2.3.0
+  xterm: ^4.19.0
+  xterm-addon-fit: ^0.5.0
 
 dependencies:
   '@codemirror/autocomplete': 6.0.4
@@ -51,10 +55,12 @@ dependencies:
   '@codemirror/view': 6.0.3
   '@lezer/highlight': 1.0.0
   '@solid-primitives/media': 2.0.0_solid-js@1.4.7
+  '@solid-primitives/scheduled': 1.0.0_solid-js@1.4.7
   '@tiptap/core': 2.0.0-beta.182
   '@tiptap/extension-bubble-menu': 2.0.0-beta.61_jdrcmhoxj44u3cq7gnenksjiqq
   '@tiptap/starter-kit': 2.0.0-beta.191
   '@unocss/reset': 0.44.3
+  '@webcontainer/api': 0.0.5
   codemirror: 6.0.1
   micromark: 3.0.10
   prosemirror-markdown: 1.9.3
@@ -62,6 +68,8 @@ dependencies:
   solid-app-router: 0.4.1_solid-js@1.4.7
   solid-js: 1.4.7
   solid-tiptap: 0.3.3_cb2o4xv3ucbipufj36a4kgft64
+  xterm: 4.19.0
+  xterm-addon-fit: 0.5.0_xterm@4.19.0
 
 devDependencies:
   '@unocss/preset-typography': 0.44.7
@@ -815,6 +823,14 @@ packages:
       solid-js: 1.4.7
     dev: false
 
+  /@solid-primitives/scheduled/1.0.0_solid-js@1.4.7:
+    resolution: {integrity: sha512-FfzYoAkFCRGBuCuXF8G7fU4J4SK9PhKbwxZvzqk+VVBcowPS1eGlLAtlqW/29paSKlUSxuLuhZxq1sPzwmuvoQ==}
+    peerDependencies:
+      solid-js: ^1.4.0
+    dependencies:
+      solid-js: 1.4.7
+    dev: false
+
   /@solid-primitives/utils/1.5.2_solid-js@1.4.7:
     resolution: {integrity: sha512-dZUHjzasuqS2lDO+PQCY1+jFmtWHlaP3tUvkX1Jr06LI/Ipa2P/ZNVSvuIoqQ0Bg+Ny27LvtrXxflZNeGtptvA==}
     peerDependencies:
@@ -1180,6 +1196,10 @@ packages:
       magic-string: 0.26.2
       vite: 3.0.0
     dev: true
+
+  /@webcontainer/api/0.0.5:
+    resolution: {integrity: sha512-wtTaF4QLXj2JVRbZIiMQ2HLx9z0KtK1UmpOirzha6v+r9efdkywxfc1FwZ6r+PHz6tALuuS9/yGDx3sQRYmPLg==}
+    dev: false
 
   /ansi-styles/3.2.1:
     resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
@@ -2557,6 +2577,18 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
+
+  /xterm-addon-fit/0.5.0_xterm@4.19.0:
+    resolution: {integrity: sha512-DsS9fqhXHacEmsPxBJZvfj2la30Iz9xk+UKjhQgnYNkrUIN5CYLbw7WEfz117c7+S86S/tpHPfvNxJsF5/G8wQ==}
+    peerDependencies:
+      xterm: ^4.0.0
+    dependencies:
+      xterm: 4.19.0
+    dev: false
+
+  /xterm/4.19.0:
+    resolution: {integrity: sha512-c3Cp4eOVsYY5Q839dR5IejghRPpxciGmLWWaP9g+ppfMeBChMeLa1DCA+pmX/jyDZ+zxFOmlJL/82qVdayVoGQ==}
+    dev: false
 
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
