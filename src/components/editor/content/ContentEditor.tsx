@@ -7,7 +7,24 @@ import { MarkdownPreview } from "./MarkdownPreview";
 
 import { useConductor } from "../../../providers/conductor";
 import CodeLinkLabel from "./CodeLinkLabel";
+import { CodeLinkWithPath } from "../../../state/projectData";
 
+const CodeLinksList: Component<{
+  title: string,
+  codeLinks: CodeLinkWithPath[]
+}> = (props) => {
+
+  return (
+    <div>
+      <div class="text-sm">{props.title}</div>
+      <div class="flex gap-2 shrink">
+        <For each={props.codeLinks}>
+          {(codeLink, i) => <CodeLinkLabel codeLink={codeLink} />}
+        </For>
+      </div>
+    </div>
+  )
+}
 
 export const ContentEditor: Component<{
   themeExtension: Extension;
@@ -16,22 +33,17 @@ export const ContentEditor: Component<{
   const [previewMode, setPreviewMode] = createSignal(false);
   const togglePreviewMode = () => setPreviewMode((mode) => !mode);
 
-  createEffect(() => {
-    console.log(props.slideState.getCodeLinks());
-  })
-
   const Preview = () => (
     <MarkdownPreview
       markdown={props.slideState.getMarkdown()}
     ></MarkdownPreview>
   );
 
-
   return (
     <div class="w-full h-full flex flex-col">
       <div class="flex gap-2">
-        <For each={props.slideState.getCodeLinks()}>
-          {(codeLink, i) => <CodeLinkLabel codeLink={codeLink} />}
+        <For each={props.slideState.files.filter(f => f.getCodeLinks().length).map(f => f.data.pathName)}>
+          {pathName => <CodeLinksList title={pathName} codeLinks={props.slideState.getCodeLinks(pathName)} />}
         </For>
       </div>
       <div class="dark:bg-gray-600 dark:text-white">

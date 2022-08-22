@@ -23,9 +23,9 @@ interface Props {
 export const TabbedEditor: Component<Props> = (props) => {
   const theme = useTheme();
 
-  const [conductor, actions] = useConductor();
+  const [conductor, { navigate }] = useConductor();
 
-  actions.navigate(props.fileStates[0].data.pathName);
+  navigate(props.fileStates[0].data.pathName);
 
   const editorEntries = mapArray(
     () => props.fileStates,
@@ -52,7 +52,7 @@ export const TabbedEditor: Component<Props> = (props) => {
                 class={theme.tablistItem(selected(), file, i())}
                 role="tab"
                 aria-selected={selected()}
-                onClick={() => actions.navigate(file.pathName)}
+                onClick={() => navigate(file.pathName)}
               >
                 {file.pathName}
               </button>

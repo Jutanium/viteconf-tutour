@@ -59,9 +59,13 @@ function createFileState(
   };
 }
 
+const mapWithPath = (file: FileState) =>
+  file.getCodeLinks().map((codeLink) => ({ ...codeLink, pathName: file.data.pathName }));
+
 export function createSlideState() {
   const [files, setFiles] = createStore<FileState[]>([]);
   const [content, setContent] = createStore<ContentData>({ markdown: "" });
+
 
   const addFile = (...args: Parameters<typeof createFileState>) => {
     setFiles((files) => [...files, createFileState(...args)]);
@@ -73,12 +77,14 @@ export function createSlideState() {
     );
   };
 
-  const getCodeLinks: () => CodeLinkWithPath[] = () => {
-    return files.flatMap((f) =>
-      f
-        .getCodeLinks()
-        .map((codeLink) => ({ ...codeLink, pathName: f.data.pathName }))
-    );
+  const getCodeLinks: (pathName?: string) => CodeLinkWithPath[] = (pathName) => {
+
+    if (pathName) {
+      const file = files.find(f => f.data.pathName == pathName);
+      if (!file) return [];
+      return mapWithPath(file);
+    }
+    return files.flatMap(mapWithPath);
   };
 
   const setCodeLink = (codeLink: CodeLinkWithPath) => {
