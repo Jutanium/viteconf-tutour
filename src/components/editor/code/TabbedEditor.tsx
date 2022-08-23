@@ -46,7 +46,7 @@ export const TabbedEditor: Component<Props> = (props) => {
         <For each={props.fileStates}>
           {(fileState, i) => {
             const file = fileState.data;
-            const selected = () => file.pathName === conductor.currentFile;
+            const selected = () => file.pathName === conductor.file.currentFile;
             return (
               <button
                 class={theme.tablistItem(selected(), file, i())}
@@ -60,7 +60,7 @@ export const TabbedEditor: Component<Props> = (props) => {
           }}
         </For>
       </div>
-      <Dynamic component={editors()[conductor.currentFile]} />
+      <Dynamic component={editors()[conductor.file.currentFile]} />
     </div>
   );
 };

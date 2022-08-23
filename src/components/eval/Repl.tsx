@@ -1,16 +1,16 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import "xterm/css/xterm.css";
-import { FileState } from "../../state/state";
-import { FileSystemTree, load } from "@webcontainer/api";
+import { FileState, SlideState } from "../../state/state";
+import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
 import { FileData } from "../../state/projectData";
 
 // https://xtermjs.org/docs/api/vtfeatures/
 
 interface Props {
-  fileStates: FileState[];
+  slideState: SlideState;
 }
 
 const bootWebContainer = load().then((x) => x.boot());
@@ -53,33 +53,46 @@ export function Repl(props: Props) {
     terminal.dispose();
   });
 
+  let container: WebContainer;
+
+  async function loadFiles() {
+    if (container)
+      await container.loadFiles(
+        treeFromFiles(props.slideState.files.map((s) => s.data))
+      );
+  }
+
+  createEffect(
+    on(props.slideState.saved, async () => {
+      await loadFiles();
+
+      if (container) {
+        let result = await container.run(
+          {
+            command: "node",
+            args: ["testScript.js"],
+          },
+          {
+            output: (data) => {
+              terminal.write(data);
+            },
+          }
+        );
+        await result.onExit;
+      }
+    })
+  );
+
   onMount(async () => {
     console.log("got here");
-    const container = await bootWebContainer;
+    container = await bootWebContainer;
 
-    const tree: FileSystemTree = {};
-
-    await container.loadFiles(
-      treeFromFiles(props.fileStates.map((s) => s.data))
-    );
+    await loadFiles();
 
     let result = await container.run(
       {
         command: "ls",
         args: [],
-      },
-      {
-        output: (data) => {
-          terminal.write(data);
-        },
-      }
-    );
-    await result.onExit;
-
-    result = await container.run(
-      {
-        command: "node",
-        args: ["testScript.js"],
       },
       {
         output: (data) => {

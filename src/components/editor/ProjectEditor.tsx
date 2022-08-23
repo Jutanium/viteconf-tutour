@@ -48,9 +48,17 @@ asfasdf
     }
   });
 
+  function handleKeyPress(e: KeyboardEvent) {
+    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      testSlide.save();
+      console.log("saving");
+    }
+  }
+
   return (
     <ConductorProvider>
-      <div class="flex h-96">
+      <div class="flex h-96" onKeyDown={handleKeyPress}>
         <div class="w-1/2">
           <ContentEditor
             themeExtension={themeExtension()}
@@ -61,7 +69,7 @@ asfasdf
           fileStates={testSlide.files}
           themeExtension={themeExtension()}
         />
-        <Repl fileStates={testSlide.files} />
+        <Repl slideState={testSlide} />
       </div>
     </ConductorProvider>
   );

@@ -4,17 +4,21 @@ import { createStore, SetStoreFunction } from "solid-js/store";
 import { CodeLinkWithPath, FilePath } from "../state/projectData";
 
 interface ConductorState {
-  currentFile: FilePath | "";
-  currentSelection: { from: number | false; to: number | false };
-  currentCodeLink: string | false;
-  updated: number;
+  file: {
+    currentFile: FilePath | "";
+    currentSelection: { from: number | false; to: number | false };
+    currentCodeLink: string | false;
+    updated: number;
+  };
 }
 
 const defaultState: ConductorState = {
-  currentFile: "",
-  currentSelection: { from: false, to: false },
-  currentCodeLink: false,
-  updated: 0,
+  file: {
+    currentFile: "",
+    currentSelection: { from: false, to: false },
+    currentCodeLink: false,
+    updated: 0,
+  },
 };
 
 type Actions = {
@@ -33,9 +37,9 @@ export const ConductorProvider: ParentComponent = (props) => {
   const actions: Actions = {
     navigate(id: FilePath, from?: number, to?: number) {
       batch(() => {
-        setState("currentFile", id);
-        setState("currentSelection", { from, to });
-        setState("updated", (u) => u + 1);
+        setState("file", "currentFile", id);
+        setState("file", "currentSelection", { from, to });
+        setState("file", "updated", (u) => u + 1);
       });
     },
     gotoCodeLink(codeLink: CodeLinkWithPath) {
