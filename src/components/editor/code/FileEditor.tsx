@@ -55,18 +55,19 @@ export const FileEditor: Component<Props> = (props) => {
     return (<button onClick={clicked}>💬</button>) as HTMLElement;
   };
 
-  injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
+  // injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
 
   createEffect(
     on(
-      () => conductor.updated,
+      () => conductor.file.updated,
       () => {
-        if (conductor.currentFile == props.fileState.data.pathName) {
-          const { from, to } = conductor.currentSelection;
-          if (!isNaN(from)) {
-            const selection = !isNaN(to)
-              ? EditorSelection.range(from, to)
-              : EditorSelection.cursor(from);
+        if (conductor.file.currentFile == props.fileState.data.pathName) {
+          const { from, to } = conductor.file.currentSelection;
+          if (typeof from === "number") {
+            const selection =
+              typeof to === "number"
+                ? EditorSelection.range(from, to)
+                : EditorSelection.cursor(from);
             view.dispatch({
               selection,
             });
