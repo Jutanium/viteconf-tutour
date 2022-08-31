@@ -7,7 +7,7 @@ import { ChangeSet, Compartment, Extension } from "@codemirror/state";
 import { languages } from "@codemirror/language-data";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
-import { FileType } from "../state/projectData";
+import { FileType } from "@/state";
 import baseExtensions from "./baseExtensions";
 import { ViewUpdate } from "@codemirror/view";
 
@@ -22,7 +22,7 @@ const languageExtensions: { [Language in FileType]: () => Extension } = {
   md: () =>
     markdown({
       codeLanguages: languages,
-      defaultCodeLanguage: languageExtensions.tsx(),
+      defaultCodeLanguage: javascript({ jsx: true, typescript: true }),
       base: markdownLanguage,
     }),
 };

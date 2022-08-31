@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^18.7.14",
     "@unocss/preset-typography": "^0.44.7",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.12",
@@ -34,9 +35,6 @@
     "@lezer/highlight": "^1.0.0",
     "@solid-primitives/media": "^2.0.0",
     "@solid-primitives/scheduled": "^1.0.0",
-    "@tiptap/core": "^2.0.0-beta.182",
-    "@tiptap/extension-bubble-menu": "2.0.0-beta.61",
-    "@tiptap/starter-kit": "^2.0.0-beta.191",
     "@unocss/reset": "^0.44.3",
     "@webcontainer/api": "^0.0.5",
     "codemirror": "^6.0.1",
@@ -45,7 +43,6 @@
     "prosemirror-model": "^1.18.1",
     "solid-app-router": "^0.4.1",
     "solid-js": "^1.4.7",
-    "solid-tiptap": "^0.3.3",
     "xterm": "^4.19.0",
     "xterm-addon-fit": "^0.5.0"
   }

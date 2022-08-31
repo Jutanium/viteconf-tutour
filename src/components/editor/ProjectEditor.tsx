@@ -1,7 +1,7 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import { Component, createEffect, createMemo } from "solid-js";
 import { createStore } from "solid-js/store";
-import { createFileState, createSlideState } from "../../state/state";
+import { createFileSystem, createSlideState } from "@/state";
 import { ThemeProvider, useTheme } from "../../providers/theme";
 import { TabbedEditor } from "./code/TabbedEditor";
 import { MarkdownEditor } from "./content/MarkdownEditor";
@@ -12,13 +12,22 @@ import { Repl } from "../eval/Repl";
 const ProjectEditor: Component<{}> = (props) => {
   const testSlide = createSlideState();
 
-  testSlide.addFile("beginning\n\n\n<div></div>\n", "testFile.html", [
-    { from: 1, to: 4, id: "test", name: "test" },
-  ]);
+  console.log(testSlide);
 
-  testSlide.addFile("\n\n\nconsole.log('hi')\n", "testScript.js", []);
+  testSlide.fileSystem.addFile(
+    "beginning\n\n\n<div></div>\n",
+    "testFile.html",
+    [{ from: 1, to: 4, id: "test", name: "test" }]
+  );
+
+  testSlide.fileSystem.addFile(
+    "\n\n\nconsole.log('hi')\n",
+    "testScript.js",
+    []
+  );
 
   testSlide.setMarkdown(`# Testing
+
 more stuff
 ## Asdf
 etc
@@ -51,7 +60,7 @@ asfasdf
   function handleKeyPress(e: KeyboardEvent) {
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      testSlide.save();
+      testSlide.fileSystem.save();
       console.log("saving");
     }
   }
@@ -60,16 +69,16 @@ asfasdf
     <ConductorProvider>
       <div class="flex h-96" onKeyDown={handleKeyPress}>
         <div class="w-1/2">
-          <ContentEditor
+          {/* <ContentEditor
             themeExtension={themeExtension()}
             slideState={testSlide}
-          />
+          /> */}
         </div>
         <TabbedEditor
-          fileStates={testSlide.files}
+          fileSystem={testSlide.fileSystem}
           themeExtension={themeExtension()}
         />
-        <Repl slideState={testSlide} />
+        <Repl fileSystem={testSlide.fileSystem} />
       </div>
     </ConductorProvider>
   );

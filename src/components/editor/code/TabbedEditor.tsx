@@ -10,13 +10,12 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { FileEditor } from "./FileEditor";
-import { FileData } from "../../../state/projectData";
-import { FileState } from "../../../state/state";
-import { useTheme } from "../../../providers/theme";
-import { ConductorProvider, useConductor } from "../../../providers/conductor";
+import { FileState, FileSystemState } from "@/state";
+import { useTheme } from "@/providers/theme";
+import { ConductorProvider, useConductor } from "@/providers/conductor";
 
 interface Props {
-  fileStates: FileState[];
+  fileSystem: FileSystemState;
   themeExtension: Extension;
 }
 
@@ -25,12 +24,12 @@ export const TabbedEditor: Component<Props> = (props) => {
 
   const [conductor, { navigate }] = useConductor();
 
-  navigate(props.fileStates[0].data.pathName);
+  navigate(props.fileSystem.fileList[0].pathName);
 
   const editorEntries = mapArray(
-    () => props.fileStates,
+    () => props.fileSystem.fileList,
     (fileState) => [
-      fileState.data.pathName,
+      fileState.pathName,
       <FileEditor
         fileState={fileState}
         themeExtension={props.themeExtension}
@@ -43,18 +42,18 @@ export const TabbedEditor: Component<Props> = (props) => {
   return (
     <div class={theme.tabbedEditorRoot()}>
       <div role="tablist" class={theme.tablist()}>
-        <For each={props.fileStates}>
+        <For each={props.fileSystem.fileList}>
           {(fileState, i) => {
-            const file = fileState.data;
-            const selected = () => file.pathName === conductor.file.currentFile;
+            const selected = () =>
+              fileState.pathName === conductor.file.currentFile;
             return (
               <button
-                class={theme.tablistItem(selected(), file, i())}
+                class={theme.tablistItem(selected(), fileState, i())}
                 role="tab"
                 aria-selected={selected()}
-                onClick={() => navigate(file.pathName)}
+                onClick={() => navigate(fileState.pathName)}
               >
-                {file.pathName}
+                {fileState.pathName}
               </button>
             );
           }}

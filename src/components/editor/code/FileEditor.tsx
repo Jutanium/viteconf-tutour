@@ -8,8 +8,7 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
-import { getFileType } from "../../../state/projectData";
-import { FileState } from "../../../state/state";
+import { FileState, getFileType } from "@/state";
 
 import { injectExtensions } from "../../../codemirror/codeLinks";
 import createCodemirror from "../../../codemirror/createCodemirror";
@@ -26,11 +25,11 @@ export const FileEditor: Component<Props> = (props) => {
   const [conductor] = useConductor();
 
   const { view } = createCodemirror({
-    language: getFileType(props.fileState.data.pathName),
-    rootClass: theme.codemirror.root(props.fileState.data),
+    language: getFileType(props.fileState.pathName),
+    rootClass: theme.codemirror.root(props.fileState),
     staticExtension: [lineNumbers()],
     reactiveExtension: () => props.themeExtension,
-    startingDoc: props.fileState.data.doc,
+    startingDoc: props.fileState.doc,
     onUpdate: (updates, view) => {
       // console.log("updating", updates);
       props.fileState.setDoc(view.state.doc);
@@ -61,7 +60,7 @@ export const FileEditor: Component<Props> = (props) => {
     on(
       () => conductor.file.updated,
       () => {
-        if (conductor.file.currentFile == props.fileState.data.pathName) {
+        if (conductor.file.currentFile == props.fileState.pathName) {
           const { from, to } = conductor.file.currentSelection;
           if (typeof from === "number") {
             const selection =
@@ -78,12 +77,12 @@ export const FileEditor: Component<Props> = (props) => {
   );
 
   onMount(() => {
-    console.log("mounted", props.fileState.data.pathName);
+    console.log("mounted", props.fileState.pathName);
   });
 
   onCleanup(() => {
     view.destroy();
-    console.log("cleaned up", props.fileState.data.pathName);
+    console.log("cleaned up", props.fileState.pathName);
   });
 
   return view.dom;

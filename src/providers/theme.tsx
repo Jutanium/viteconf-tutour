@@ -1,4 +1,4 @@
-import { FileData } from "../state/projectData";
+import { FileState } from "@/state";
 import { createContext, useContext, ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Extension } from "@codemirror/state";
@@ -10,9 +10,9 @@ import { EditorView } from "codemirror";
 export interface ThemeConfig {
   tabbedEditorRoot: () => string;
   tablist: () => string;
-  tablistItem: (selected: boolean, file: FileData, index: number) => string;
+  tablistItem: (selected: boolean, file: FileState, index: number) => string;
   codemirror: {
-    root: (file: FileData | "content") => string;
+    root: (file: FileState | "content") => string;
     darkTheme: Extension;
     lightTheme: Extension;
   };
@@ -21,7 +21,7 @@ export interface ThemeConfig {
 export const defaultTheme: ThemeConfig = {
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
   tablist: () => "w-full flex",
-  tablistItem: (selected: boolean, file: FileData, index: number) => {
+  tablistItem: (selected: boolean, file: FileState, index: number) => {
     const base = `border-b-2 font-mono font-semibold px-1 text-sm border-r-0`;
     const highlighted = selected
       ? `bg-gray-200 border-blue-400 dark:bg-black`
@@ -32,7 +32,7 @@ export const defaultTheme: ThemeConfig = {
     return `${base} ${dark} ${highlighted} ${alternate}`;
   },
   codemirror: {
-    root: (file: FileData | "content") => "w-full h-full",
+    root: (file: FileState | "content") => "w-full h-full",
     darkTheme: [
       oneDark,
       EditorView.theme({

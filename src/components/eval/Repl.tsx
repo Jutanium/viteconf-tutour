@@ -3,19 +3,18 @@ import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
 import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import "xterm/css/xterm.css";
-import { FileState, SlideState } from "../../state/state";
+import { FileState, FileSystemState } from "@/state";
 import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
-import { FileData } from "../../state/projectData";
 
 // https://xtermjs.org/docs/api/vtfeatures/
 
 interface Props {
-  slideState: SlideState;
+  fileSystem: FileSystemState;
 }
 
 const bootWebContainer = load().then((x) => x.boot());
 
-function treeFromFiles(files: FileData[]): FileSystemTree {
+function treeFromFiles(files: FileState[]): FileSystemTree {
   const tree = {} as FileSystemTree;
   for (const file of files) {
     const pieces = file.pathName.split("/");
@@ -57,30 +56,31 @@ export function Repl(props: Props) {
 
   async function loadFiles() {
     if (container)
-      await container.loadFiles(
-        treeFromFiles(props.slideState.files.map((s) => s.data))
-      );
+      await container.loadFiles(treeFromFiles(props.fileSystem.fileList));
   }
 
   createEffect(
-    on(props.slideState.saved, async () => {
-      await loadFiles();
+    on(
+      () => props.fileSystem.saved,
+      async () => {
+        await loadFiles();
 
-      if (container) {
-        let result = await container.run(
-          {
-            command: "node",
-            args: ["testScript.js"],
-          },
-          {
-            output: (data) => {
-              terminal.write(data);
+        if (container) {
+          let result = await container.run(
+            {
+              command: "node",
+              args: ["testScript.js"],
             },
-          }
-        );
-        await result.onExit;
+            {
+              output: (data) => {
+                terminal.write(data);
+              },
+            }
+          );
+          await result.onExit;
+        }
       }
-    })
+    )
   );
 
   onMount(async () => {
@@ -123,7 +123,7 @@ export function Repl(props: Props) {
 
   return (
     <div
-      class="w-full h-full bg-blue-500"
+      class="h-full w-full bg-blue-500"
       ref={(el) => {
         terminal.open(el);
         fitAddon.fit();

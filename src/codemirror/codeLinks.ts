@@ -15,8 +15,7 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { createEffect, on } from "solid-js";
-import { CodeLink } from "../state/projectData";
-import { FileState } from "../state/state";
+import { FileState, CodeLink } from "@/state";
 
 export const newCodeLinkEffect = StateEffect.define<{
   from: number;
@@ -138,7 +137,12 @@ export function injectExtensions({
         const startLine = transaction.newDoc.lineAt(from);
         const endLine = transaction.newDoc.lineAt(to);
 
-        fileState.setCodeLink(id, { from, to, startLine: startLine.number, endLine: endLine.number });
+        fileState.setCodeLink(id, {
+          from,
+          to,
+          startLine: startLine.number,
+          endLine: endLine.number,
+        });
 
         const createMarkOrLine = (mark: Decoration, from, to) =>
           from - to === 0
@@ -173,7 +177,7 @@ export function injectExtensions({
         const id = iiter.value.spec.id;
         stillPresentIds.push(id);
         const startLine = transaction.newDoc.lineAt(from).number;
-        fileState.setCodeLink(id, { from, startLine, endLine: startLine});
+        fileState.setCodeLink(id, { from, startLine, endLine: startLine });
         decorations.push(codeLinkReplace(id).range(from, to));
         iiter.next();
       }
@@ -202,7 +206,7 @@ export function injectExtensions({
       EditorView.decorations.from(field, (field) => field.allDecorations),
   });
 
-  function addCodeLink(codeLink: {from: number, to: number, id: string}) {
+  function addCodeLink(codeLink: { from: number; to: number; id: string }) {
     const inserting =
       !Number.isInteger(codeLink.to) || codeLink.from - codeLink.to === 0;
     const effect = newCodeLinkEffect.of({
@@ -259,9 +263,7 @@ export function injectExtensions({
             addCodeLink({
               from: range.from,
               to: range.to,
-              id: `${
-                startLine.number
-              }:${startLinePos}-${
+              id: `${startLine.number}:${startLinePos}-${
                 endLine.number == startLine.number
                   ? `${endLinePos}`
                   : `${endLine.number}:${endLinePos}`
