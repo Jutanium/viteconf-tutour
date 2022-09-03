@@ -1,11 +1,11 @@
 import { Navigate } from "solid-app-router";
 import { createContext, useContext, ParentComponent, batch } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
-import { CodeLinkWithPath, FilePath } from "../state/projectData";
+import { CodeLinkWithPath, FilePath } from "@/state";
 
 interface ConductorState {
   file: {
-    currentFile: FilePath | "";
+    currentFileId: string;
     currentSelection: { from: number | false; to: number | false };
     currentCodeLink: string | false;
     updated: number;
@@ -14,7 +14,7 @@ interface ConductorState {
 
 const defaultState: ConductorState = {
   file: {
-    currentFile: "",
+    currentFileId: "",
     currentSelection: { from: false, to: false },
     currentCodeLink: false,
     updated: 0,
@@ -22,7 +22,7 @@ const defaultState: ConductorState = {
 };
 
 type Actions = {
-  navigate: (id: FilePath, from?: number, to?: number) => void;
+  navigate: (fileId: string, from?: number, to?: number) => void;
   gotoCodeLink(codeLink: CodeLinkWithPath);
   // setCodeLink: (id: string) => void;
   // clearCodeLink: () => void;
@@ -35,9 +35,9 @@ export const ConductorProvider: ParentComponent = (props) => {
   const [state, setState] = createStore(defaultState);
 
   const actions: Actions = {
-    navigate(id: FilePath, from?: number, to?: number) {
+    navigate(fileId: string, from?: number, to?: number) {
       batch(() => {
-        setState("file", "currentFile", id);
+        setState("file", "currentFileId", fileId);
         setState("file", "currentSelection", { from, to });
         setState("file", "updated", (u) => u + 1);
       });

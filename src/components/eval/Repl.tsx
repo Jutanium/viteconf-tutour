@@ -31,6 +31,7 @@ function treeFromFiles(files: FileState[]): FileSystemTree {
       file: { contents: file.doc },
     };
   }
+
   return tree;
 }
 
@@ -55,8 +56,12 @@ export function Repl(props: Props) {
   let container: WebContainer;
 
   async function loadFiles() {
-    if (container)
-      await container.loadFiles(treeFromFiles(props.fileSystem.fileList));
+    if (container) {
+      await container.fs.rm("app", { force: true, recursive: true });
+      await container.loadFiles({
+        app: { directory: treeFromFiles(props.fileSystem.fileList) },
+      });
+    }
   }
 
   createEffect(
@@ -68,8 +73,8 @@ export function Repl(props: Props) {
         if (container) {
           let result = await container.run(
             {
-              command: "node",
-              args: ["testScript.js"],
+              command: "ls",
+              args: ["app", "-a"],
             },
             {
               output: (data) => {
@@ -92,7 +97,7 @@ export function Repl(props: Props) {
     let result = await container.run(
       {
         command: "ls",
-        args: [],
+        args: ["app", "-a"],
       },
       {
         output: (data) => {
@@ -123,7 +128,7 @@ export function Repl(props: Props) {
 
   return (
     <div
-      class="h-full w-full bg-blue-500"
+      class="h-full w-full bg-black"
       ref={(el) => {
         terminal.open(el);
         fitAddon.fit();

@@ -26,7 +26,7 @@ export const FileEditor: Component<Props> = (props) => {
 
   const { view } = createCodemirror({
     language: getFileType(props.fileState.pathName),
-    rootClass: theme.codemirror.root(props.fileState),
+    rootClass: theme?.codemirror.root(props.fileState),
     staticExtension: [lineNumbers()],
     reactiveExtension: () => props.themeExtension,
     startingDoc: props.fileState.doc,
@@ -60,7 +60,7 @@ export const FileEditor: Component<Props> = (props) => {
     on(
       () => conductor.file.updated,
       () => {
-        if (conductor.file.currentFile == props.fileState.pathName) {
+        if (conductor.file.currentFileId == props.fileState.pathName) {
           const { from, to } = conductor.file.currentSelection;
           if (typeof from === "number") {
             const selection =

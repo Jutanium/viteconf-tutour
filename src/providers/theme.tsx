@@ -7,32 +7,24 @@ import { defaultLight } from "../codemirror/defaultLight";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "codemirror";
 
-export interface ThemeConfig {
-  tabbedEditorRoot: () => string;
-  tablist: () => string;
-  tablistItem: (selected: boolean, file: FileState, index: number) => string;
-  codemirror: {
-    root: (file: FileState | "content") => string;
-    darkTheme: Extension;
-    lightTheme: Extension;
-  };
-}
-
-export const defaultTheme: ThemeConfig = {
+export const defaultTheme = {
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
-  tablist: () => "w-full flex",
-  tablistItem: (selected: boolean, file: FileState, index: number) => {
-    const base = `border-b-2 font-mono font-semibold px-1 text-sm border-r-0`;
+  tablist: () => "w-full flex dark:bg-oneDark-background",
+  tablistItem: (selected: boolean, index: number) => {
+    const base = `border-b-1 font-semibold font-mono px-1 text-sm border-r-0 h-full`;
     const highlighted = selected
-      ? `bg-gray-200 border-blue-400 dark:bg-black`
-      : `dark:bg-gray-500`;
-    const dark = `dark:text-white`;
+      ? `bg-gray-200 border-oneDark-chalky dark:bg-oneDark-highlightBackground`
+      : `dark:bg-oneDark-background`;
+    const dark = `dark:text-oneDark-ivory`;
     const alternate =
       !selected && (index % 2 === 0 ? "border-gray-400" : "border-gray-700");
     return `${base} ${dark} ${highlighted} ${alternate}`;
   },
+  tablistItemClose: () => "px-1 hover:text-yellow-500 h-full",
+  tablistAdd: () =>
+    "w-6 text-sm dark:text-white hover:(font-bold text-yellow-500)",
   codemirror: {
-    root: (file: FileState | "content") => "w-full h-full",
+    root: (file: FileState | "content") => "w-full h-full outline-none",
     darkTheme: [
       oneDark,
       EditorView.theme({
@@ -44,6 +36,8 @@ export const defaultTheme: ThemeConfig = {
     lightTheme: defaultLight,
   },
 };
+
+export type ThemeConfig = typeof defaultTheme;
 
 const ThemeContext = createContext<ThemeConfig>();
 

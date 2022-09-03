@@ -1,19 +1,15 @@
 import { Text } from "@codemirror/state";
-import { createSignal } from "solid-js";
+import { createSignal, createUniqueId } from "solid-js";
 import { createStore, Store } from "solid-js/store";
-import { FileEditor } from "../components/editor/code/FileEditor";
 
-export type FileType =
-  | "html"
-  | "js"
-  | "jsx"
-  | "tsx"
-  | "ts"
-  | "css"
-  | "json"
-  | "md";
+const fileTypes = ["ts", "js", "tsx", "jsx", "json", "md", "html", "css"];
+export type FileType = typeof fileTypes[number];
 
 export type FilePath = `${string}.${FileType}`;
+
+export function isFilePath(path: string): path is FilePath {
+  return fileTypes.some((type) => path.endsWith(`.${type}`));
+}
 
 export function getFileType(path: FilePath): FileType {
   const parts = path.split(".");
@@ -33,9 +29,10 @@ export interface CodeLinkWithPath extends CodeLink {
   pathName: FilePath;
 }
 
-function createFileState(doc: string, path: FilePath, codeLinks: CodeLink[]) {
+function createFileState(doc: string, path: FilePath, codeLinks?: CodeLink[]) {
   const [getDocument, setDocument] = createSignal(doc);
   const [getPath, setPath] = createSignal(path);
+  const id = createUniqueId();
   // const [state, setState] = createStore<FileData>({
   //   doc,
   //   pathName,
@@ -50,13 +47,15 @@ function createFileState(doc: string, path: FilePath, codeLinks: CodeLink[]) {
     get pathName() {
       return getPath();
     },
-
+    id,
     setDoc(newDoc: Text) {
       const string = newDoc.sliceString(0);
       setDocument(string);
     },
     setPathName(newPath: FilePath) {
+      if (getPath() === newPath) return false;
       setPath(newPath);
+      return true;
     },
   };
 }
@@ -64,28 +63,37 @@ function createFileState(doc: string, path: FilePath, codeLinks: CodeLink[]) {
 export type FileState = ReturnType<typeof createFileState>;
 
 export function createFileSystem(initialFiles?: FileState[]) {
-  const [files, setFiles] = createStore<FileState[]>(initialFiles || []);
+  const [files, setFiles] = createStore<{ [id: string]: FileState }>(
+    initialFiles
+      ? Object.fromEntries(initialFiles.map((file) => [file.id, file]))
+      : {}
+  );
   const [getSaved, setSaved] = createSignal(0);
-
-  const addFile = (...args: Parameters<typeof createFileState>) => {
-    setFiles((files) => [...files, createFileState(...args)]);
-  };
-
-  const removeFile = (pathName: string) => {
-    setFiles((files) => files.filter((file) => file.pathName !== pathName));
-  };
-
-  const renameFile = (oldPathName: FilePath, newPathName: FilePath) => {
-    files
-      .find((file) => file.pathName === oldPathName)
-      ?.setPathName(newPathName);
-  };
 
   const save = () => setSaved(Date.now());
 
+  const addFile = (...args: Parameters<typeof createFileState>) => {
+    const newFile = createFileState(...args);
+    setFiles(newFile.id, newFile);
+    save();
+    return newFile;
+  };
+
+  const removeFile = (id: string) => {
+    setFiles(id, undefined);
+    save();
+  };
+
+  const renameFile = (id: string, newPathName: FilePath) => {
+    const nameChanged = files[id].setPathName(newPathName);
+    if (nameChanged) {
+      save();
+    }
+  };
+
   return {
     get fileList() {
-      return files;
+      return Object.values(files);
     },
     get saved() {
       return getSaved();

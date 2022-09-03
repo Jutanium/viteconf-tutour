@@ -11,6 +11,7 @@
   "devDependencies": {
     "@types/node": "^18.7.14",
     "@unocss/preset-typography": "^0.44.7",
+    "@unocss/transformer-variant-group": "^0.45.14",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.12",
     "typescript": "^4.7.4",
@@ -42,7 +43,7 @@
     "prosemirror-markdown": "^1.9.3",
     "prosemirror-model": "^1.18.1",
     "solid-app-router": "^0.4.1",
-    "solid-js": "^1.4.7",
+    "solid-js": "^1.5.3",
     "xterm": "^4.19.0",
     "xterm-addon-fit": "^0.5.0"
   }

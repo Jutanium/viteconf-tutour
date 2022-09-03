@@ -13,7 +13,6 @@ const ProjectEditor: Component<{}> = (props) => {
   const testSlide = createSlideState();
 
   console.log(testSlide);
-
   testSlide.fileSystem.addFile(
     "beginning\n\n\n<div></div>\n",
     "testFile.html",
@@ -41,9 +40,11 @@ asfasdf
 
   const themeExtension = createMemo(() => {
     const theme = useTheme();
-    return prefersDark()
-      ? theme.codemirror.darkTheme
-      : theme.codemirror.lightTheme;
+    if (theme) {
+      return prefersDark()
+        ? theme.codemirror.darkTheme
+        : theme.codemirror.lightTheme;
+    }
   });
 
   createEffect(() => {
