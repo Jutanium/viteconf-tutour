@@ -29,7 +29,7 @@ export const defaultTheme = {
     root: (file: FileState | "content") => "w-full h-full outline-none",
     baseTheme: [
       EditorView.theme({
-        ".cm-content": {
+        "&": {
           fontSize: "1rem",
         },
       }),
