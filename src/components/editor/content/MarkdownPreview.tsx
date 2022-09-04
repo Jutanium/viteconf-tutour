@@ -1,15 +1,11 @@
 import { Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { micromark } from "micromark";
+import SolidMarkdown from "solid-markdown";
 
 export const MarkdownPreview: Component<{ markdown: string }> = (props) => {
-
-  const result = micromark(props.markdown);
-
   return (
-    <div
-      class="markdown dark:bg-editorblack dark:text-white"
-      innerHTML={result}
-    ></div>
+    <SolidMarkdown class="markdown h-full text-sm dark:(bg-oneDark-background text-white)">
+      {props.markdown}
+    </SolidMarkdown>
   );
 };

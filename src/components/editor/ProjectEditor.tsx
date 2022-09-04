@@ -11,6 +11,7 @@ import { TabbedEditor } from "./code/TabbedEditor";
 import { MarkdownEditor } from "./content/MarkdownEditor";
 import { ConductorProvider } from "../../providers/conductor";
 import { Repl } from "../eval/Repl";
+import { MarkdownPreview } from "./content/MarkdownPreview";
 
 const ProjectEditor: Component<{}> = (props) => {
   const prefersDark = usePrefersDark();
@@ -70,7 +71,9 @@ asfasdf
   `);
 
   const slideTwo = createSlideState();
+
   slideTwo.fileSystem.addFile("<div>big div</div>", "another.html");
+  slideTwo.setMarkdown(`# Slide Two`);
 
   project.addSlide(testSlide);
   project.addSlide(slideTwo);
@@ -83,7 +86,7 @@ asfasdf
       <div class="flex h-screen" onKeyDown={handleKeyPress}>
         <div class="w-1/2">
           <div class="h-min flex gap-2">
-            {/* <For each={project.slides}>
+            <For each={project.slides}>
               {(slide, index) => (
                 <button
                   class="rounded-full"
@@ -92,7 +95,23 @@ asfasdf
                   {index() + 1}
                 </button>
               )}
-            </For> */}
+            </For>
+          </div>
+          <div>
+            <For each={project.slides}>
+              {(slide, index) => (
+                <Show
+                  when={index() === slideIndex()}
+                  fallback={<MarkdownPreview markdown={slide.markdown} />}
+                >
+                  <MarkdownEditor
+                    themeExtension={themeExtension()}
+                    startingMarkdown={slide.markdown}
+                    updateMarkdown={slide.setMarkdown}
+                  />
+                </Show>
+              )}
+            </For>
           </div>
         </div>
         <TabbedEditor
