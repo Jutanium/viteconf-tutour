@@ -1,12 +1,12 @@
 import { Extension } from "@codemirror/state";
 import { Component, createEffect, createSignal } from "solid-js";
-import { SlideState } from "../../../state";
+import { SlideState } from "../../../../state";
 
-import { MarkdownEditor } from "./MarkdownEditor";
-import { MarkdownPreview } from "./MarkdownPreview";
+import { MarkdownEditor } from "../MarkdownEditor";
+import { MarkdownPreview } from "../MarkdownPreview";
 
-import { useConductor } from "../../../providers/conductor";
-import CodeLinkLabel from "./CodeLinkLabel";
+import { useConductor } from "../../../../providers/conductor";
+import CodeLinkLabel from "../CodeLinkLabel";
 import { CodeLinkWithPath } from "../../../state/projectData";
 
 const CodeLinksList: Component<{

@@ -3,6 +3,9 @@ import { defineConfig, presetTypography, presetUno } from "unocss";
 
 export default defineConfig({
   theme: {
+    fontFamily: {
+      mono: ["monospace"],
+    },
     colors: {
       oneDark: {
         chalky: "#e5c07b",

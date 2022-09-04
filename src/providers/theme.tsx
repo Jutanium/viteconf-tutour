@@ -11,14 +11,17 @@ export const defaultTheme = {
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
   tablist: () => "w-full flex dark:bg-oneDark-background",
   tablistItem: (selected: boolean, index: number) => {
-    const base = `border-b-1 font-semibold font-mono px-1 text-sm border-r-0 h-full`;
+    const base = `font-semibold border-b-1 font-mono px-1 text-sm h-full border-r-1 border-oneDark-selection`;
     const highlighted = selected
-      ? `bg-gray-200 border-oneDark-chalky dark:bg-oneDark-highlightBackground`
+      ? `bg-gray-200 border-b-oneDark-chalky dark:bg-oneDark-highlightBackground`
       : `dark:bg-oneDark-background`;
     const dark = `dark:text-oneDark-ivory`;
     const alternate =
-      !selected && (index % 2 === 0 ? "border-gray-400" : "border-gray-700");
-    return `${base} ${dark} ${highlighted} ${alternate}`;
+      !selected &&
+      (index % 2 === 0
+        ? "dark:border-oneDark-selection"
+        : "dark:border-oneDark-highlightBackground");
+    return `${base} ${dark} ${highlighted}`;
   },
   tablistItemClose: () => "px-1 hover:text-yellow-500 h-full",
   tablistAdd: () =>

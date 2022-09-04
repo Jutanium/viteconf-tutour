@@ -109,9 +109,9 @@ export type FileSystemState = ReturnType<typeof createFileSystem>;
 // const mapWithPath = (file: FileState) =>
 //   file.codeLinks.map((codeLink) => ({ ...codeLink, pathName: file.pathName }));
 
-export function createSlideState() {
+export function createSlideState(cloneFiles?: FileState[]) {
   //Setter will be used when importing file system from GitHub
-  const [getFS, setFS] = createSignal(createFileSystem());
+  const [getFS, setFS] = createSignal(createFileSystem(cloneFiles));
   const [getMD, setMD] = createSignal("");
 
   return {
