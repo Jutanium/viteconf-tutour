@@ -112,19 +112,6 @@ export const TabbedEditor: Component<Props> = (props) => {
 
   navigate(props.fileSystem.fileList[0].id);
 
-  const editorEntries = mapArray(
-    () => props.fileSystem.fileList,
-    (fileState) => [
-      fileState.id,
-      <FileEditor
-        fileState={fileState}
-        themeExtension={props.themeExtension}
-      />,
-    ]
-  );
-
-  const editors = createMemo(() => Object.fromEntries(editorEntries()));
-
   function tabClicked(fileId: string) {
     if (conductor.file.currentFileId === fileId) {
       setRenaming(fileId);
@@ -188,7 +175,16 @@ export const TabbedEditor: Component<Props> = (props) => {
           +
         </button>
       </div>
-      <Dynamic component={editors()[conductor.file.currentFileId]} />
+      <For each={props.fileSystem.fileList}>
+        {(fileState, i) => (
+          <Show when={fileState.id === conductor.file.currentFileId}>
+            <FileEditor
+              fileState={fileState}
+              themeExtension={props.themeExtension}
+            />
+          </Show>
+        )}
+      </For>
     </div>
   );
 };

@@ -125,7 +125,7 @@ asfasdf
           fileSystem={currentSlide().fileSystem}
           themeExtension={themeExtension()}
         />
-        {/* <Repl fileSystem={testSlide.fileSystem} /> */}
+        <Repl fileSystem={testSlide.fileSystem} />
       </div>
     </ConductorProvider>
   );
