@@ -11,7 +11,7 @@ export const defaultTheme = {
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
   tablist: () => "w-full flex dark:bg-oneDark-background",
   tablistItem: (selected: boolean, index: number) => {
-    const base = `font-semibold border-b-1 font-mono px-1 text-sm h-full border-r-1 border-oneDark-selection`;
+    const base = `font-semibold border-b-1 font-mono px-1 text-lg h-full border-r-1 border-oneDark-selection`;
     const highlighted = selected
       ? `bg-gray-200 border-b-oneDark-chalky dark:bg-oneDark-highlightBackground`
       : `dark:bg-oneDark-background`;
@@ -24,10 +24,16 @@ export const defaultTheme = {
     return `${base} ${dark} ${highlighted}`;
   },
   tablistItemClose: () => "px-1 hover:text-yellow-500 h-full",
-  tablistAdd: () =>
-    "w-6 text-sm dark:text-white hover:(font-bold text-yellow-500)",
+  tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
   codemirror: {
     root: (file: FileState | "content") => "w-full h-full outline-none",
+    baseTheme: [
+      EditorView.theme({
+        ".cm-content": {
+          fontSize: "1rem",
+        },
+      }),
+    ],
     darkTheme: [
       oneDark,
       EditorView.theme({

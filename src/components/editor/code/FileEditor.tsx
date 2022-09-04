@@ -1,5 +1,5 @@
 import { EditorSelection, Extension } from "@codemirror/state";
-import { lineNumbers } from "@codemirror/view";
+import { EditorView, lineNumbers } from "@codemirror/view";
 import {
   Component,
   createEffect,
@@ -27,7 +27,7 @@ export const FileEditor: Component<Props> = (props) => {
   const { view } = createCodemirror({
     language: getFileType(props.fileState.pathName),
     rootClass: theme?.codemirror.root(props.fileState),
-    staticExtension: [lineNumbers()],
+    staticExtension: [lineNumbers(), theme.codemirror.baseTheme],
     reactiveExtension: () => props.themeExtension,
     startingDoc: props.fileState.doc,
     onUpdate: (updates, view) => {
