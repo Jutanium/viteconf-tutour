@@ -38,4 +38,5 @@ export default [
   crosshairCursor(),
   highlightActiveLine(),
   highlightSelectionMatches(),
+  EditorView.lineWrapping,
 ];

@@ -4,6 +4,7 @@ import { defineConfig, presetTypography, presetUno } from "unocss";
 export default defineConfig({
   theme: {
     fontFamily: {
+      sans: ["Open Sans", "sans-serif"],
       mono: ["monospace"],
     },
     colors: {
@@ -31,7 +32,22 @@ export default defineConfig({
     presetTypography({
       selectorName: "markdown",
       cssExtend: {
+        h1: {
+          "font-size": "1.75rem",
+        },
+        h2: {
+          "font-size": "1.4rem",
+        },
+        h3: {
+          "font-size": "1.2rem",
+        },
+        h4: {
+          "font-size": "1rem",
+        },
         "h1,h2,h3": {
+          margin: 0,
+        },
+        p: {
           margin: 0,
         },
       },
