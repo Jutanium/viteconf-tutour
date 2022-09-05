@@ -1,6 +1,6 @@
 import { Handler } from "@netlify/functions";
 import degit from "degit";
-import { readdir, rmdir, readFile } from "fs/promises";
+import { readdir, rm, readFile } from "fs/promises";
 import { resolve } from "path";
 
 //I get my recursive functions from Stackoverflow https://stackoverflow.com/a/45130990
@@ -47,7 +47,8 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  const temp = ".tmp/";
+  const temp = resolve(__dirname, "temp");
+  console.log(temp);
 
   await degit(repo, { force: true, cache: true, verbose: true }).clone(temp);
   const filenames = await getFiles(temp);
@@ -57,7 +58,7 @@ export const handler: Handler = async (event, context) => {
       doc: (await readFile(filename)).toString(),
     }))
   );
-  await rmdir(temp, { recursive: true });
+  // await rm(temp, { recursive: true });
 
   // console.log(files);
 
