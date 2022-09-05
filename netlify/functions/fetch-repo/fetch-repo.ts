@@ -1,15 +1,68 @@
 import { Handler } from "@netlify/functions";
+import degit from "degit";
+import { readdir, rmdir, readFile } from "fs/promises";
+import { resolve } from "path";
+
+//I get my recursive functions from Stackoverflow https://stackoverflow.com/a/45130990
+async function getFiles(dir: string): Promise<string[]> {
+  const dirents = await readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(
+    dirents.map((dirent) => {
+      const res = resolve(dir, dirent.name);
+      return dirent.isDirectory() ? getFiles(res) : res;
+    })
+  );
+  return Array.prototype.concat(...files);
+}
+
+// const degitPromise = (arg: string) => {
+//   return new Promise((resolve, reject) => {
+//     const emitter = degit(arg, {
+//       cache: true,
+//       force: true,
+//       verbose: true,
+//     });
+//     emitter.on("info", (info) => {
+//       resolve(info);
+//     });
+//   });
+// };
 
 export const handler: Handler = async (event, context) => {
-  const { name = "stranger" } = event.queryStringParameters;
+  // const envTest = process.env.GITHUB_AUTH;
 
-  const body = event.body;
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 500,
+    };
+  }
+
+  const { repo } = JSON.parse(event.body);
+
+  if (typeof repo !== "string") {
+    return {
+      statusCode: 500,
+    };
+  }
+
+  const temp = ".tmp/";
+
+  await degit(repo, { force: true }).clone(temp);
+  const filenames = await getFiles(temp);
+  const files = await Promise.all(
+    filenames.map(async (filename) => ({
+      path: filename.split(temp)[1],
+      doc: (await readFile(filename)).toString(),
+    }))
+  );
+  await rmdir(temp, { recursive: true });
+
+  // console.log(files);
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: `Hello, ${name}!`,
-      body,
+      files,
     }),
   };
 };

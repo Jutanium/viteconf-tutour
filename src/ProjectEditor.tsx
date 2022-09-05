@@ -27,7 +27,7 @@ import "@fontsource/open-sans/700.css";
 import "@fontsource/open-sans/700-italic.css";
 import "@fontsource/open-sans/400-italic.css";
 import { useParams } from "solid-app-router";
-import { testFunction } from "./data/github";
+import { getDegit } from "./data/github";
 
 const ProjectEditor: Component<{}> = (props) => {
   const prefersDark = usePrefersDark();
@@ -107,7 +107,7 @@ asfasdf
         <div class="w-1/2">
           <Userbar projectData={project.serialized} />
           <div class="h-min flex gap-2">
-            <button onClick={testFunction}>GH</button>
+            <button onClick={() => getDegit("solidjs/templates/js")}>GH</button>
             <For each={project.slides}>
               {(slide, index) => (
                 <button

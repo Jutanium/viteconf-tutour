@@ -1,14 +1,16 @@
-export const testFunction = async () => {
+export async function getDegit(repo: string) {
   const requestData: RequestInit = {
     method: "POST",
     body: JSON.stringify({
-      test: "hi",
+      repo,
     }),
   };
-  const resp = await fetch(
-    "./.netlify/functions/fetch-repo?name=world",
-    requestData
-  );
-  const json = await resp.json();
-  console.log(json);
-};
+  try {
+    const resp = await fetch("./.netlify/functions/fetch-repo", requestData);
+    const json = await resp.json();
+    console.log(json);
+    return json;
+  } catch (err) {
+    console.log(err);
+  }
+}

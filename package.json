@@ -42,6 +42,8 @@
     "@unocss/reset": "^0.44.3",
     "@webcontainer/api": "^0.0.5",
     "codemirror": "^6.0.1",
+    "degit": "^2.8.4",
+    "octokit": "^2.0.7",
     "solid-app-router": "^0.4.1",
     "solid-js": "^1.5.3",
     "solid-markdown": "^1.2.0",
