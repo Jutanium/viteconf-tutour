@@ -39,6 +39,8 @@ export const handler: Handler = async (event, context) => {
 
   const { repo } = JSON.parse(event.body);
 
+  console.log(repo);
+
   if (typeof repo !== "string") {
     return {
       statusCode: 500,
