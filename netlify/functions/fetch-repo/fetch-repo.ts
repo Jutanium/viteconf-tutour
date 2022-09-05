@@ -49,7 +49,7 @@ export const handler: Handler = async (event, context) => {
 
   const temp = ".tmp/";
 
-  await degit(repo, { force: true }).clone(temp);
+  await degit(repo, { force: true, cache: true, verbose: true }).clone(temp);
   const filenames = await getFiles(temp);
   const files = await Promise.all(
     filenames.map(async (filename) => ({
