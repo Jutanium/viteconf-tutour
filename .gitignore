@@ -2,3 +2,5 @@ node_modules
 dist
 # Local Netlify folder
 .netlify
+secrets.md
+.env

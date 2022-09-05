@@ -21,12 +21,12 @@ const defaultState: ConductorState = {
   },
 };
 
-type Actions = {
+interface Actions {
   navigate: (fileId: string, from?: number, to?: number) => void;
   gotoCodeLink(codeLink: CodeLinkWithPath);
   // setCodeLink: (id: string) => void;
   // clearCodeLink: () => void;
-};
+}
 
 const ConductorContext =
   createContext<[state: ConductorState, actions: Actions]>();

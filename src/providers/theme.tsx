@@ -25,6 +25,10 @@ export const defaultTheme = {
   },
   tablistItemClose: () => "px-1 hover:text-yellow-500 h-full",
   tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
+  userbar: () =>
+    "w-full font-sans text-sm flex items-center justify-between gap-2 dark:bg-oneDark-background text-white",
+  userbarButton: () =>
+    "font-bold m-1 p-1 ml-a border-1 border-rounded border-oneDark-selection dark:text-white dark:bg-oneDark-background hover:dark:bg-oneDark-selection",
   codemirror: {
     root: (file: FileState | "content") => "w-full h-full outline-none",
     baseTheme: [

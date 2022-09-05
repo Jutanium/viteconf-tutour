@@ -1,17 +1,24 @@
 import { usePrefersDark } from "@solid-primitives/media";
-import { Component, createEffect, createMemo, createSignal } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  ErrorBoundary,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 import {
   createFileSystem,
   createProjectState,
   createSlideState,
 } from "@/state";
-import { ThemeProvider, useTheme } from "../../providers/theme";
-import { TabbedEditor } from "./code/TabbedEditor";
-import { MarkdownEditor } from "./content/MarkdownEditor";
-import { ConductorProvider } from "../../providers/conductor";
-import { Repl } from "../eval/Repl";
-import { MarkdownPreview } from "./content/MarkdownPreview";
+import { ThemeProvider, useTheme } from "./providers/theme";
+import { TabbedEditor } from "./components/editor/code/TabbedEditor";
+import { MarkdownEditor } from "./components/editor/content/MarkdownEditor";
+import { ConductorProvider } from "./providers/conductor";
+import { Repl } from "./components/eval/Repl";
+import { MarkdownPreview } from "./components/editor/content/MarkdownPreview";
+import Userbar from "@/components/users/Userbar";
 
 import "@fontsource/open-sans";
 import "@fontsource/open-sans/600.css";
@@ -19,10 +26,15 @@ import "@fontsource/open-sans/600-italic.css";
 import "@fontsource/open-sans/700.css";
 import "@fontsource/open-sans/700-italic.css";
 import "@fontsource/open-sans/400-italic.css";
+import { useParams } from "solid-app-router";
+import { testFunction } from "./data/github";
 
 const ProjectEditor: Component<{}> = (props) => {
   const prefersDark = usePrefersDark();
   const theme = useTheme();
+
+  const params = useParams();
+  console.log(params.id);
 
   const themeExtension = createMemo(() => {
     if (theme) {
@@ -55,17 +67,15 @@ const ProjectEditor: Component<{}> = (props) => {
 
   const testSlide = createSlideState();
 
-  testSlide.fileSystem.addFile(
-    "beginning\n\n\n<div></div>\n",
-    "testFile.html",
-    [{ from: 1, to: 4, id: "test", name: "test" }]
-  );
+  testSlide.fileSystem.addFile({
+    doc: "beginning\n\n\n<div></div>\n",
+    path: "testFile.html",
+  });
 
-  testSlide.fileSystem.addFile(
-    "\n\n\nconsole.log('hi')\n",
-    "testScript.js",
-    []
-  );
+  testSlide.fileSystem.addFile({
+    doc: "\n\n\nconsole.log('hi')\n",
+    path: "testScript.js",
+  });
 
   testSlide.setMarkdown(`# Testing
 more stuff
@@ -79,7 +89,10 @@ asfasdf
 
   const slideTwo = createSlideState();
 
-  slideTwo.fileSystem.addFile("<div>big div</div>", "another.html");
+  slideTwo.fileSystem.addFile({
+    doc: "<div>big div</div>",
+    path: "another.html",
+  });
   slideTwo.setMarkdown(`# Slide Two`);
 
   project.addSlide(testSlide);
@@ -92,7 +105,9 @@ asfasdf
     <ConductorProvider>
       <div class="flex h-screen" onKeyDown={handleKeyPress}>
         <div class="w-1/2">
+          <Userbar projectData={project.serialized} />
           <div class="h-min flex gap-2">
+            <button onClick={testFunction}>GH</button>
             <For each={project.slides}>
               {(slide, index) => (
                 <button
@@ -121,11 +136,13 @@ asfasdf
             </For>
           </div>
         </div>
-        <TabbedEditor
-          fileSystem={currentSlide().fileSystem}
-          themeExtension={themeExtension()}
-        />
-        <Repl fileSystem={testSlide.fileSystem} />
+        <div class="w-1/2">
+          <TabbedEditor
+            fileSystem={currentSlide().fileSystem}
+            themeExtension={themeExtension()}
+          />
+        </div>
+        {/* <Repl fileSystem={testSlide.fileSystem} /> */}
       </div>
     </ConductorProvider>
   );
