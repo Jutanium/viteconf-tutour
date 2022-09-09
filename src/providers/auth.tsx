@@ -9,8 +9,6 @@ import { createStore } from "solid-js/store";
 import { supabase } from "@/data/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 
-supabase.auth.getSession();
-
 interface AuthState {
   session: Session;
   error: Error;
@@ -34,10 +32,14 @@ export const AuthProvider: ParentComponent = (props) => {
     if (signing === "in") {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
+        options: {
+          scopes: "repo",
+        },
       });
       if (error) {
         throw error;
       }
+      console.log(data);
       return data;
     }
     if (signing === "out") {
@@ -49,8 +51,6 @@ export const AuthProvider: ParentComponent = (props) => {
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log(event, session);
-    console.log(session?.user);
     setSession(session);
   });
 

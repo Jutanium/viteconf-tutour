@@ -1,32 +1,6 @@
 import { Handler } from "@netlify/functions";
-import degit from "degit";
-import { readdir, rm, readFile } from "fs/promises";
-import { resolve } from "path";
 
-//I get my recursive functions from Stackoverflow https://stackoverflow.com/a/45130990
-async function getFiles(dir: string): Promise<string[]> {
-  const dirents = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    dirents.map((dirent) => {
-      const res = resolve(dir, dirent.name);
-      return dirent.isDirectory() ? getFiles(res) : res;
-    })
-  );
-  return Array.prototype.concat(...files);
-}
-
-// const degitPromise = (arg: string) => {
-//   return new Promise((resolve, reject) => {
-//     const emitter = degit(arg, {
-//       cache: true,
-//       force: true,
-//       verbose: true,
-//     });
-//     emitter.on("info", (info) => {
-//       resolve(info);
-//     });
-//   });
-// };
+import { Octokit } from "@octokit/rest";
 
 export const handler: Handler = async (event, context) => {
   // const envTest = process.env.GITHUB_AUTH;
@@ -37,9 +11,9 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  const { repo } = JSON.parse(event.body);
+  const { owner, repo, path, provider_token } = JSON.parse(event.body);
 
-  console.log(repo);
+  console.log(repo, provider_token);
 
   if (typeof repo !== "string") {
     return {
@@ -47,20 +21,47 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  const temp = resolve(__dirname, "temp");
-  console.log(temp);
+  const octokit = new Octokit({
+    // auth: provider_token,
+    auth: process.env.GITHUB_AUTH,
+    userAgent: "tutour server",
+  });
 
-  await degit(repo, { force: true, cache: true, verbose: true }).clone(temp);
-  const filenames = await getFiles(temp);
-  const files = await Promise.all(
-    filenames.map(async (filename) => ({
-      path: filename.split(temp)[1],
-      doc: (await readFile(filename)).toString(),
-    }))
-  );
-  // await rm(temp, { recursive: true });
+  const fetchPath = async (path: string) => {
+    const response = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path,
+    });
+    const dataArray = response.data as Array<{
+      url: string;
+      path: string;
+      sha: string;
+      type: string;
+    }>;
 
-  // console.log(files);
+    const files = await Promise.all(
+      dataArray.map(async (fileData) => {
+        if (fileData.type === "dir") {
+          return await fetchPath(fileData.path);
+        }
+        const { url, path: repoPath, sha } = fileData;
+        const {
+          data: { content },
+        } = await octokit.rest.git.getBlob({
+          owner,
+          repo,
+          file_sha: sha,
+        });
+
+        return { path, content };
+      })
+    );
+
+    return files.flat();
+  };
+
+  const files = await fetchPath(path);
 
   return {
     statusCode: 200,

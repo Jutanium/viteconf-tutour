@@ -1,8 +1,10 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import {
+  batch,
   Component,
   createEffect,
   createMemo,
+  createResource,
   createSignal,
   ErrorBoundary,
 } from "solid-js";
@@ -11,6 +13,8 @@ import {
   createFileSystem,
   createProjectState,
   createSlideState,
+  ProjectData,
+  ProjectState,
 } from "@/state";
 import { ThemeProvider, useTheme } from "./providers/theme";
 import { TabbedEditor } from "./components/editor/code/TabbedEditor";
@@ -26,45 +30,13 @@ import "@fontsource/open-sans/600-italic.css";
 import "@fontsource/open-sans/700.css";
 import "@fontsource/open-sans/700-italic.css";
 import "@fontsource/open-sans/400-italic.css";
-import { useParams } from "solid-app-router";
+import { useNavigate, useParams, useRouteData } from "solid-app-router";
 import { getDegit } from "./data/github";
+import { createProject, getProjectById } from "./data/projects";
 
-const ProjectEditor: Component<{}> = (props) => {
-  const prefersDark = usePrefersDark();
-  const theme = useTheme();
-
-  const params = useParams();
-  console.log(params.id);
-
-  const themeExtension = createMemo(() => {
-    if (theme) {
-      return prefersDark()
-        ? theme.codemirror.darkTheme
-        : theme.codemirror.lightTheme;
-    }
-  });
-
-  createEffect(() => {
-    console.log("dark mode", prefersDark());
-    if (prefersDark()) {
-      document.documentElement.classList.remove("light");
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.classList.remove("dark");
-    }
-  });
-
-  function handleKeyPress(e: KeyboardEvent) {
-    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      testSlide.fileSystem.save();
-      console.log("saving");
-    }
-  }
-
+//Todo: load this from somewhere
+export function DefaultProjectData() {
   const project = createProjectState();
-
   const testSlide = createSlideState();
 
   testSlide.fileSystem.addFile({
@@ -98,49 +70,125 @@ asfasdf
   project.addSlide(testSlide);
   project.addSlide(slideTwo);
 
+  return createMemo(() => project);
+}
+
+async function getInitialProject(id) {
+  if (id) {
+    const project = await getProjectById(id);
+    if (project) return createProjectState(project);
+  }
+}
+export function LoadProjectData({ params }) {
+  const [projectState] = createResource(() => params.id, getInitialProject);
+  return projectState;
+}
+
+const ProjectEditor: Component<{}> = (props) => {
+  const prefersDark = usePrefersDark();
+  const theme = useTheme();
+
+  const navigate = useNavigate();
+
+  const themeExtension = createMemo(() => {
+    if (theme) {
+      return prefersDark()
+        ? theme.codemirror.darkTheme
+        : theme.codemirror.lightTheme;
+    }
+  });
+
+  createEffect(() => {
+    console.log("dark mode", prefersDark());
+    if (prefersDark()) {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+  });
+
+  const project = useRouteData<ProjectState>();
+  // const project = createMemo(() => createProjectState(projectData));
+  // function handleKeyPress(e: KeyboardEvent) {
+  //   if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+  //     e.preventDefault();
+  //     testSlide.fileSystem.save();
+  //     console.log("saving");
+  //   }
+  // }
+
+  // createResource(() => project.serialized, async (serialized) => {
+  // update if there's an existing hash
+  // })
+
+  // createEffect(() => {
+  //   console.log("serialized", project().serialized);
+  // });
+
+  async function initialSave() {
+    console.log("initial save");
+    const id = await createProject(project().serialized);
+    navigate(`/p/${id}`);
+  }
+
   const [slideIndex, setSlideIndex] = createSignal(0);
-  const currentSlide = createMemo(() => project.slides[slideIndex()]);
+  const currentSlide = createMemo(() => project()?.slides[slideIndex()]);
 
   return (
     <ConductorProvider>
-      <div class="flex h-screen" onKeyDown={handleKeyPress}>
+      <div class="flex h-screen">
         <div class="w-1/2">
-          <Userbar projectData={project.serialized} />
-          <div class="h-min flex gap-2">
-            <button onClick={() => getDegit("solidjs/templates/js")}>GH</button>
-            <For each={project.slides}>
-              {(slide, index) => (
-                <button
-                  class="rounded-full"
-                  onClick={() => setSlideIndex(index())}
-                >
-                  {index() + 1}
-                </button>
-              )}
-            </For>
-          </div>
+          <Show when={project()}>
+            <Userbar
+              projectData={project().serialized}
+              saveButtonClicked={initialSave}
+            />
+          </Show>
+          <Show when={project()}>
+            <div class="h-min flex gap-2">
+              <button onClick={() => getDegit("solidjs/templates/js")}>
+                GH
+              </button>
+              <For each={project().slides}>
+                {(slide, index) => (
+                  <button
+                    class="rounded-full"
+                    onClick={() => setSlideIndex(index())}
+                  >
+                    {index() + 1}
+                  </button>
+                )}
+              </For>
+            </div>
+          </Show>
           <div>
-            <For each={project.slides}>
-              {(slide, index) => (
-                <Show
-                  when={index() === slideIndex()}
-                  fallback={<MarkdownPreview markdown={slide.markdown} />}
-                >
-                  <MarkdownEditor
-                    themeExtension={themeExtension()}
-                    startingMarkdown={slide.markdown}
-                    updateMarkdown={slide.setMarkdown}
-                  />
-                </Show>
-              )}
-            </For>
+            <Show when={project()?.slides}>
+              <For each={project().slides}>
+                {(slide, index) => (
+                  <Show
+                    when={index() === slideIndex()}
+                    fallback={<MarkdownPreview markdown={slide.markdown} />}
+                  >
+                    <MarkdownEditor
+                      themeExtension={themeExtension()}
+                      startingMarkdown={slide.markdown}
+                      updateMarkdown={slide.setMarkdown}
+                    />
+                  </Show>
+                )}
+              </For>
+            </Show>
           </div>
         </div>
         <div class="w-1/2">
-          <TabbedEditor
-            fileSystem={currentSlide().fileSystem}
-            themeExtension={themeExtension()}
-          />
+          <Show when={currentSlide()}>
+            <TabbedEditor
+              fileSystem={currentSlide().fileSystem}
+              themeExtension={themeExtension()}
+            />
+          </Show>
         </div>
         {/* <Repl fileSystem={testSlide.fileSystem} /> */}
       </div>

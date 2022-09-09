@@ -140,7 +140,7 @@ export const TabbedEditor: Component<Props> = (props) => {
   function addFile(newPath: FilePath | false) {
     if (!isAdding()) return;
     if (newPath) {
-      const newFile = props.fileSystem.addFile("", newPath);
+      const newFile = props.fileSystem.addFile({ doc: "", path: newPath });
       navigate(newFile.id);
     }
     setAdding(false);

@@ -1,10 +1,14 @@
 import { Text } from "@codemirror/state";
-import { createMemo, createSignal, createUniqueId } from "solid-js";
+import { createMemo, createSignal, on } from "solid-js";
 import { createStore, Store } from "solid-js/store";
 
 /* Each state factory exposes a serialized getter that returns
  * a corresponding data type. This in turn can be passed as an argument
  * to the state factory to deserialize it.
+ *
+ * TODO: this memo system probably isn't great, as it requires a save to update, but it makes more sense to be saving at the top level.
+ * change back to not using `on`, and have a serialize function at root instead of memo. can still have saved(), but consumers manually use that
+ * that to trigger serializing
  */
 
 const fileTypes = ["ts", "js", "tsx", "jsx", "json", "md", "html", "css"];
@@ -40,12 +44,9 @@ export type FileData = Readonly<{
   path: string;
 }>;
 
-type FileStateArgs = Omit<FileData, "id"> & { id?: string };
-
-function createFileState({ id: _id, doc, path }: FileStateArgs) {
+function createFileState({ id, doc, path }: FileData) {
   const [getDocument, setDocument] = createSignal(doc);
   const [getPath, setPath] = createSignal(path);
-  const id = _id || createUniqueId();
 
   const serialized = createMemo<FileData>(() => {
     return {
@@ -97,18 +98,19 @@ export function createFileSystem(data?: FileSystemData) {
         )
       : {}
   );
-  const [getSaved, setSaved] = createSignal(0);
 
-  const serialized = createMemo<FileSystemData>(() => {
-    return {
-      files: Object.values(files).map((file) => file.serialized),
-    };
-  });
+  let idCounter = data?.files.length || 1;
+
+  const [getSaved, setSaved] = createSignal(0);
 
   const save = () => setSaved(Date.now());
 
-  const addFile = (args: FileStateArgs) => {
-    const newFile = createFileState(args);
+  const serialized = createMemo<FileSystemData>(() => ({
+    files: Object.values(files).map((file) => file.serialized),
+  }));
+
+  const addFile = (args: Omit<FileData, "id">) => {
+    const newFile = createFileState({ id: (idCounter++).toString(), ...args });
     setFiles(newFile.id, newFile);
     save();
     return newFile;
@@ -125,8 +127,6 @@ export function createFileSystem(data?: FileSystemData) {
       save();
     }
   };
-
-  //serialized memo
 
   return {
     get fileList() {
@@ -158,14 +158,17 @@ export function createSlideState(data?: SlideData) {
   const [getFileSystem, setFileSystem] = createSignal(
     createFileSystem(data?.fs)
   );
+
   const [getMarkdown, setMarkdown] = createSignal(data?.md || "");
 
-  const serialized = createMemo<SlideData>(() => {
-    return {
-      fs: getFileSystem().serialized,
-      md: getMarkdown(),
-    };
-  });
+  // const [getSaved, setSaved] = createSignal(0);
+
+  // const save = () => setSaved(Date.now());
+
+  const serialized = createMemo<SlideData>(() => ({
+    fs: getFileSystem().serialized,
+    md: getMarkdown(),
+  }));
 
   return {
     get fileSystem() {
