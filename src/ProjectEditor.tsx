@@ -1,5 +1,6 @@
 import { usePrefersDark } from "@solid-primitives/media";
 import {
+  Accessor,
   batch,
   Component,
   createEffect,
@@ -109,7 +110,52 @@ const ProjectEditor: Component<{}> = (props) => {
     }
   });
 
-  const project = useRouteData<ProjectState>();
+  const project = useRouteData<Accessor<ProjectState>>();
+  // const octokit = new Octokit({
+  //   // auth: provider_token,
+  //   auth: session.provider_token,
+  //   userAgent: "tutour server",
+  // });
+
+  // const fetchPath = async (path: string) => {
+  //   const response = await octokit.rest.repos.getContent({
+  //     owner,
+  //     repo,
+  //     path,
+  //   });
+  //   const dataArray = response.data as Array<{
+  //     url: string;
+  //     path: string;
+  //     sha: string;
+  //     type: string;
+  //   }>;
+
+  //   const files = await Promise.all(
+  //     dataArray.map(async (fileData) => {
+  //       if (fileData.type === "dir") {
+  //         return await fetchPath(fileData.path);
+  //       }
+  //       const { url, path: repoPath, sha } = fileData;
+  //       const {
+  //         data: { content },
+  //       } = await octokit.rest.git.getBlob({
+  //         owner,
+  //         repo,
+  //         file_sha: sha,
+  //       });
+
+  //       return { path, content };
+  //     })
+  //   );
+
+  //   return files.flat();
+  // };
+
+  // const files = await fetchPath(path);
+
+  // console.log(files);
+  // return files;
+
   // const project = createMemo(() => createProjectState(projectData));
   // function handleKeyPress(e: KeyboardEvent) {
   //   if (e.key === "s" && (e.ctrlKey || e.metaKey)) {

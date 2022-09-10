@@ -13,7 +13,7 @@ export const handler: Handler = async (event, context) => {
 
   const { owner, repo, path, provider_token } = JSON.parse(event.body);
 
-  console.log(repo, provider_token);
+  console.log(provider_token);
 
   if (typeof repo !== "string") {
     return {
@@ -22,10 +22,17 @@ export const handler: Handler = async (event, context) => {
   }
 
   const octokit = new Octokit({
-    // auth: provider_token,
-    auth: process.env.GITHUB_AUTH,
-    userAgent: "tutour server",
+    auth: provider_token,
+    // auth: process.env.JUST_PUBLIC,
   });
+
+  const {
+    data: { rate },
+  } = await octokit.rateLimit.get();
+  console.log(rate);
+
+  const resp = await octokit.request("GET /user");
+  console.log(resp.data.login);
 
   const fetchPath = async (path: string) => {
     const response = await octokit.rest.repos.getContent({
