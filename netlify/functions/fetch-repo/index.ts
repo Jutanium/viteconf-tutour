@@ -3,8 +3,7 @@ import { Handler } from "@netlify/functions";
 import { Octokit } from "@octokit/rest";
 
 export const handler: Handler = async (event, context) => {
-  // const envTest = process.env.GITHUB_AUTH;
-
+  console.log("got to function 2");
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 500,
@@ -12,8 +11,6 @@ export const handler: Handler = async (event, context) => {
   }
 
   const { owner, repo, path, provider_token } = JSON.parse(event.body);
-
-  console.log(provider_token);
 
   if (typeof repo !== "string") {
     return {
@@ -23,7 +20,6 @@ export const handler: Handler = async (event, context) => {
 
   const octokit = new Octokit({
     auth: provider_token,
-    // auth: process.env.JUST_PUBLIC,
   });
 
   const {
@@ -31,14 +27,11 @@ export const handler: Handler = async (event, context) => {
   } = await octokit.rateLimit.get();
   console.log(rate);
 
-  const resp = await octokit.request("GET /user");
-  console.log(resp.data.login);
-
-  const fetchPath = async (path: string) => {
+  const fetchPath = async (_path: string) => {
     const response = await octokit.rest.repos.getContent({
       owner,
       repo,
-      path,
+      path: _path,
     });
     const dataArray = response.data as Array<{
       url: string;
@@ -61,7 +54,7 @@ export const handler: Handler = async (event, context) => {
           file_sha: sha,
         });
 
-        return { path, content };
+        return { path: repoPath.replace(`${path}/`, ""), content };
       })
     );
 
