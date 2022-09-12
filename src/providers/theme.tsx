@@ -24,7 +24,8 @@ const cmDarkTheme = [
 
 const cmLightTheme = defaultLight;
 
-export const defaultTheme = {
+//Made this a function so it can use a memo inside of it, might not be worth it
+export const defaultTheme = () => ({
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
   tablist: () => "w-full flex dark:bg-oneDark-background overflow-x-scroll",
   tablistItem: (selected: boolean, index: number) => {
@@ -89,16 +90,16 @@ export const defaultTheme = {
       return prefersDark() ? cmDarkTheme : cmLightTheme;
     }),
   },
-};
+});
 
-export type ThemeConfig = typeof defaultTheme;
+export type ThemeConfig = ReturnType<typeof defaultTheme>;
 
 const ThemeContext = createContext<ThemeConfig>();
 
 export const ThemeProvider: ParentComponent<{ theme?: ThemeConfig }> = (
   props
 ) => {
-  const [state, setState] = createStore(props.theme || defaultTheme);
+  const [state, setState] = createStore(props.theme || defaultTheme());
 
   // Potential for functionality to pick themes at runtime, save and load, etc
 

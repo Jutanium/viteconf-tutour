@@ -3,7 +3,7 @@ import { ProjectState, SlideState } from "@/state";
 import { Component, createSignal, createMemo, onMount } from "solid-js";
 import SlidesBar from "./SlidesBar";
 
-const SlideSetup: Component<{ project: ProjectState }> = (props) => {
+const SlideStart: Component<{ project: ProjectState }> = (props) => {
   const theme = useTheme();
 
   let inputRef!: HTMLInputElement;
@@ -89,4 +89,4 @@ const SlideSetup: Component<{ project: ProjectState }> = (props) => {
   );
 };
 
-export default SlideSetup;
+export default SlideStart;

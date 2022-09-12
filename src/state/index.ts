@@ -118,10 +118,6 @@ export function createFileSystem(data?: FileSystemData) {
 
   const [saved, setSaved] = createSignal(0);
 
-  createEffect(() => {
-    console.log(currentFileId());
-  });
-
   const save = () => setSaved(Date.now());
 
   const serialized = createMemo<FileSystemData>(() => ({

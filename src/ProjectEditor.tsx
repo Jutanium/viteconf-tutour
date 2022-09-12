@@ -33,7 +33,7 @@ import { useNavigate, useParams, useRouteData } from "solid-app-router";
 import { fetchRepo } from "./data/github";
 import { createProject, getProjectById } from "./data/projects";
 import Slides from "./components/editor/slides/Slides";
-import SlideSetup from "./components/editor/slides/SlideStart";
+import SlideStart from "./components/editor/slides/SlideStart";
 
 //Todo: load this from somewhere
 export function DefaultProjectData() {
@@ -75,18 +75,14 @@ asfasdf
   return createMemo(() => project);
 }
 
-async function getInitialProject(id) {
-  if (id) {
-    const project = await getProjectById(id);
-    if (project) {
-      const projectState = createProjectState(project);
-      return projectState;
-    }
-  }
-}
 export function LoadProjectData({ params }) {
-  const [projectState] = createResource(() => params.id, getInitialProject);
-  return projectState;
+  const [projectData] = createResource(() => params.id, getProjectById);
+  return createMemo(() => {
+    const data = projectData();
+    if (data) {
+      return createProjectState(data);
+    }
+  });
 }
 
 const ProjectEditor: Component<{}> = (props) => {
@@ -128,7 +124,7 @@ const ProjectEditor: Component<{}> = (props) => {
           <Show when={project().currentSlide}>
             <Show
               when={project().currentSlide.fileSystem.fileList.length > 0}
-              fallback={<SlideSetup project={project()} />}
+              fallback={<SlideStart project={project()} />}
             >
               <TabbedEditor fileSystem={project().currentSlide.fileSystem} />
             </Show>
