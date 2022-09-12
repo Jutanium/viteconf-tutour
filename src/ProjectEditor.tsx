@@ -112,17 +112,17 @@ const ProjectEditor: Component<{}> = (props) => {
   return (
     // <ConductorProvider>
     <Show when={project()}>
-      <div class="flex h-screen w-full">
-        <div class="w-1/3 border-r-1 border-oneDark-selection">
+      <div class="flex h-screen w-full bg-oneDark-background">
+        <div class="w-1/3 flex flex-col border-r-1 border-oneDark-selection">
           <Userbar
             projectData={project().serialized}
             saveButtonClicked={initialSave}
           />
           <Slides project={project()} />
         </div>
-        <div class="w-2/3 flex">
+        <div class="w-2/3 flex flex-col lg:flex-row">
           <Show when={project().currentSlide}>
-            <div class="w-1/2 h-full flex flex-grow flex-col lg:flex-row">
+            <div class="w-full h-1/2 lg:w-1/2 lg:h-full flex-grow">
               <Show
                 when={project().currentSlide.fileSystem.fileList.length > 0}
                 fallback={<SlideStart project={project()} />}

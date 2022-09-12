@@ -141,14 +141,14 @@ export function Repl(props: Props) {
 
   return (
     <Show when={isPackage()}>
-      <div class="w-1/2 h-full">
+      <div class="w-full h-1/2 lg:w-1/2 lg:h-full">
         <iframe
           class="h-3/4 w-full"
           allow="cross-origin-isolated"
           src={magicURL()}
         />
         <div
-          class="h-1/4 w-full bg-black border-red-500 border-2"
+          class="h-1/4 w-full bg-black"
           ref={(el) => {
             terminal.open(el);
             fitAddon.fit();

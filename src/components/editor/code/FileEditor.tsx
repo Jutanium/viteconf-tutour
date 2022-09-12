@@ -95,6 +95,9 @@ export const FileEditor: Component<Props> = (props) => {
     console.log("cleaned up", props.fileState.pathName);
   });
 
-  return view.dom; // <div class={theme?.codemirror.root(props.fileState)} onKeyDown={onKeyDown}>
-  // </div>
+  return (
+    <div class={theme.fileEditorRoot()} onKeyDown={onKeyDown}>
+      {view.dom}
+    </div>
+  );
 };
