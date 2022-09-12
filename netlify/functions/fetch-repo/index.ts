@@ -61,12 +61,18 @@ export const handler: Handler = async (event, context) => {
     return files.flat();
   };
 
-  const files = await fetchPath(path);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      files,
-    }),
-  };
+  try {
+    const files = await fetchPath(path);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        files,
+      }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err?.response?.data || "error" }),
+    };
+  }
 };

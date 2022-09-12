@@ -8,7 +8,7 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
-import { FileState, getFileType } from "@/state";
+import { FileState, getFileType, isFilePath } from "@/state";
 
 import { injectExtensions } from "../../../codemirror/codeLinks";
 import createCodemirror from "../../../codemirror/createCodemirror";
@@ -17,18 +17,20 @@ import { useConductor } from "../../../providers/conductor";
 
 interface Props {
   fileState: FileState;
-  themeExtension: Extension;
 }
 
 export const FileEditor: Component<Props> = (props) => {
   const theme = useTheme();
-  const [conductor] = useConductor();
+
+  if (!isFilePath(props.fileState.pathName)) {
+    return <div class={theme.fileUnsupported()}>Not Supported</div>;
+  }
 
   const { view } = createCodemirror({
     language: getFileType(props.fileState.pathName),
     rootClass: theme?.codemirror.root(props.fileState),
     staticExtension: [lineNumbers(), theme.codemirror.baseTheme],
-    reactiveExtension: () => props.themeExtension,
+    reactiveExtension: () => theme.codemirror.themeExtension(),
     startingDoc: props.fileState.doc,
     onUpdate: (updates, view) => {
       // console.log("updating", updates);
@@ -56,25 +58,25 @@ export const FileEditor: Component<Props> = (props) => {
 
   // injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
 
-  createEffect(
-    on(
-      () => conductor.file.updated,
-      () => {
-        if (conductor.file.currentFileId == props.fileState.pathName) {
-          const { from, to } = conductor.file.currentSelection;
-          if (typeof from === "number") {
-            const selection =
-              typeof to === "number"
-                ? EditorSelection.range(from, to)
-                : EditorSelection.cursor(from);
-            view.dispatch({
-              selection,
-            });
-          }
-        }
-      }
-    )
-  );
+  // createEffect(
+  //   on(
+  //     () => conductor.file.updated,
+  //     () => {
+  //       if (conductor.file.currentFileId == props.fileState.pathName) {
+  //         const { from, to } = conductor.file.currentSelection;
+  //         if (typeof from === "number") {
+  //           const selection =
+  //             typeof to === "number"
+  //               ? EditorSelection.range(from, to)
+  //               : EditorSelection.cursor(from);
+  //           view.dispatch({
+  //             selection,
+  //           });
+  //         }
+  //       }
+  //     }
+  //   )
+  // );
 
   onMount(() => {
     console.log("mounted", props.fileState.pathName);

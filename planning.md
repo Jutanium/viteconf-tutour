@@ -1,12 +1,3 @@
-
-When you create a code link, it gets added to the code links library in the content editor.
-
-You can click on a code link to insert it into the markdown [editor].
-You can also click on a "go" button on the code link to navigate to that selection in the code editor.
-
-There are two ways to include a code link:
-- As a Markdown link, e.g. [Click me](my-code-link). This will pull up the code link in the file editor when the link is clicked.
-- On its own line, using this syntax: (my-code-link): text
-This will both link that line to the code link, and add an _annotation_ to the code link that shows up when you hover over it in the file editor
-
-
+1. Slide editor is its own component, with add new slide button
+2. New slide page on the right instead of TabbedEditor, prompting you either to load from GitHub or to start from the previous slide
+3. Each file has its own save function. This allows the repl granular control. When a file is updated, load that specific file. If the file is `package.json`, restart

@@ -34,6 +34,7 @@ export const AuthProvider: ParentComponent = (props) => {
         provider: "github",
         options: {
           scopes: "repo",
+          // ...(import.meta.env.MODE && { redirectTo: "http://localhost:8888" }),
         },
       });
       if (error) {

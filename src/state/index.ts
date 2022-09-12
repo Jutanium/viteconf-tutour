@@ -1,5 +1,7 @@
+import { fetchRepo } from "@/data/github";
+import { moveCompletionSelection } from "@codemirror/autocomplete";
 import { Text } from "@codemirror/state";
-import { createMemo, createSignal, on } from "solid-js";
+import { createEffect, createMemo, createSignal, on } from "solid-js";
 import { createStore, Store } from "solid-js/store";
 
 /* Each state factory exposes a serialized getter that returns
@@ -42,15 +44,18 @@ export type FileData = Readonly<{
   id: string;
   doc: string;
   path: string;
+  opened: boolean;
 }>;
 
-function createFileState({ id, doc, path }: FileData) {
+function createFileState({ id, doc, path, opened }: FileData) {
   const [getDocument, setDocument] = createSignal(doc);
   const [getPath, setPath] = createSignal(path);
+  const [getOpened, setOpened] = createSignal(opened);
 
   const serialized = createMemo<FileData>(() => {
     return {
       id,
+      opened: getOpened(),
       doc: getDocument(),
       path: getPath(),
     };
@@ -72,7 +77,13 @@ function createFileState({ id, doc, path }: FileData) {
     get serialized() {
       return serialized();
     },
+    get opened() {
+      return getOpened();
+    },
     id,
+    close() {
+      setOpened(false);
+    },
     setDoc(newDoc: Text) {
       const string = newDoc.sliceString(0);
       setDocument(string);
@@ -90,18 +101,26 @@ export type FileState = ReturnType<typeof createFileState>;
 export type FileSystemData = Readonly<{
   files: FileData[];
 }>;
+
 export function createFileSystem(data?: FileSystemData) {
+  let idCounter = data?.files.length || 0;
   const [files, setFiles] = createStore<{ [id: string]: FileState }>(
     data
       ? Object.fromEntries(
-          data.files.map((file) => [file.id, createFileState(file)])
+          data.files.map((f) => {
+            return [f.id, createFileState(f)];
+          })
         )
       : {}
   );
 
-  let idCounter = data?.files.length || 1;
+  const [currentFileId, setCurrentFileId] = createSignal<string>(null);
 
-  const [getSaved, setSaved] = createSignal(0);
+  const [saved, setSaved] = createSignal(0);
+
+  createEffect(() => {
+    console.log(currentFileId());
+  });
 
   const save = () => setSaved(Date.now());
 
@@ -109,8 +128,12 @@ export function createFileSystem(data?: FileSystemData) {
     files: Object.values(files).map((file) => file.serialized),
   }));
 
-  const addFile = (args: Omit<FileData, "id">) => {
-    const newFile = createFileState({ id: (idCounter++).toString(), ...args });
+  const addFile = (args: Omit<FileData, "id" | "opened">) => {
+    const newFile = createFileState({
+      id: (++idCounter).toString(),
+      opened: isFilePath(args.path),
+      ...args,
+    });
     setFiles(newFile.id, newFile);
     save();
     return newFile;
@@ -132,12 +155,19 @@ export function createFileSystem(data?: FileSystemData) {
     get fileList() {
       return Object.values(files);
     },
+    get isEmpty() {
+      return Object.values(files).length === 0;
+    },
     get saved() {
-      return getSaved();
+      return saved();
     },
     get serialized() {
       return serialized();
     },
+    get currentFileId() {
+      return currentFileId();
+    },
+    setCurrentFileId,
     save,
     addFile,
     removeFile,
@@ -153,7 +183,7 @@ export type SlideData = Readonly<{
   fs: FileSystemData;
   md: string;
 }>;
-export function createSlideState(data?: SlideData) {
+export function createSlideState(data?: Partial<SlideData>) {
   //Setter will be used when importing file system from GitHub
   const [getFileSystem, setFileSystem] = createSignal(
     createFileSystem(data?.fs)
@@ -180,6 +210,28 @@ export function createSlideState(data?: SlideData) {
     get serialized() {
       return serialized();
     },
+    setFilesFromSlide(slide: SlideData) {
+      const newFS = createFileSystem(slide.fs);
+      setFileSystem(newFS);
+    },
+    async loadFilesFromGitHub(degitString: string) {
+      const result = await fetchRepo(degitString);
+      if ("error" in result) {
+        return result.error;
+      }
+      if (result.files) {
+        const files = result.files.map((f, i) => ({
+          ...f,
+          id: `gh${i.toString()}`,
+          opened: isFilePath(f.path),
+        }));
+        const newFS = createFileSystem({ files });
+        newFS.setCurrentFileId(files.find((f) => f.opened).id);
+        setFileSystem(newFS);
+        console.log(getFileSystem());
+        return true;
+      }
+    },
     setMarkdown(markdown: Text | string) {
       setMarkdown(
         typeof markdown === "string" ? markdown : markdown.sliceString(0)
@@ -196,32 +248,46 @@ export type ProjectData = Readonly<{
 }>;
 
 export function createProjectState(data?: ProjectData) {
-  const [getTitle, setTitle] = createSignal(data?.title || "");
+  const [title, setTitle] = createSignal(data?.title || "");
   const [slides, setSlides] = createStore<SlideState[]>(
     data?.slides.map(createSlideState) || []
   );
 
+  const [slideIndex, setSlideIndex] = createSignal(0);
+
   const serialized = createMemo<ProjectData>(() => {
     return {
-      title: getTitle(),
+      title: title(),
       slides: slides.map((slide) => slide.serialized),
     };
   });
 
   return {
     get title() {
-      return getTitle();
+      return title();
     },
     slides,
+    get slideIndex() {
+      return slideIndex();
+    },
+    get currentSlide() {
+      return slides[slideIndex()];
+    },
     get serialized() {
       return serialized();
     },
     setTitle,
-    addSlide(newSlide: SlideState) {
+    addSlide(slideData: Partial<SlideData>) {
+      const newSlide = createSlideState(slideData);
       setSlides((slides) => [...slides, newSlide]);
+      return slides.length - 1;
     },
     removeSlide(index: number) {
       setSlides((slides) => slides.filter((_, i) => i !== index));
+    },
+    setSlide(index: number) {
+      if (index < 0 || index >= slides.length) return;
+      setSlideIndex(index);
     },
   };
 }

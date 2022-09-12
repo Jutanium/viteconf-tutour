@@ -2,7 +2,7 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { Extension, Text } from "@codemirror/state";
 import { tags } from "@lezer/highlight";
 import { EditorView } from "codemirror";
-import { Component } from "solid-js";
+import { Component, onMount } from "solid-js";
 import createCodemirror from "../../../codemirror/createCodemirror";
 import { useTheme } from "../../../providers/theme";
 
@@ -27,7 +27,6 @@ const fontTheme = EditorView.theme({
 });
 
 export const MarkdownEditor: Component<{
-  themeExtension: Extension;
   startingMarkdown: string;
   updateMarkdown: (markdown: Text) => void;
 }> = (props) => {
@@ -37,9 +36,13 @@ export const MarkdownEditor: Component<{
     language: "md",
     rootClass: theme.codemirror.root("content"),
     staticExtension: [syntaxHighlighting(markdownHighlighting), fontTheme],
-    reactiveExtension: () => props.themeExtension,
+    reactiveExtension: () => theme.codemirror.themeExtension(),
     startingDoc: props.startingMarkdown,
     onUpdate: (transaction, view) => props.updateMarkdown(view.state.doc),
+  });
+
+  onMount(() => {
+    view.focus();
   });
 
   return view.dom;

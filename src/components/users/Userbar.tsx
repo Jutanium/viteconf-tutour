@@ -25,13 +25,16 @@ const Userbar: Component<{
           <>
             <div class="ml-2">{authState.session.user.email}</div>
             <button
+              class={"mr-a " + theme.userbarButton()}
+              onClick={authActions.signout}
+            >
+              Log Out
+            </button>
+            <button
               class={theme.userbarButton()}
               onClick={props.saveButtonClicked}
             >
               Save
-            </button>
-            <button class={theme.userbarButton()} onClick={authActions.signout}>
-              Log Out
             </button>
           </>
         }

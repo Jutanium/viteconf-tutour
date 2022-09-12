@@ -8,6 +8,7 @@ import {
   crosshairCursor,
   highlightActiveLine,
   EditorView,
+  keymap,
 } from "@codemirror/view";
 export { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
@@ -18,7 +19,7 @@ import {
   defaultHighlightStyle,
   bracketMatching,
 } from "@codemirror/language";
-import { history } from "@codemirror/commands";
+import { history, indentWithTab } from "@codemirror/commands";
 import { highlightSelectionMatches } from "@codemirror/search";
 import { closeBrackets, autocompletion } from "@codemirror/autocomplete";
 
@@ -31,6 +32,7 @@ export default [
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
+  keymap.of([indentWithTab]),
   // bracketMatching(),
   closeBrackets(),
   autocompletion(),

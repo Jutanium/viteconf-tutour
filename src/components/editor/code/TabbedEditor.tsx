@@ -14,17 +14,14 @@ import { FileEditor } from "./FileEditor";
 import { FilePath, FileState, FileSystemState, isFilePath } from "@/state";
 import { useTheme } from "@/providers/theme";
 import { ConductorProvider, useConductor } from "@/providers/conductor";
-
-interface Props {
-  fileSystem: FileSystemState;
-  themeExtension: Extension;
-}
+import { indentWithTab } from "@codemirror/commands";
 
 const EditPath: Component<{
   initial?: FilePath;
   onSubmit: (validPath: FilePath | false) => void;
 }> = (props) => {
   let ref!: HTMLInputElement;
+  const theme = useTheme();
 
   const [inputPath, setInputPath] = createSignal<string>(
     props.initial || "new.js"
@@ -54,7 +51,8 @@ const EditPath: Component<{
   return (
     <input
       ref={ref}
-      class="bg-transparent outline-none"
+      class={theme.editPath()}
+      spellcheck={false}
       size={inputPath().length}
       onBlur={submit}
       onKeyDown={onKeyDown}
@@ -102,22 +100,28 @@ const TabListItem: Component<{
   );
 };
 
+interface Props {
+  fileSystem: FileSystemState;
+}
+
 export const TabbedEditor: Component<Props> = (props) => {
   const theme = useTheme();
-
-  const [conductor, { navigate }] = useConductor();
 
   const [renaming, setRenaming] = createSignal("");
   const [isAdding, setAdding] = createSignal(false);
 
-  navigate(props.fileSystem.fileList[0].id);
+  createEffect(() => {
+    props.fileSystem.setCurrentFileId(
+      props.fileSystem.fileList.find((f) => f.opened).id
+    );
+  });
 
   function tabClicked(fileId: string) {
-    if (conductor.file.currentFileId === fileId) {
+    if (props.fileSystem.currentFileId === fileId) {
       setRenaming(fileId);
       return;
     }
-    navigate(fileId);
+    props.fileSystem.setCurrentFileId(fileId);
   }
 
   function renamed(newPath: FilePath | false) {
@@ -131,8 +135,8 @@ export const TabbedEditor: Component<Props> = (props) => {
   function closeFile(id: string, index: number) {
     // TODO: when we have a file system browser, we should just close, not delete.
     setRenaming("");
-    if (conductor.file.currentFileId === id) {
-      navigate(props.fileSystem.fileList[index - 1]?.id);
+    if (props.fileSystem.currentFileId === id) {
+      props.fileSystem.fileList[index - 1]?.id;
     }
     props.fileSystem.removeFile(id);
   }
@@ -141,20 +145,28 @@ export const TabbedEditor: Component<Props> = (props) => {
     if (!isAdding()) return;
     if (newPath) {
       const newFile = props.fileSystem.addFile({ doc: "", path: newPath });
-      navigate(newFile.id);
+      props.fileSystem.setCurrentFileId(newFile.id);
     }
     setAdding(false);
   }
 
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      props.fileSystem.save();
+      console.log("saving");
+    }
+  }
+
   return (
-    <div class={theme.tabbedEditorRoot()}>
+    <div class={theme.tabbedEditorRoot()} onKeyDown={onKeyDown}>
       <div role="tablist" class={theme.tablist()}>
-        <For each={props.fileSystem.fileList}>
+        <For each={props.fileSystem.fileList.filter((f) => f.opened)}>
           {(fileState, i) => (
             <TabListItem
               index={i()}
               pathName={fileState.pathName}
-              selected={fileState.id === conductor.file.currentFileId}
+              selected={fileState.id === props.fileSystem.currentFileId}
               editing={fileState.id === renaming()}
               tabClicked={() => tabClicked(fileState.id)}
               closeClicked={() => closeFile(fileState.id, i())}
@@ -177,11 +189,8 @@ export const TabbedEditor: Component<Props> = (props) => {
       </div>
       <For each={props.fileSystem.fileList}>
         {(fileState, i) => (
-          <Show when={fileState.id === conductor.file.currentFileId}>
-            <FileEditor
-              fileState={fileState}
-              themeExtension={props.themeExtension}
-            />
+          <Show when={fileState.id === props.fileSystem.currentFileId}>
+            <FileEditor fileState={fileState} />
           </Show>
         )}
       </For>
