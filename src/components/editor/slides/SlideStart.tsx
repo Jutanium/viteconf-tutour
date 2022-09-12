@@ -49,7 +49,10 @@ const GitHubForm: Component<{
   const regexp = /\w+\/\w+(?:\/\w+)?/;
 
   return (
-    <Suspense fallback={<div class="text-oneDark-chalky">Loading...</div>}>
+    <Show
+      when={!ghData.loading}
+      fallback={<div class="text-oneDark-chalky ml-2">Loading...</div>}
+    >
       <form class={theme.slideStartForm()} onSubmit={ghFormSubmit}>
         <label class="font-bold" for="degitString">
           Start from GitHub:
@@ -74,7 +77,7 @@ const GitHubForm: Component<{
       {props.error && (
         <div class="text-oneDark-coral max-w-100 ml-2">{props.error}</div>
       )}
-    </Suspense>
+    </Show>
   );
 };
 

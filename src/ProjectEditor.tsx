@@ -112,7 +112,7 @@ const ProjectEditor: Component<{}> = (props) => {
   return (
     // <ConductorProvider>
     <Show when={project()}>
-      <div class="flex h-screen">
+      <div class="flex h-screen w-full">
         <div class="w-1/3 border-r-1 border-oneDark-selection">
           <Userbar
             projectData={project().serialized}
@@ -120,18 +120,14 @@ const ProjectEditor: Component<{}> = (props) => {
           />
           <Slides project={project()} />
         </div>
-        <div class="flex-grow">
+        <div class="w-2/3">
           <Show when={project().currentSlide}>
             <div class="w-full h-full flex flex-col lg:flex-row">
               <Show
                 when={project().currentSlide.fileSystem.fileList.length > 0}
                 fallback={<SlideStart project={project()} />}
               >
-                <div class="w-full h-full">
-                  <TabbedEditor
-                    fileSystem={project().currentSlide.fileSystem}
-                  />
-                </div>
+                <TabbedEditor fileSystem={project().currentSlide.fileSystem} />
               </Show>
               <Repl fileSystem={project().currentSlide.fileSystem} />
             </div>

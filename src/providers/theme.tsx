@@ -26,7 +26,7 @@ const cmLightTheme = defaultLight;
 
 //Made this a function so it can use a memo inside of it, might be better to separate out that memo
 export const defaultTheme = () => ({
-  tabbedEditorRoot: () => "w-full h-full flex flex-col",
+  tabbedEditorRoot: () => "w-full h-full flex-shrink flex flex-col",
   tablist: () => "w-full flex dark:bg-oneDark-background overflow-x-scroll",
   tablistItem: (selected: boolean, index: number) => {
     const base = `shrink-0 font-semibold border-b-1 font-sans px-2 pt-1.5 pb-1.5 text-md border-r-1 border-oneDark-selection`;

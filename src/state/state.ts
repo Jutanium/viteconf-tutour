@@ -127,13 +127,13 @@ export function createFileSystem(data?: FileSystemData) {
 
   const [currentFileId, setCurrentFileId] = createSignal<string>(null);
 
-  const filesSaved = createMemo(() => {
-    const mappedEntries = Object.entries(files).map(([id, file]) => [
-      id,
-      file.saved,
-    ]);
-    return Object.fromEntries(mappedEntries);
-  });
+  // const filesSaved = createMemo(() => {
+  //   const mappedEntries = Object.entries(files).map(([id, file]) => [
+  //     id,
+  //     file.saved,
+  //   ]);
+  //   return Object.fromEntries(mappedEntries);
+  // });
 
   const serialized = createMemo<FileSystemData>(() => ({
     files: Object.values(files).map((file) => file.serialized),
@@ -158,9 +158,9 @@ export function createFileSystem(data?: FileSystemData) {
   };
 
   return {
-    get filesSaved() {
-      return filesSaved();
-    },
+    // get filesSaved() {
+    //   return filesSaved();
+    // },
     get fileList() {
       return Object.values(files);
     },

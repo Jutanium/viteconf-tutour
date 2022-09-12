@@ -1,7 +1,14 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
-import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import "xterm/css/xterm.css";
 import { FileState, FileSystemState } from "@/state/state";
 import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
@@ -41,32 +48,60 @@ export function Repl(props: Props) {
   const [magicURL, setMagicURL] = createSignal<string | null>(null, {
     equals: false,
   });
+  const [lastUpdated, setLastUpdated] = createSignal(0);
+  const isPackage = createMemo(() =>
+    props.fileSystem.fileList.some((f) => f.pathName === "package.json")
+  );
 
   const terminal = new Terminal({ convertEol: true });
-  // const fitAddon = new FitAddon();
-  // terminal.loadAddon(fitAddon);
-  // const debouncedFit = debounce(() => fitAddon.fit(), 17);
-  // const observer = new ResizeObserver(() => debouncedFit());
+  const fitAddon = new FitAddon();
+  terminal.loadAddon(fitAddon);
+  const debouncedFit = debounce(() => fitAddon.fit(), 17);
+  const resizeObserver = new ResizeObserver(() => debouncedFit());
 
   onCleanup(() => {
-    // observer.disconnect();
-    // fitAddon.dispose();
+    resizeObserver.disconnect();
+    fitAddon.dispose();
     terminal.dispose();
   });
 
   let container: WebContainer;
 
-  async function loadFiles() {
+  async function loadFiles(files: FileState[]) {
     if (container) {
       // await container.fs.rm("app", { force: true, recursive: true });
-      await container.loadFiles({
-        app: { directory: treeFromFiles(props.fileSystem.fileList) },
-      });
+      await container.loadFiles(treeFromFiles(files));
     }
   }
 
-  createEffect(() => {
-    console.log(props.fileSystem.filesSaved);
+  async function runCommand(commandString) {
+    const [command, ...args] = commandString.split(" ");
+    if (container) {
+      let result = await container.run(
+        {
+          command,
+          args,
+        },
+        {
+          output: (data) => {
+            terminal.write(data);
+          },
+        }
+      );
+      await result.onExit;
+    }
+  }
+
+  createEffect(async () => {
+    const toUpdate = props.fileSystem.fileList.filter(
+      (file) => file.saved > lastUpdated()
+    );
+    setLastUpdated(Date.now());
+    await loadFiles(toUpdate);
+    if (toUpdate.some((file) => file.pathName === "package.json")) {
+      await runCommand("npm install");
+      await runCommand("npm run dev");
+    }
   });
 
   onMount(async () => {
@@ -97,20 +132,22 @@ export function Repl(props: Props) {
   // });
 
   return (
-    <div>
-      <Show when={magicURL()}>
+    <Show when={isPackage()}>
+      <div class="w-1/2">
         <iframe
-          class="w-full h-3/4"
+          class="h-3/4 w-full"
           allow="cross-origin-isolated"
           src={magicURL()}
         />
         <div
-          class="w-full h-full bg-black"
+          class="h-1/4 w-full bg-black border-red-500 border-2"
           ref={(el) => {
             terminal.open(el);
+            fitAddon.fit();
+            resizeObserver.observe(el);
           }}
         ></div>
-      </Show>
-    </div>
+      </div>
+    </Show>
   );
 }

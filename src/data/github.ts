@@ -26,12 +26,12 @@ export async function fetchRepo(
       path,
     }),
   };
-  const resp = await fetch("/.netlify/functions/fetch-repo", requestData);
-  const json = await resp.json();
-  if (json.error) {
-    throw new Error(json?.error?.message || json.error);
-  }
-  // const json = await import("./dummyGH.json");
+  // const resp = await fetch("/.netlify/functions/fetch-repo", requestData);
+  // const json = await resp.json();
+  // if (json.error) {
+  //   throw new Error(json?.error?.message || json.error);
+  // }
+  const json = await import("./dummyGH.json");
   return {
     files: json.files.map(({ path, content }) => ({
       path,
