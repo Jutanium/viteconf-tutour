@@ -8,7 +8,7 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
-import { FileState, getFileType, isFilePath } from "@/state";
+import { FileState, getFileType, isFilePath } from "@/state/state";
 
 import { injectExtensions } from "../../../codemirror/codeLinks";
 import createCodemirror from "../../../codemirror/createCodemirror";
@@ -78,6 +78,14 @@ export const FileEditor: Component<Props> = (props) => {
   //   )
   // );
 
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      props.fileState.save();
+      console.log("saving");
+    }
+  }
+
   onMount(() => {
     console.log("mounted", props.fileState.pathName);
   });
@@ -87,5 +95,9 @@ export const FileEditor: Component<Props> = (props) => {
     console.log("cleaned up", props.fileState.pathName);
   });
 
-  return view.dom;
+  return (
+    <div class={theme?.codemirror.root(props.fileState)} onKeyDown={onKeyDown}>
+      {view.dom}
+    </div>
+  );
 };

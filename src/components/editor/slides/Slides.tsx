@@ -1,5 +1,5 @@
 import { useTheme } from "@/providers/theme";
-import { ProjectState } from "@/state";
+import { ProjectState } from "@/state/state";
 import { Component } from "solid-js";
 import { MarkdownEditor } from "../content/MarkdownEditor";
 import { MarkdownPreview } from "../content/MarkdownPreview";

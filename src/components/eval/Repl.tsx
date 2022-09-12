@@ -3,7 +3,7 @@ import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
 import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import "xterm/css/xterm.css";
-import { FileState, FileSystemState } from "@/state";
+import { FileState, FileSystemState } from "@/state/state";
 import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
 
 // https://xtermjs.org/docs/api/vtfeatures/
@@ -38,19 +38,19 @@ function treeFromFiles(files: FileState[]): FileSystemTree {
 }
 
 export function Repl(props: Props) {
-  const [magicURL, setMagicURL] = createSignal<string | false>(false, {
+  const [magicURL, setMagicURL] = createSignal<string | null>(null, {
     equals: false,
   });
 
   const terminal = new Terminal({ convertEol: true });
-  const fitAddon = new FitAddon();
-  terminal.loadAddon(fitAddon);
-  const debouncedFit = debounce(() => fitAddon.fit(), 17);
-  const observer = new ResizeObserver(() => debouncedFit());
+  // const fitAddon = new FitAddon();
+  // terminal.loadAddon(fitAddon);
+  // const debouncedFit = debounce(() => fitAddon.fit(), 17);
+  // const observer = new ResizeObserver(() => debouncedFit());
 
   onCleanup(() => {
-    observer.disconnect();
-    fitAddon.dispose();
+    // observer.disconnect();
+    // fitAddon.dispose();
     terminal.dispose();
   });
 
@@ -65,92 +65,18 @@ export function Repl(props: Props) {
     }
   }
 
-  createEffect(
-    on(
-      () => props.fileSystem.saved,
-      async () => {
-        await loadFiles();
-
-        let result = await container.run(
-          {
-            command: "ls",
-            args: ["app", "-a"],
-          },
-          {
-            output: (data) => {
-              terminal.write(data);
-            },
-          }
-        );
-        // await result.onExit;
-        if (magicURL()) return;
-
-        if (container) {
-          let result = await container.run(
-            {
-              command: "npm",
-              args: ["install", "--prefix", "app"],
-            },
-            {
-              output: (data) => {
-                terminal.write(data);
-              },
-            }
-          );
-          await result.onExit;
-
-          // result = await container.run(
-          //   {
-          //     command: "cat",
-          //     args: ["app/src/index.css"],
-          //   },
-          //   {
-          //     output: (data) => {
-          //       terminal.write(data);
-          //     },
-          //   }
-          // );
-          // await result.onExit;
-
-          result = await container.run(
-            {
-              command: "npm",
-              args: ["run", "--prefix", "app", "dev"],
-            },
-            {
-              output: (data) => {
-                terminal.write(data);
-              },
-            }
-          );
-          await result.onExit;
-        }
-      }
-    )
-  );
+  createEffect(() => {
+    console.log(props.fileSystem.filesSaved);
+  });
 
   onMount(async () => {
     container = await bootWebContainer;
+    console.log("wc booted");
 
     container.on("server-ready", (_, url) => {
       console.log(url);
       setMagicURL(url);
     });
-
-    const files = await loadFiles();
-    // let result = await container.run(
-    //   {
-    //     command: "ls",
-    //     args: ["app", "-a"],
-    //   },
-    //   {
-    //     output: (data) => {
-    //       terminal.write(data);
-    //     },
-    //   }
-    // );
-    // await result.onExit;
-
     // console.log(container);
   });
 
@@ -171,22 +97,20 @@ export function Repl(props: Props) {
   // });
 
   return (
-    <div class="h-full w-full">
+    <div>
       <Show when={magicURL()}>
         <iframe
           class="w-full h-3/4"
           allow="cross-origin-isolated"
           src={magicURL()}
         />
+        <div
+          class="w-full h-full bg-black"
+          ref={(el) => {
+            terminal.open(el);
+          }}
+        ></div>
       </Show>
-      <div
-        class="w-full h-full bg-black"
-        ref={(el) => {
-          terminal.open(el);
-          fitAddon.fit();
-          observer.observe(el);
-        }}
-      ></div>
     </div>
   );
 }

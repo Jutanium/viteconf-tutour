@@ -7,7 +7,7 @@ import { ChangeSet, Compartment, Extension } from "@codemirror/state";
 import { languages } from "@codemirror/language-data";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
-import { FileType } from "@/state";
+import { FileType } from "@/state/state";
 import baseExtensions from "./baseExtensions";
 import { ViewUpdate } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";

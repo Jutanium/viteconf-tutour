@@ -11,7 +11,12 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { FileEditor } from "./FileEditor";
-import { FilePath, FileState, FileSystemState, isFilePath } from "@/state";
+import {
+  FilePath,
+  FileState,
+  FileSystemState,
+  isFilePath,
+} from "@/state/state";
 import { useTheme } from "@/providers/theme";
 import { ConductorProvider, useConductor } from "@/providers/conductor";
 import { indentWithTab } from "@codemirror/commands";
@@ -150,16 +155,8 @@ export const TabbedEditor: Component<Props> = (props) => {
     setAdding(false);
   }
 
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      props.fileSystem.save();
-      console.log("saving");
-    }
-  }
-
   return (
-    <div class={theme.tabbedEditorRoot()} onKeyDown={onKeyDown}>
+    <div class={theme.tabbedEditorRoot()}>
       <div role="tablist" class={theme.tablist()}>
         <For each={props.fileSystem.fileList.filter((f) => f.opened)}>
           {(fileState, i) => (

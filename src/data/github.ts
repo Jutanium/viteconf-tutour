@@ -1,20 +1,21 @@
 // import { Octokit } from "octokit";
 import { supabase } from "./supabaseClient";
 
-type RepoFile = {
+export type RepoFile = {
   path: string;
   doc: string;
 };
 export async function fetchRepo(
   degitString: string
-): Promise<{ error: string } | { files: RepoFile[] }> {
+): Promise<{ files: RepoFile[] }> {
+  console.log("fetchRepo called");
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) return { error: "Must be logged in" };
+  if (!session) throw new Error("Must be logged in");
 
   const [owner, repo, path] = degitString.split("/");
-  if (!owner || !repo) return { error: "Invalid degit string" };
+  if (!owner || !repo) throw new Error("Invalid degit string");
 
   const requestData: RequestInit = {
     method: "POST",
@@ -25,22 +26,16 @@ export async function fetchRepo(
       path,
     }),
   };
-  try {
-    const resp = await fetch("/.netlify/functions/fetch-repo", requestData);
-    const json = await resp.json();
-    if (json.error) {
-      return { error: json?.error?.message || json.error.toString() };
-    }
-    // const json = await import("./dummyGH.json");
-    return {
-      files: json.files.map(({ path, content }) => ({
-        path,
-        doc: atob(content),
-      })),
-    };
-  } catch (err) {
-    return {
-      error: err.toString(),
-    };
+  const resp = await fetch("/.netlify/functions/fetch-repo", requestData);
+  const json = await resp.json();
+  if (json.error) {
+    throw new Error(json?.error?.message || json.error);
   }
+  // const json = await import("./dummyGH.json");
+  return {
+    files: json.files.map(({ path, content }) => ({
+      path,
+      doc: atob(content),
+    })),
+  };
 }

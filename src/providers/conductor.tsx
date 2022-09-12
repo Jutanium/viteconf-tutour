@@ -1,7 +1,7 @@
 import { Navigate } from "solid-app-router";
 import { createContext, useContext, ParentComponent, batch } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
-import { CodeLinkWithPath, FilePath } from "@/state";
+import { CodeLinkWithPath, FilePath } from "@/state/state";
 
 interface ConductorState {
   file: {

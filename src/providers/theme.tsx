@@ -1,4 +1,4 @@
-import { FileState } from "@/state";
+import { FileState } from "@/state/state";
 import {
   createContext,
   useContext,
@@ -24,12 +24,12 @@ const cmDarkTheme = [
 
 const cmLightTheme = defaultLight;
 
-//Made this a function so it can use a memo inside of it, might not be worth it
+//Made this a function so it can use a memo inside of it, might be better to separate out that memo
 export const defaultTheme = () => ({
   tabbedEditorRoot: () => "w-full h-full flex flex-col",
   tablist: () => "w-full flex dark:bg-oneDark-background overflow-x-scroll",
   tablistItem: (selected: boolean, index: number) => {
-    const base = `shrink-0 font-semibold border-b-1 font-sans px-1 pt-1.5 pb-1.5 text-md border-r-1 border-oneDark-selection`;
+    const base = `shrink-0 font-semibold border-b-1 font-sans px-2 pt-1.5 pb-1.5 text-md border-r-1 border-oneDark-selection`;
     const highlighted = selected
       ? `bg-gray-200 border-b-oneDark-chalky dark:bg-oneDark-highlightBackground`
       : `dark:bg-oneDark-background`;
@@ -41,7 +41,7 @@ export const defaultTheme = () => ({
         : "dark:border-oneDark-highlightBackground");
     return `${base} ${dark} ${highlighted}`;
   },
-  tablistItemClose: () => "pl-1.5 pr-1 hover:text-yellow-500 h-full",
+  tablistItemClose: () => "pl-1.5 hover:text-yellow-500 h-full",
   tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
   editPath: () => "bg-transparent outline-none",
   userbar: () =>
@@ -51,7 +51,7 @@ export const defaultTheme = () => ({
   fileUnsupported: () =>
     "w-full p-4 dark:text-white dark:bg-oneDark-background",
   slidesRoot: () =>
-    "w-full h-full dark:(bg-oneDark-background border-oneDark-selection) border-r-1 ",
+    "w-full h-full dark:(bg-oneDark-background border-oneDark-selection)",
   slidesBar: () =>
     "w-full h-min py-2 px-2 flex gap-2 dark:bg-oneDark-background",
   slidesBarButton: (current?: boolean) =>
@@ -62,7 +62,7 @@ export const defaultTheme = () => ({
     }`,
   slideStartRoot: () =>
     "w-full h-full flex justify-center font-sans dark:(bg-oneDark-background text-oneDark-ivory)",
-  slideStartBody: () => "h-60 flex flex-col gap-2 items-start justify-center",
+  slideStartBody: () => "h-90 flex flex-col gap-2 items-start justify-center",
   slideStartForm: () => "mx-2 space-x-2",
   slideStartInput: () =>
     "bg-oneDark-selection text-oneDark-chalky px-2 outline-oneDark-ivory outline-1",

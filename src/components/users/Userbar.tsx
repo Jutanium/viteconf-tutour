@@ -8,7 +8,7 @@ import {
 import { supabase } from "@/data/supabaseClient";
 import { useAuth } from "@/providers/auth";
 import { useTheme } from "@/providers/theme";
-import { ProjectData } from "@/state";
+import { ProjectData } from "@/state/state";
 
 const Userbar: Component<{
   projectData: ProjectData;

@@ -1,16 +1,18 @@
-import { fetchRepo } from "@/data/github";
+import { fetchRepo, RepoFile } from "@/data/github";
 import { moveCompletionSelection } from "@codemirror/autocomplete";
 import { Text } from "@codemirror/state";
-import { createEffect, createMemo, createSignal, on } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+  on,
+} from "solid-js";
 import { createStore, Store } from "solid-js/store";
 
 /* Each state factory exposes a serialized getter that returns
  * a corresponding data type. This in turn can be passed as an argument
  * to the state factory to deserialize it.
- *
- * TODO: this memo system probably isn't great, as it requires a save to update, but it makes more sense to be saving at the top level.
- * change back to not using `on`, and have a serialize function at root instead of memo. can still have saved(), but consumers manually use that
- * that to trigger serializing
  */
 
 const fileTypes = ["ts", "js", "tsx", "jsx", "json", "md", "html", "css"];
@@ -60,6 +62,10 @@ function createFileState({ id, doc, path, opened }: FileData) {
       path: getPath(),
     };
   });
+
+  const [saved, setSaved] = createSignal(0);
+  const save = () => setSaved(Date.now());
+  save();
   // const [state, setState] = createStore<FileData>({
   //   doc,
   //   pathName,
@@ -80,7 +86,11 @@ function createFileState({ id, doc, path, opened }: FileData) {
     get opened() {
       return getOpened();
     },
+    get saved() {
+      return saved();
+    },
     id,
+    save,
     close() {
       setOpened(false);
     },
@@ -91,7 +101,7 @@ function createFileState({ id, doc, path, opened }: FileData) {
     setPathName(newPath: FilePath) {
       if (getPath() === newPath) return false;
       setPath(newPath);
-      return true;
+      save();
     },
   };
 }
@@ -103,6 +113,7 @@ export type FileSystemData = Readonly<{
 }>;
 
 export function createFileSystem(data?: FileSystemData) {
+  //TODO: this will cause conflicts if you deserialize e.g. [{id: 1, id: 3, id: 4}]
   let idCounter = data?.files.length || 0;
   const [files, setFiles] = createStore<{ [id: string]: FileState }>(
     data
@@ -116,9 +127,13 @@ export function createFileSystem(data?: FileSystemData) {
 
   const [currentFileId, setCurrentFileId] = createSignal<string>(null);
 
-  const [saved, setSaved] = createSignal(0);
-
-  const save = () => setSaved(Date.now());
+  const filesSaved = createMemo(() => {
+    const mappedEntries = Object.entries(files).map(([id, file]) => [
+      id,
+      file.saved,
+    ]);
+    return Object.fromEntries(mappedEntries);
+  });
 
   const serialized = createMemo<FileSystemData>(() => ({
     files: Object.values(files).map((file) => file.serialized),
@@ -131,31 +146,26 @@ export function createFileSystem(data?: FileSystemData) {
       ...args,
     });
     setFiles(newFile.id, newFile);
-    save();
     return newFile;
   };
 
   const removeFile = (id: string) => {
     setFiles(id, undefined);
-    save();
   };
 
   const renameFile = (id: string, newPathName: FilePath) => {
-    const nameChanged = files[id].setPathName(newPathName);
-    if (nameChanged) {
-      save();
-    }
+    files[id]?.setPathName(newPathName);
   };
 
   return {
+    get filesSaved() {
+      return filesSaved();
+    },
     get fileList() {
       return Object.values(files);
     },
     get isEmpty() {
       return Object.values(files).length === 0;
-    },
-    get saved() {
-      return saved();
     },
     get serialized() {
       return serialized();
@@ -164,7 +174,6 @@ export function createFileSystem(data?: FileSystemData) {
       return currentFileId();
     },
     setCurrentFileId,
-    save,
     addFile,
     removeFile,
     renameFile,
@@ -210,23 +219,16 @@ export function createSlideState(data?: Partial<SlideData>) {
       const newFS = createFileSystem(slide.fs);
       setFileSystem(newFS);
     },
-    async loadFilesFromGitHub(degitString: string) {
-      const result = await fetchRepo(degitString);
-      if ("error" in result) {
-        return result.error;
-      }
-      if (result.files) {
-        const files = result.files.map((f, i) => ({
-          ...f,
-          id: `gh${i.toString()}`,
-          opened: isFilePath(f.path),
-        }));
-        const newFS = createFileSystem({ files });
-        newFS.setCurrentFileId(files.find((f) => f.opened).id);
-        setFileSystem(newFS);
-        console.log(getFileSystem());
-        return true;
-      }
+    setFilesFromGitHub(repoFiles: RepoFile[]) {
+      const files = repoFiles.map((f, i) => ({
+        ...f,
+        id: `gh${i.toString()}`,
+        opened: isFilePath(f.path),
+      }));
+      const newFS = createFileSystem({ files });
+      newFS.setCurrentFileId(files.find((f) => f.opened).id);
+      setFileSystem(newFS);
+      console.log(getFileSystem());
     },
     setMarkdown(markdown: Text | string) {
       setMarkdown(

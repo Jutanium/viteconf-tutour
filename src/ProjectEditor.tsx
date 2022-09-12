@@ -16,7 +16,7 @@ import {
   createSlideState,
   ProjectData,
   ProjectState,
-} from "@/state";
+} from "@/state/state";
 import { ThemeProvider, useTheme } from "./providers/theme";
 import { TabbedEditor } from "./components/editor/code/TabbedEditor";
 import { ConductorProvider } from "./providers/conductor";
@@ -113,7 +113,7 @@ const ProjectEditor: Component<{}> = (props) => {
     // <ConductorProvider>
     <Show when={project()}>
       <div class="flex h-screen">
-        <div class="w-1/3">
+        <div class="w-1/3 border-r-1 border-oneDark-selection">
           <Userbar
             projectData={project().serialized}
             saveButtonClicked={initialSave}
@@ -122,15 +122,21 @@ const ProjectEditor: Component<{}> = (props) => {
         </div>
         <div class="flex-grow">
           <Show when={project().currentSlide}>
-            <Show
-              when={project().currentSlide.fileSystem.fileList.length > 0}
-              fallback={<SlideStart project={project()} />}
-            >
-              <TabbedEditor fileSystem={project().currentSlide.fileSystem} />
-            </Show>
+            <div class="w-full h-full flex flex-col lg:flex-row">
+              <Show
+                when={project().currentSlide.fileSystem.fileList.length > 0}
+                fallback={<SlideStart project={project()} />}
+              >
+                <div class="w-full h-full">
+                  <TabbedEditor
+                    fileSystem={project().currentSlide.fileSystem}
+                  />
+                </div>
+              </Show>
+              <Repl fileSystem={project().currentSlide.fileSystem} />
+            </div>
           </Show>
         </div>
-        {/* <Repl fileSystem={currentSlide().fileSystem} /> */}
       </div>
     </Show>
     // </ConductorProvider>
