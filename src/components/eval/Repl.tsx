@@ -74,6 +74,14 @@ export function Repl(props: Props) {
     }
   }
 
+  async function removeFiles(files: FileState[]) {
+    if (container) {
+      for (const file of files) {
+        await container.fs.rm(file.pathName);
+      }
+    }
+  }
+
   async function runCommand(commandString) {
     const [command, ...args] = commandString.split(" ");
     if (container) {
@@ -133,7 +141,7 @@ export function Repl(props: Props) {
 
   return (
     <Show when={isPackage()}>
-      <div class="w-1/2">
+      <div class="w-1/2 h-full">
         <iframe
           class="h-3/4 w-full"
           allow="cross-origin-isolated"

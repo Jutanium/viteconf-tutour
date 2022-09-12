@@ -120,17 +120,17 @@ const ProjectEditor: Component<{}> = (props) => {
           />
           <Slides project={project()} />
         </div>
-        <div class="w-2/3">
+        <div class="w-2/3 flex">
           <Show when={project().currentSlide}>
-            <div class="w-full h-full flex flex-col lg:flex-row">
+            <div class="w-1/2 h-full flex flex-grow flex-col lg:flex-row">
               <Show
                 when={project().currentSlide.fileSystem.fileList.length > 0}
                 fallback={<SlideStart project={project()} />}
               >
                 <TabbedEditor fileSystem={project().currentSlide.fileSystem} />
               </Show>
-              <Repl fileSystem={project().currentSlide.fileSystem} />
             </div>
+            <Repl fileSystem={project().currentSlide.fileSystem} />
           </Show>
         </div>
       </div>
