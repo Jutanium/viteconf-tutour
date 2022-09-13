@@ -122,7 +122,7 @@ const ProjectEditor: Component<{}> = (props) => {
         </div>
         <div class="w-2/3 flex flex-col lg:flex-row">
           <Show when={project().currentSlide}>
-            <div class="w-full h-1/2 lg:w-1/2 lg:h-full flex-grow">
+            <div class="w-full h-1/2 flex-grow lg:w-1/2 lg:h-full border-b-1 lg:border-r-1 lg:border-b-0 border-oneDark-selection">
               <Show
                 when={project().currentSlide.fileSystem.fileList.length > 0}
                 fallback={<SlideStart project={project()} />}

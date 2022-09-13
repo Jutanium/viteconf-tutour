@@ -2,6 +2,7 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
 import {
+  createComputed,
   createEffect,
   createMemo,
   createSignal,
@@ -12,6 +13,7 @@ import {
 import "xterm/css/xterm.css";
 import { FileState, FileSystemState } from "@/state/state";
 import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
+import { createStore } from "solid-js/store";
 
 // https://xtermjs.org/docs/api/vtfeatures/
 
@@ -74,10 +76,14 @@ export function Repl(props: Props) {
     }
   }
 
-  async function removeFiles(files: FileState[]) {
+  async function removeFiles(pathNames: string[]) {
     if (container) {
-      for (const file of files) {
-        await container.fs.rm(file.pathName);
+      for (const pathName of pathNames) {
+        try {
+          await container.fs.rm(pathName);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   }
@@ -85,7 +91,7 @@ export function Repl(props: Props) {
   async function runCommand(commandString) {
     const [command, ...args] = commandString.split(" ");
     if (container) {
-      let result = await container.run(
+      const result = await container.run(
         {
           command,
           args,
@@ -100,17 +106,49 @@ export function Repl(props: Props) {
     }
   }
 
-  createEffect(async () => {
-    const toUpdate = props.fileSystem.fileList.filter(
-      (file) => file.saved > lastUpdated()
+  let currentFiles: { [path: string]: string } = {};
+  function updateCurrentFiles() {
+    currentFiles = Object.fromEntries(
+      props.fileSystem.fileList.map((f) => [f.pathName, f.doc])
     );
-    setLastUpdated(Date.now());
-    await loadFiles(toUpdate);
-    if (toUpdate.some((file) => file.pathName === "package.json")) {
-      await runCommand("npm install");
-      await runCommand("npm run dev");
-    }
-  });
+  }
+
+  const savedFiles = createMemo(() =>
+    props.fileSystem.fileList.filter((file) => file.saved > lastUpdated())
+  );
+
+  createEffect(
+    on([() => props.fileSystem, savedFiles], async () => {
+      if (props.fileSystem.isEmpty) {
+        return;
+      }
+
+      const filePaths = new Set(
+        props.fileSystem.fileList.map((f) => f.pathName)
+      );
+
+      const toRemove = Object.keys(currentFiles).filter(
+        (s) => !filePaths.has(s)
+      );
+
+      const toUpdate = props.fileSystem.fileList.filter(
+        (file) =>
+          !currentFiles[file.pathName] ||
+          currentFiles[file.pathName] !== file.doc
+      );
+
+      updateCurrentFiles();
+      setLastUpdated(Date.now());
+
+      await removeFiles(toRemove);
+      await loadFiles(toUpdate);
+
+      if (toUpdate.some((file) => file.pathName === "package.json")) {
+        await runCommand("npm install");
+        await runCommand("npm run dev");
+      }
+    })
+  );
 
   onMount(async () => {
     container = await bootWebContainer;
@@ -120,7 +158,10 @@ export function Repl(props: Props) {
       console.log(url);
       setMagicURL(url);
     });
-    // console.log(container);
+
+    updateCurrentFiles();
+    setLastUpdated(Date.now());
+    await loadFiles(props.fileSystem.fileList);
   });
 
   // terminal.onData((str, arg2) => {
