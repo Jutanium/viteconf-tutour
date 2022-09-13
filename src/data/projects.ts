@@ -6,11 +6,12 @@ export const getProjectById = async (id: string) => {
     data: [created],
     error,
   } = await supabase.from("projects").select("*").eq("id", id);
+
   if (error) {
     console.error(error);
     return false;
   }
-  return created.data as ProjectData;
+  return JSON.parse(atob(created.data)) as ProjectData;
 };
 
 export const getProjects = async () => {
@@ -33,7 +34,10 @@ export const getProjects = async () => {
 //   return data;
 // };
 
-export const createProject = async (project: ProjectData) => {
+export const createProject = async (
+  project: ProjectData,
+  projectId?: string
+) => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -42,19 +46,24 @@ export const createProject = async (project: ProjectData) => {
     return false;
   }
 
-  const {
-    data: [created],
-    error,
-  } = await supabase
+  //Gets around weird unicode stuff that seeps in when importing files from GitHub
+  const stringified = btoa(JSON.stringify(project));
+
+  const { data, error } = await supabase
     .from("projects")
-    .insert({
-      data: project,
+    .upsert({
+      ...(projectId && { id: projectId }),
+      data: stringified,
       title: project.title,
       user_id: user.id,
     })
     .select();
 
-  if (error) console.error(error);
+  if (error) {
+    console.error(error);
+    return false;
+  }
 
+  const created = data?.[0];
   return created.id;
 };

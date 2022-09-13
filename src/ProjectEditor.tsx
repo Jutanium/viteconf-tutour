@@ -80,7 +80,7 @@ export function LoadProjectData({ params }) {
   return createMemo(() => {
     const data = projectData();
     if (data) {
-      return createProjectState(data);
+      return createProjectState(data, params.id);
     }
   });
 }
@@ -103,10 +103,16 @@ const ProjectEditor: Component<{}> = (props) => {
   });
 
   const project = useRouteData<Accessor<ProjectState>>();
-  async function initialSave() {
-    console.log("initial save");
+
+  async function save() {
+    if (project().savedId) {
+      createProject(project().serialized, project().savedId);
+      return;
+    }
     const id = await createProject(project().serialized);
-    navigate(`/p/${id}`);
+    if (id) {
+      navigate(`/p/${id}`);
+    }
   }
 
   return (
@@ -114,10 +120,7 @@ const ProjectEditor: Component<{}> = (props) => {
     <Show when={project()}>
       <div class="flex h-screen w-full bg-oneDark-background">
         <div class="w-1/3 flex flex-col border-r-1 border-oneDark-selection">
-          <Userbar
-            projectData={project().serialized}
-            saveButtonClicked={initialSave}
-          />
+          <Userbar saveButtonClicked={save} />
           <Slides project={project()} />
         </div>
         <div class="w-2/3 flex flex-col lg:flex-row">

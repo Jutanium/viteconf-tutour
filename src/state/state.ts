@@ -247,7 +247,7 @@ export type ProjectData = Readonly<{
   slides: SlideData[];
 }>;
 
-export function createProjectState(data?: ProjectData) {
+export function createProjectState(data?: ProjectData, savedId?: string) {
   const [title, setTitle] = createSignal(data?.title || "");
   const [slides, setSlides] = createStore<SlideState[]>(
     data?.slides.map(createSlideState) || []
@@ -276,6 +276,7 @@ export function createProjectState(data?: ProjectData) {
     get serialized() {
       return serialized();
     },
+    savedId,
     setTitle,
     addSlide(slideData: Partial<SlideData>) {
       const newSlide = createSlideState(slideData);

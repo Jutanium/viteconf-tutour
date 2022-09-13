@@ -35,7 +35,7 @@ export async function fetchRepo(
   return {
     files: json.files.map(({ path, content }) => ({
       path,
-      doc: atob(content),
+      doc: atob(content).replaceAll("\\u0000", ""),
     })),
   };
 }
