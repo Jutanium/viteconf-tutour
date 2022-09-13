@@ -109,6 +109,7 @@ function createFileState({ id, doc, path, opened }: FileData) {
 export type FileState = ReturnType<typeof createFileState>;
 
 export type FileSystemData = Readonly<{
+  currentFileId?: string;
   files: FileData[];
 }>;
 
@@ -125,7 +126,9 @@ export function createFileSystem(data?: FileSystemData) {
       : {}
   );
 
-  const [currentFileId, setCurrentFileId] = createSignal<string>(null);
+  const [currentFileId, setCurrentFileId] = createSignal<string>(
+    data?.currentFileId || data?.files?.find((f) => f.opened)?.id
+  );
 
   // const filesSaved = createMemo(() => {
   //   const mappedEntries = Object.entries(files).map(([id, file]) => [
@@ -136,6 +139,7 @@ export function createFileSystem(data?: FileSystemData) {
   // });
 
   const serialized = createMemo<FileSystemData>(() => ({
+    currentFileId: currentFileId(),
     files: Object.values(files).map((file) => file.serialized),
   }));
 
@@ -189,7 +193,6 @@ export type SlideData = Readonly<{
   md: string;
 }>;
 export function createSlideState(data?: Partial<SlideData>) {
-  //Setter will be used when importing file system from GitHub
   const [getFileSystem, setFileSystem] = createSignal(
     createFileSystem(data?.fs)
   );
@@ -226,7 +229,6 @@ export function createSlideState(data?: Partial<SlideData>) {
         opened: isFilePath(f.path),
       }));
       const newFS = createFileSystem({ files });
-      newFS.setCurrentFileId(files.find((f) => f.opened).id);
       setFileSystem(newFS);
       console.log(getFileSystem());
     },

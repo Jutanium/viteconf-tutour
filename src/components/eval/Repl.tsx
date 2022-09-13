@@ -2,7 +2,6 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { debounce, throttle } from "@solid-primitives/scheduled";
 import {
-  createComputed,
   createEffect,
   createMemo,
   createSignal,
@@ -13,7 +12,6 @@ import {
 import "xterm/css/xterm.css";
 import { FileState, FileSystemState } from "@/state/state";
 import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
-import { createStore } from "solid-js/store";
 
 // https://xtermjs.org/docs/api/vtfeatures/
 

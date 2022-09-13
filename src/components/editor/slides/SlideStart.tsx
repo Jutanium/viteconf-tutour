@@ -98,6 +98,12 @@ const SlideStart: Component<{ project: ProjectState }> = (props) => {
   const ghFormSuccess = (files: RepoFile[]) =>
     currentSlide().setFilesFromGitHub(files);
 
+  const removeSlide = () => {
+    const index = props.project.slideIndex;
+    props.project.removeSlide(index);
+    props.project.setSlide(index > 0 ? index - 1 : 0);
+  };
+
   return (
     <div class={theme.slideStartRoot()}>
       <div class={theme.slideStartBody()}>
@@ -118,6 +124,13 @@ const SlideStart: Component<{ project: ProjectState }> = (props) => {
         >
           <GitHubForm onSuccess={ghFormSuccess} />
         </ErrorBoundary>
+        <Show when={props.project.slides.length > 0}>
+          <div class={theme.slideStartForm()}>
+            <button class={theme.slideStartButton()} onClick={removeSlide}>
+              Remove Slide
+            </button>
+          </div>
+        </Show>
       </div>
     </div>
   );

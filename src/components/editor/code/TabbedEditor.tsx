@@ -115,11 +115,9 @@ export const TabbedEditor: Component<Props> = (props) => {
   const [renaming, setRenaming] = createSignal("");
   const [isAdding, setAdding] = createSignal(false);
 
-  createEffect(() => {
-    props.fileSystem.setCurrentFileId(
-      props.fileSystem.fileList.find((f) => f.opened).id
-    );
-  });
+  const openedFiles = createMemo(() =>
+    props.fileSystem.fileList.filter((f) => f.opened)
+  );
 
   function tabClicked(fileId: string) {
     if (props.fileSystem.currentFileId === fileId) {
@@ -141,7 +139,12 @@ export const TabbedEditor: Component<Props> = (props) => {
     // TODO: when we have a file system browser, we should just close, not delete.
     setRenaming("");
     if (props.fileSystem.currentFileId === id) {
-      props.fileSystem.fileList[index - 1]?.id;
+      const afterRemove = openedFiles().filter((f) => f.id !== id);
+      if (afterRemove.length >= 1) {
+        props.fileSystem.setCurrentFileId(
+          afterRemove[index > 0 ? index - 1 : 0].id
+        );
+      }
     }
     props.fileSystem.removeFile(id);
   }
@@ -158,7 +161,7 @@ export const TabbedEditor: Component<Props> = (props) => {
   return (
     <div class={theme.tabbedEditorRoot()}>
       <div role="tablist" class={theme.tablist()}>
-        <For each={props.fileSystem.fileList.filter((f) => f.opened)}>
+        <For each={openedFiles()}>
           {(fileState, i) => (
             <TabListItem
               index={i()}
