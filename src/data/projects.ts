@@ -11,7 +11,11 @@ export const getProjectById = async (id: string) => {
     console.error(error);
     return false;
   }
-  return JSON.parse(atob(created.data)) as ProjectData;
+  return {
+    id: created.id,
+    userId: created.user_id,
+    projectData: JSON.parse(atob(created.data)) as ProjectData,
+  };
 };
 
 export const getProjects = async () => {

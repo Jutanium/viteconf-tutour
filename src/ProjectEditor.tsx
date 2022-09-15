@@ -6,8 +6,10 @@ import {
   createEffect,
   createMemo,
   createResource,
+  on,
   createSignal,
   ErrorBoundary,
+  onMount,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import {
@@ -21,7 +23,7 @@ import { ThemeProvider, useTheme } from "./providers/theme";
 import { TabbedEditor } from "./components/editor/code/TabbedEditor";
 import { ConductorProvider } from "./providers/conductor";
 import { Repl } from "./components/eval/Repl";
-import Userbar from "@/components/users/Userbar";
+import Userbar from "@/components/userbar/Userbar";
 
 import "@fontsource/open-sans";
 import "@fontsource/open-sans/600.css";
@@ -34,6 +36,8 @@ import { fetchRepo } from "./data/github";
 import { createProject, getProjectById } from "./data/projects";
 import Slides from "./components/editor/slides/Slides";
 import SlideStart from "./components/editor/slides/SlideStart";
+import { supabase } from "@/data/supabaseClient";
+import { useAuth } from "./providers/auth";
 
 //Todo: load this from somewhere
 export function DefaultProjectData() {
@@ -76,51 +80,41 @@ asfasdf
 }
 
 export function LoadProjectData({ params }) {
-  const [projectData] = createResource(() => params.id, getProjectById);
+  const [result] = createResource(() => params.id, getProjectById);
+  const [auth] = useAuth();
+  console.log("does this work yet", auth.session);
   return createMemo(() => {
-    const data = projectData();
+    const data = result();
     if (data) {
-      return createProjectState(data, params.id);
+      const { projectData, id, userId } = data;
+      return createProjectState(projectData, id, userId);
     }
   });
 }
 
-const ProjectEditor: Component<{}> = (props) => {
-  const prefersDark = usePrefersDark();
+const ProjectEditor: Component = () => {
   const theme = useTheme();
 
-  const navigate = useNavigate();
-
-  createEffect(() => {
-    console.log("dark mode", prefersDark());
-    if (prefersDark()) {
-      document.documentElement.classList.remove("light");
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.classList.remove("dark");
-    }
-  });
-
   const project = useRouteData<Accessor<ProjectState>>();
+  const [auth] = useAuth();
 
-  async function save() {
-    if (project().savedId) {
-      createProject(project().serialized, project().savedId);
-      return;
-    }
-    const id = await createProject(project().serialized);
-    if (id) {
-      navigate(`/p/${id}`);
-    }
-  }
+  createEffect(
+    on(project, () => {
+      if (project() && auth.session) {
+        if (project().createdBy === auth.session.user.id) {
+          project().setPreviewMode(false);
+          return;
+        }
+        project().setPreviewMode(true);
+      }
+    })
+  );
 
   return (
-    // <ConductorProvider>
     <Show when={project()}>
-      <div class="flex h-screen w-full bg-oneDark-background">
+      <div class="dark flex h-screen w-full bg-oneDark-background">
         <div class="w-1/3 flex flex-col border-r-1 border-oneDark-selection">
-          <Userbar saveButtonClicked={save} />
+          <Userbar project={project()} />
           <Slides project={project()} />
         </div>
         <div class="w-2/3 flex flex-col lg:flex-row">
@@ -138,7 +132,6 @@ const ProjectEditor: Component<{}> = (props) => {
         </div>
       </div>
     </Show>
-    // </ConductorProvider>
   );
 };
 

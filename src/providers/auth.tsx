@@ -4,10 +4,12 @@ import {
   ParentComponent,
   createSignal,
   createResource,
+  createEffect,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { supabase } from "@/data/supabaseClient";
 import { Session } from "@supabase/supabase-js";
+import { useLocation } from "solid-app-router";
 
 interface AuthState {
   session: Session;
@@ -22,6 +24,7 @@ interface Actions {
 const AuthContext = createContext<[state: AuthState, actions: Actions]>();
 
 export const AuthProvider: ParentComponent = (props) => {
+  const location = useLocation();
   const [session, setSession] = createSignal<Session>(null);
 
   const [signinTrigger, setSigninTrigger] = createSignal<"in" | "out" | false>(
@@ -30,11 +33,15 @@ export const AuthProvider: ParentComponent = (props) => {
 
   const [signinData] = createResource(signinTrigger, async (signing) => {
     if (signing === "in") {
+      const redirectTo =
+        (import.meta.env.DEV ? "http://localhost:8888" : "https://tutour.dev") +
+        location.pathname;
+      console.log(redirectTo);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
           scopes: "repo",
-          // ...(import.meta.env.MODE && { redirectTo: "http://localhost:8888" }),
+          redirectTo,
         },
       });
       if (error) {

@@ -34,6 +34,7 @@
     "@codemirror/theme-one-dark": "^6.0.0",
     "@codemirror/view": "^6.0.3",
     "@fontsource/open-sans": "^4.5.11",
+    "@julr/unocss-preset-forms": "^0.0.2",
     "@lezer/highlight": "^1.0.0",
     "@netlify/functions": "^1.2.0",
     "@octokit/rest": "^19.0.4",

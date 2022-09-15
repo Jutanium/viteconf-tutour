@@ -54,14 +54,14 @@ function createFileState({ id, doc, path, opened }: FileData) {
   const [getPath, setPath] = createSignal(path);
   const [getOpened, setOpened] = createSignal(opened);
 
-  const serialized = createMemo<FileData>(() => {
+  const serialized = () => {
     return {
       id,
       opened: getOpened(),
       doc: getDocument(),
       path: getPath(),
     };
-  });
+  };
 
   const [saved, setSaved] = createSignal(0);
   const save = () => setSaved(Date.now());
@@ -116,14 +116,16 @@ export type FileSystemData = Readonly<{
 export function createFileSystem(data?: FileSystemData) {
   //TODO: this will cause conflicts if you deserialize e.g. [{id: 1, id: 3, id: 4}]
   let idCounter = data?.files.length || 0;
+
+  const fromData = (data: FileSystemData) =>
+    Object.fromEntries(
+      data.files.map((f) => {
+        return [f.id, createFileState(f)];
+      })
+    );
+
   const [files, setFiles] = createStore<{ [id: string]: FileState }>(
-    data
-      ? Object.fromEntries(
-          data.files.map((f) => {
-            return [f.id, createFileState(f)];
-          })
-        )
-      : {}
+    data ? fromData(data) : {}
   );
 
   const [currentFileId, setCurrentFileId] = createSignal<string>(
@@ -138,10 +140,10 @@ export function createFileSystem(data?: FileSystemData) {
   //   return Object.fromEntries(mappedEntries);
   // });
 
-  const serialized = createMemo<FileSystemData>(() => ({
+  const serialized = (): FileSystemData => ({
     currentFileId: currentFileId(),
     files: Object.values(files).map((file) => file.serialized),
-  }));
+  });
 
   const addFile = (args: Omit<FileData, "id" | "opened">) => {
     const newFile = createFileState({
@@ -162,9 +164,6 @@ export function createFileSystem(data?: FileSystemData) {
   };
 
   return {
-    // get filesSaved() {
-    //   return filesSaved();
-    // },
     get fileList() {
       return Object.values(files);
     },
@@ -176,6 +175,10 @@ export function createFileSystem(data?: FileSystemData) {
     },
     get currentFileId() {
       return currentFileId();
+    },
+    reset(fsData: FileSystemData = data) {
+      setFiles(fromData(fsData));
+      setCurrentFileId(fsData.currentFileId);
     },
     setCurrentFileId,
     addFile,
@@ -203,10 +206,10 @@ export function createSlideState(data?: Partial<SlideData>) {
 
   // const save = () => setSaved(Date.now());
 
-  const serialized = createMemo<SlideData>(() => ({
+  const serialized = (): SlideData => ({
     fs: getFileSystem().serialized,
     md: getMarkdown(),
-  }));
+  });
 
   return {
     get fileSystem() {
@@ -247,20 +250,30 @@ export type ProjectData = Readonly<{
   slides: SlideData[];
 }>;
 
-export function createProjectState(data?: ProjectData, savedId?: string) {
+export function createProjectState(
+  data?: ProjectData,
+  savedId?: string,
+  createdBy?: string,
+  mode: "preview" | "edit" = "preview"
+) {
+  // We don't actually use this yet
   const [title, setTitle] = createSignal(data?.title || "");
+
   const [slides, setSlides] = createStore<SlideState[]>(
     data?.slides.map(createSlideState) || []
   );
 
   const [slideIndex, setSlideIndex] = createSignal(0);
 
-  const serialized = createMemo<ProjectData>(() => {
+  const [preview, setPreview] = createSignal(mode === "preview");
+  const [frozenData, setFrozenData] = createSignal<SlideData[]>(data?.slides);
+
+  const serialized = (): ProjectData => {
     return {
       title: title(),
       slides: slides.map((slide) => slide.serialized),
     };
-  });
+  };
 
   return {
     get title() {
@@ -276,7 +289,11 @@ export function createProjectState(data?: ProjectData, savedId?: string) {
     get serialized() {
       return serialized();
     },
+    get previewMode() {
+      return preview();
+    },
     savedId,
+    createdBy,
     setTitle,
     addSlide(slideData: Partial<SlideData>) {
       const newSlide = createSlideState(slideData);
@@ -289,6 +306,17 @@ export function createProjectState(data?: ProjectData, savedId?: string) {
     setSlide(index: number) {
       if (index < 0 || index >= slides.length) return;
       setSlideIndex(index);
+    },
+    setPreviewMode(isPreview: boolean) {
+      console.log("started here", isPreview);
+      if (isPreview) {
+        setFrozenData(serialized().slides);
+        setPreview(true);
+        return;
+      }
+      console.log("got here");
+      setSlides(frozenData().map(createSlideState));
+      setPreview(false);
     },
   };
 }

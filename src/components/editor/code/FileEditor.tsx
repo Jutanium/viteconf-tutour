@@ -86,13 +86,8 @@ export const FileEditor: Component<Props> = (props) => {
     }
   }
 
-  onMount(() => {
-    console.log("mounted", props.fileState.pathName);
-  });
-
   onCleanup(() => {
     view.destroy();
-    console.log("cleaned up", props.fileState.pathName);
   });
 
   return (

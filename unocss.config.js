@@ -1,3 +1,4 @@
+import { presetForms } from "@julr/unocss-preset-forms";
 import { transformerVariantGroup } from "unocss";
 import { defineConfig, presetTypography, presetUno } from "unocss";
 
@@ -33,6 +34,8 @@ export default defineConfig({
       selectorName: "markdown",
       cssExtend: {
         h1: {
+          "padding-bottom": "0.2rem",
+          "border-bottom": "2px solid #3E4451",
           "font-size": "1.75rem",
         },
         h2: {
@@ -44,14 +47,16 @@ export default defineConfig({
         h4: {
           "font-size": "1rem",
         },
-        "h1,h2,h3": {
-          margin: 0,
+        "h1,h2,h3,h4": {
+          "margin-top": "0.2rem",
+          "margin-bottom": "0.2rem",
         },
         p: {
           margin: 0,
         },
       },
     }),
+    presetForms(),
   ],
   transformers: [transformerVariantGroup()],
 });

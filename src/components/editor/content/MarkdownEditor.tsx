@@ -17,6 +17,10 @@ const markdownHighlighting = HighlightStyle.define([
     fontSize: "1.4em",
     fontWeight: "bold",
   },
+  {
+    tag: tags.content,
+    fontSize: "0.9em",
+  },
   { tag: tags.heading3, fontSize: "1.2em", fontWeight: "bold" },
 ]);
 

@@ -33,7 +33,10 @@ const Slides: Component<{ project: ProjectState }> = (props) => {
               class={theme.mdContainer(index() === props.project.slideIndex)}
             >
               <Show
-                when={index() === props.project.slideIndex}
+                when={
+                  !props.project.previewMode &&
+                  index() === props.project.slideIndex
+                }
                 children={
                   <MarkdownEditor
                     startingMarkdown={slide.markdown}

@@ -46,7 +46,7 @@ export const defaultTheme = () => ({
   tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
   editPath: () => "bg-transparent outline-none",
   userbar: () =>
-    "w-full font-sans text-sm flex justify-end items-center gap-2 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
+    "w-full font-sans text-sm flex justify-end items-center gap-1 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
   userbarButton: () =>
     "font-bold my-0.5 mx-1 px-1 pt-1 pb-1.1 border-1 border-rounded dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection)",
   fileUnsupported: () =>
