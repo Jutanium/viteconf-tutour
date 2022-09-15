@@ -58,26 +58,6 @@ export const FileEditor: Component<Props> = (props) => {
 
   // injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
 
-  // createEffect(
-  //   on(
-  //     () => conductor.file.updated,
-  //     () => {
-  //       if (conductor.file.currentFileId == props.fileState.pathName) {
-  //         const { from, to } = conductor.file.currentSelection;
-  //         if (typeof from === "number") {
-  //           const selection =
-  //             typeof to === "number"
-  //               ? EditorSelection.range(from, to)
-  //               : EditorSelection.cursor(from);
-  //           view.dispatch({
-  //             selection,
-  //           });
-  //         }
-  //       }
-  //     }
-  //   )
-  // );
-
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();

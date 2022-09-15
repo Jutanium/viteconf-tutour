@@ -176,9 +176,9 @@ export function createFileSystem(data?: FileSystemData) {
     get currentFileId() {
       return currentFileId();
     },
-    reset(fsData: FileSystemData = data) {
-      setFiles(fromData(fsData));
-      setCurrentFileId(fsData.currentFileId);
+    reset() {
+      setFiles(fromData(data));
+      setCurrentFileId(data.currentFileId);
     },
     setCurrentFileId,
     addFile,
@@ -308,13 +308,11 @@ export function createProjectState(
       setSlideIndex(index);
     },
     setPreviewMode(isPreview: boolean) {
-      console.log("started here", isPreview);
       if (isPreview) {
         setFrozenData(serialized().slides);
         setPreview(true);
         return;
       }
-      console.log("got here");
       setSlides(frozenData().map(createSlideState));
       setPreview(false);
     },

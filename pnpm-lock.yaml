@@ -22,6 +22,7 @@ specifiers:
   '@solid-primitives/media': ^2.0.0
   '@solid-primitives/scheduled': ^1.0.0
   '@supabase/supabase-js': 2.0.0-rc.8
+  '@thisbeyond/solid-dnd': ^0.7.1
   '@types/node': ^18.7.14
   '@unocss/preset-typography': ^0.44.7
   '@unocss/reset': ^0.44.3
@@ -63,6 +64,7 @@ dependencies:
   '@solid-primitives/media': 2.0.0_solid-js@1.5.3
   '@solid-primitives/scheduled': 1.0.0_solid-js@1.5.3
   '@supabase/supabase-js': 2.0.0-rc.8
+  '@thisbeyond/solid-dnd': 0.7.1_solid-js@1.5.3
   '@unocss/reset': 0.44.3
   '@webcontainer/api': 0.0.5
   codemirror: 6.0.1
@@ -1215,6 +1217,14 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  /@thisbeyond/solid-dnd/0.7.1_solid-js@1.5.3:
+    resolution: {integrity: sha512-+hlm84MfCNtZOi12tUf0WL2aBYyIhOCTA+lbT3hiJXmVnMRws0Rq1Y6WjQ5A43Xn/gvzzO9K7O+WK+t9UHTR4Q==}
+    peerDependencies:
+      solid-js: ^1.5
+    dependencies:
+      solid-js: 1.5.3
     dev: false
 
   /@types/aws-lambda/8.10.102:

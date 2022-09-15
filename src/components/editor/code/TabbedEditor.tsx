@@ -33,7 +33,6 @@ const EditPath: Component<{
   );
 
   function submit(e) {
-    console.log("blur", e);
     const newPath = inputPath();
     props.onSubmit(isFilePath(newPath) ? newPath : false);
   }

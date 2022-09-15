@@ -44,7 +44,7 @@ export const defaultTheme = () => ({
   },
   tablistItemClose: () => "pl-1.5 hover:text-yellow-500 h-full",
   tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
-  editPath: () => "bg-transparent outline-none",
+  editPath: () => "bg-transparent outline-none h-6",
   userbar: () =>
     "w-full font-sans text-sm flex justify-end items-center gap-1 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
   userbarButton: () =>
