@@ -51,6 +51,9 @@ export default defineConfig({
           "margin-top": "0.2rem",
           "margin-bottom": "0.2rem",
         },
+        pre: {
+          padding: 0,
+        },
         p: {
           margin: 0,
         },
