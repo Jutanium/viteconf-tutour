@@ -11,32 +11,17 @@ import { useAuth } from "@/providers/auth";
 import { useTheme } from "@/providers/theme";
 import { useNavigate } from "solid-app-router";
 import { ProjectState } from "@/state/state";
-import { createProject } from "@/data/projects";
+import { saveProject } from "@/data/projects";
 
 const Userbar: Component<{
   project: ProjectState;
+  lastSavedAt?: Date;
+  saving: boolean;
+  saveable: boolean;
+  saveButtonClicked: () => void;
 }> = (props) => {
   const [authState, authActions] = useAuth();
   const theme = useTheme();
-  const navigate = useNavigate();
-
-  const saveable = createMemo(
-    () =>
-      props.project.savedId &&
-      props.project.createdBy === authState.session?.user.id
-  );
-
-  async function saveButtonClicked() {
-    const project = props.project;
-    if (saveable()) {
-      createProject(project.serialized, project.savedId);
-      return;
-    }
-    const id = await createProject(project.serialized);
-    if (id) {
-      navigate(`/p/${id}`);
-    }
-  }
 
   return (
     <div class={theme.userbar()}>
@@ -51,12 +36,30 @@ const Userbar: Component<{
             >
               Log Out
             </button>
-            <button class={theme.userbarButton()} onClick={saveButtonClicked}>
-              <Show when={saveable()} fallback="Fork to Edit">
+            <Show
+              when={props.saving}
+              fallback={
+                props.lastSavedAt && (
+                  <div>
+                    Saved{" "}
+                    {props.lastSavedAt.toLocaleTimeString("en", {
+                      timeStyle: "short",
+                    })}
+                  </div>
+                )
+              }
+            >
+              <div>Saving...</div>
+            </Show>
+            <button
+              class={theme.userbarButton()}
+              onClick={props.saveButtonClicked}
+            >
+              <Show when={props.saveable} fallback="Fork to Edit">
                 Save
               </Show>
             </button>
-            <Show when={saveable()}>
+            <Show when={props.saveable}>
               <div class="flex justify-center items-center gap-1 mr-2 font-bold">
                 <input
                   id="preview"

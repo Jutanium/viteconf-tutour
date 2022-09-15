@@ -9,8 +9,11 @@ export const getProjectById = async (id: string) => {
 
   if (error) {
     console.error(error);
-    return false;
+    return { error };
   }
+
+  if (!created) return { error: "Project not found" };
+
   return {
     id: created.id,
     userId: created.user_id,
@@ -38,10 +41,7 @@ export const getProjects = async () => {
 //   return data;
 // };
 
-export const createProject = async (
-  project: ProjectData,
-  projectId?: string
-) => {
+export const saveProject = async (project: ProjectData, projectId?: string) => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -49,7 +49,6 @@ export const createProject = async (
   if (!user?.id) {
     return false;
   }
-
   //Gets around weird unicode stuff that seeps in when importing files from GitHub
   const stringified = btoa(JSON.stringify(project));
 
@@ -69,5 +68,9 @@ export const createProject = async (
   }
 
   const created = data?.[0];
-  return created.id;
+  console.log(created);
+  return {
+    id: created.id as string,
+    updated_at: new Date(created.updated_at),
+  };
 };

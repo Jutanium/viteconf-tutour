@@ -33,7 +33,7 @@ import "@fontsource/open-sans/700-italic.css";
 import "@fontsource/open-sans/400-italic.css";
 import { useNavigate, useParams, useRouteData } from "solid-app-router";
 import { fetchRepo } from "./data/github";
-import { createProject, getProjectById } from "./data/projects";
+import { saveProject, getProjectById } from "./data/projects";
 import Slides from "./components/editor/slides/Slides";
 import SlideStart from "./components/editor/slides/SlideStart";
 import { supabase } from "@/data/supabaseClient";
@@ -79,13 +79,16 @@ asfasdf
   return createMemo(() => project);
 }
 
-export function LoadProjectData({ params }) {
+export function LoadProjectData({ params, navigate }) {
   const [result] = createResource(() => params.id, getProjectById);
   const [auth] = useAuth();
   console.log("does this work yet", auth.session);
   return createMemo(() => {
     const data = result();
     if (data) {
+      if (data.error) {
+        navigate("/");
+      }
       const { projectData, id, userId } = data;
       return createProjectState(projectData, id, userId);
     }
@@ -97,6 +100,37 @@ const ProjectEditor: Component = () => {
 
   const project = useRouteData<Accessor<ProjectState>>();
   const [auth] = useAuth();
+  const navigate = useNavigate();
+
+  const saveable = createMemo(
+    () => project()?.savedId && project().createdBy === auth.session?.user.id
+  );
+
+  const [saveData, setSaveData] = createSignal<ProjectData>();
+  const [saved] = createResource(saveData, async function (data) {
+    if (saveable()) {
+      const id = await saveProject(data, project().savedId);
+      return id;
+    }
+  });
+
+  const lastSavedAt = createMemo(() => {
+    const savedResult = saved();
+    if (savedResult) {
+      return savedResult.updated_at;
+    }
+  });
+
+  async function saveButtonClicked() {
+    if (saveable()) {
+      setSaveData(project().serialized);
+      return;
+    }
+    const result = await saveProject(project().serialized);
+    if (result) {
+      navigate(`/p/${result?.id}`);
+    }
+  }
 
   createEffect(
     on(project, () => {
@@ -114,7 +148,13 @@ const ProjectEditor: Component = () => {
     <Show when={project()}>
       <div class="dark flex h-screen w-full bg-oneDark-background">
         <div class="w-1/3 flex flex-col border-r-1 border-oneDark-selection">
-          <Userbar project={project()} />
+          <Userbar
+            project={project()}
+            saveable={saveable()}
+            saving={saved.loading}
+            lastSavedAt={lastSavedAt()}
+            saveButtonClicked={saveButtonClicked}
+          />
           <Slides project={project()} />
         </div>
         <div class="w-2/3 flex flex-col lg:flex-row">
