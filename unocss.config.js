@@ -51,15 +51,11 @@ export default defineConfig({
           "border-bottom": "2px solid #3E4451",
           filter: "brightness(1.3)",
         },
-        "h1,h2,h3,h4": {
-          "margin-top": "0.2rem",
-          "margin-bottom": "0.2rem",
-        },
         pre: {
           padding: 0,
         },
         p: {
-          margin: 0,
+          "line-height": "1.5rem",
         },
       },
     }),

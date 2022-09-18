@@ -83,6 +83,7 @@ export const defaultTheme = {
         ? "bg-oneDark-coral dark:text-white"
         : "border-1 dark:text-oneDark-ivory dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection) hover:(font-bold text-oneDark-coral)"
     }`,
+  slidesBarButtonAdd: () => "ml-a " + defaultTheme.slidesBarButton(),
   slideStartRoot: () =>
     "w-full h-full flex justify-center font-sans dark:(bg-oneDark-background text-oneDark-ivory)",
   slideStartBody: () => "h-90 flex flex-col gap-2 items-start justify-center",
@@ -97,7 +98,7 @@ export const defaultTheme = {
         : "border-oneDark-selection hover:border-gray-500"
     }`,
   mdPreview: () =>
-    "markdown text-oneDark-ivory markdown-invert max-w-full h-full w-full min-h-8 text-sm font-sans px-3 py-2 dark:(bg-oneDark-background)",
+    "markdown text-oneDark-ivory markdown-invert max-w-full h-full w-full min-h-8 font-sans px-3 py-2 dark:(bg-oneDark-background)",
   mdPreviewCode: () => "border-l-2 pl-1 border-oneDark-selection",
   codemirror: {
     root: (file: FileState | "content") => "w-full h-full outline-none",

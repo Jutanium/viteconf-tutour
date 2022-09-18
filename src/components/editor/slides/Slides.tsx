@@ -23,12 +23,12 @@ const Slides: Component<{ project: ProjectState }> = (props) => {
           onClick={setSlide}
         />
         <Show when={!props.project.previewMode}>
-          <button class={theme.slidesBarButton()} onClick={addSlide}>
+          <button class={theme.slidesBarButtonAdd()} onClick={addSlide}>
             <span>+</span>
           </button>
         </Show>
       </div>
-      <div class="w-full">
+      <div class="w-full h-full max-h-90vh overflow-y-scroll">
         <For each={props.project.slides}>
           {(slide, index) => (
             <div

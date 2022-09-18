@@ -27,7 +27,6 @@ const markdownHighlighting = HighlightStyle.define([
   },
   {
     tag: tags.content,
-    fontSize: "0.875rem",
     fontFamily: "Open Sans, sans-serif",
   },
 ]);
