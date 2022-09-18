@@ -35,10 +35,7 @@ export default defineConfig({
       selectorName: "markdown",
       cssExtend: {
         h1: {
-          "padding-bottom": "0.2rem",
-          "border-bottom": "2px solid #3E4451",
           "font-size": "1.75rem",
-          filter: "brightness(1.3)",
         },
         h2: {
           "font-size": "1.4rem",
@@ -48,6 +45,11 @@ export default defineConfig({
         },
         h4: {
           "font-size": "1rem",
+        },
+        "h1,h2": {
+          "padding-bottom": "0.2rem",
+          "border-bottom": "2px solid #3E4451",
+          filter: "brightness(1.3)",
         },
         "h1,h2,h3,h4": {
           "margin-top": "0.2rem",

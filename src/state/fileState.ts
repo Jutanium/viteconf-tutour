@@ -1,7 +1,16 @@
 import { createSignal } from "solid-js";
 import { Text } from "@codemirror/state";
 
-const fileTypes = ["ts", "js", "tsx", "jsx", "json", "md", "html", "css"];
+export const fileTypes = [
+  "ts",
+  "js",
+  "tsx",
+  "jsx",
+  "json",
+  "md",
+  "html",
+  "css",
+] as const;
 export type FileType = typeof fileTypes[number];
 
 export type FilePath = `${string}.${FileType}`;

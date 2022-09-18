@@ -5,7 +5,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
-import { Compartment, Extension } from "@codemirror/state";
+import { Compartment, EditorState, Extension } from "@codemirror/state";
 import { ViewUpdate } from "@codemirror/view";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
@@ -33,6 +33,7 @@ interface Options {
   staticExtension?: Extension;
   reactiveExtension?: Accessor<Extension>;
   startingDoc: string;
+  readonly?: boolean;
   onUpdate?: (changes: ViewUpdate, view: EditorView) => void;
 }
 
@@ -65,6 +66,7 @@ const createCodemirror = (options: Options) => {
         }
       })
     ),
+    ...ifOption("readonly", () => EditorState.readOnly.of(true)),
   ];
 
   const view = new EditorView({
@@ -80,7 +82,7 @@ const createCodemirror = (options: Options) => {
 
   createEffect(
     on(
-      () => options.reactiveExtension(),
+      () => options.reactiveExtension && options.reactiveExtension(),
       (newExtension) => {
         view.dispatch({
           effects: reactiveCompartment.reconfigure(newExtension),

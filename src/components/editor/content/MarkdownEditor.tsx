@@ -9,26 +9,28 @@ import { useTheme, useThemeExtension } from "../../../providers/theme";
 const markdownHighlighting = HighlightStyle.define([
   {
     tag: tags.heading1,
-    fontSize: "1.75em",
+    fontSize: "1.75rem",
     fontWeight: "bold",
+    fontFamily: "Open Sans, sans-serif",
   },
   {
     tag: tags.heading2,
-    fontSize: "1.4em",
+    fontSize: "1.4rem",
     fontWeight: "bold",
+    fontFamily: "Open Sans, sans-serif",
+  },
+  {
+    tag: tags.heading3,
+    fontSize: "1.2rem",
+    fontWeight: "bold",
+    fontFamily: "Open Sans, sans-serif",
   },
   {
     tag: tags.content,
-    fontSize: "0.9em",
-  },
-  { tag: tags.heading3, fontSize: "1.2em", fontWeight: "bold" },
-]);
-
-const fontTheme = EditorView.theme({
-  ".cm-content": {
+    fontSize: "0.875rem",
     fontFamily: "Open Sans, sans-serif",
   },
-});
+]);
 
 export const MarkdownEditor: Component<{
   startingMarkdown: string;
@@ -39,7 +41,7 @@ export const MarkdownEditor: Component<{
   const { view } = createCodemirror({
     language: "md",
     rootClass: theme.codemirror.root("content"),
-    staticExtension: [syntaxHighlighting(markdownHighlighting), fontTheme],
+    staticExtension: [syntaxHighlighting(markdownHighlighting)],
     reactiveExtension: useThemeExtension(),
     startingDoc: props.startingMarkdown,
     onUpdate: (transaction, view) => props.updateMarkdown(view.state.doc),
