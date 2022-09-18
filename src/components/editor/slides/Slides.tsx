@@ -22,9 +22,11 @@ const Slides: Component<{ project: ProjectState }> = (props) => {
           selected={props.project.slideIndex}
           onClick={setSlide}
         />
-        <button class={theme.slidesBarButton()} onClick={addSlide}>
-          <span>+</span>
-        </button>
+        <Show when={!props.project.previewMode}>
+          <button class={theme.slidesBarButton()} onClick={addSlide}>
+            <span>+</span>
+          </button>
+        </Show>
       </div>
       <div class="w-full">
         <For each={props.project.slides}>

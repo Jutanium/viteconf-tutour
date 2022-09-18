@@ -55,7 +55,7 @@ export const defaultTheme = {
   treeViewFilename: (current, opened, supported) => {
     let classes = "border-l-1 pl-1 transition ";
     if (opened) {
-      classes += `font-bold hover:bg-oneDark-highlightBackground ${
+      classes += `font-semibold hover:bg-oneDark-highlightBackground ${
         current ? "border-oneDark-chalky " : "border-oneDark-selection "
       }`;
     } else classes += "border-transparent ";
