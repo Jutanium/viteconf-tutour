@@ -47,10 +47,10 @@ const ProjectEditor: Component = () => {
 
   async function saveButtonClicked() {
     if (saveable()) {
-      setSaveData(project().serialized);
+      setSaveData(project().serialize());
       return;
     }
-    const result = await saveProject(project().serialized);
+    const result = await saveProject(project().serialize());
     if (result) {
       navigate(`/p/${result?.id}`);
     }

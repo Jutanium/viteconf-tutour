@@ -66,7 +66,7 @@ export function createFileSystem(data?: FileSystemData) {
   //   return Object.fromEntries(mappedEntries);
   // });
 
-  const serialized = (): FileSystemData => ({
+  const serialize = (): FileSystemData => ({
     currentFileId: currentFileId(),
     files: Object.values(files).map((file) => file.serialized),
   });
@@ -96,9 +96,7 @@ export function createFileSystem(data?: FileSystemData) {
     get isEmpty() {
       return Object.values(files).length === 0;
     },
-    get serialized() {
-      return serialized();
-    },
+    serialize,
     get currentFileId() {
       return currentFileId();
     },
@@ -132,7 +130,7 @@ export function createSlideState(data?: Partial<SlideData>) {
 
   // const save = () => setSaved(Date.now());
 
-  const serialized = (): SlideData => ({
+  const serialize = (): SlideData => ({
     fs: getFileSystem().serialized,
     md: getMarkdown(),
   });
@@ -144,8 +142,11 @@ export function createSlideState(data?: Partial<SlideData>) {
     get markdown() {
       return getMarkdown();
     },
-    get serialized() {
-      return serialized();
+    serialize,
+    reset() {
+      if (data?.fs) {
+        setFileSystem(createFileSystem(data.fs));
+      }
     },
     setFilesFromSlide(slide: SlideData) {
       const newFS = createFileSystem(slide.fs);
@@ -194,10 +195,10 @@ export function createProjectState(
   const [preview, setPreview] = createSignal(mode === "preview");
   const [frozenData, setFrozenData] = createSignal<SlideData[]>(data.slides);
 
-  const serialized = (): ProjectData => {
+  const serialize = (): ProjectData => {
     return {
       title: title(),
-      slides: slides.map((slide) => slide.serialized),
+      slides: slides.map((slide) => slide.serialize()),
     };
   };
 
@@ -212,12 +213,10 @@ export function createProjectState(
     get currentSlide() {
       return slides[slideIndex()];
     },
-    get serialized() {
-      return serialized();
-    },
     get previewMode() {
       return preview();
     },
+    serialize,
     savedId,
     createdBy,
     setTitle,
@@ -232,6 +231,9 @@ export function createProjectState(
     setSlide(index: number) {
       if (index < 0 || index >= slides.length) return;
       setSlideIndex(index);
+      if (preview()) {
+        slides[index].reset();
+      }
     },
     setPreviewMode(isPreview: boolean) {
       if (isPreview) {
