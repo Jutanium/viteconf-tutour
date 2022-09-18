@@ -48,7 +48,6 @@ export const AuthProvider: ParentComponent = (props) => {
       if (error) {
         throw error;
       }
-      console.log(data);
       return data;
     }
     if (signing === "out") {

@@ -147,7 +147,6 @@ export function createSlideState(data?: Partial<SlideData>) {
       }));
       const newFS = createFileSystem({ files });
       setFileSystem(newFS);
-      console.log(getFileSystem());
     },
     setMarkdown(markdown: Text | string) {
       setMarkdown(

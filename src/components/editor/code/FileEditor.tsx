@@ -52,7 +52,6 @@ export const FileEditor: Component<Props> = (props) => {
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       props.fileState.save();
-      console.log("saving");
     }
   }
 

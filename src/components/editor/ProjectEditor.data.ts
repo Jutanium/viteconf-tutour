@@ -46,7 +46,6 @@ asfasdf
     title: "Test Project",
   });
 
-  console.log(project);
   return createMemo(() => project);
 }
 

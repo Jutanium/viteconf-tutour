@@ -68,7 +68,6 @@ export const saveProject = async (project: ProjectData, projectId?: string) => {
   }
 
   const created = data?.[0];
-  console.log(created);
   return {
     id: created.id as string,
     updated_at: new Date(created.updated_at),

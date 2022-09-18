@@ -3,7 +3,6 @@ import { Handler } from "@netlify/functions";
 import { Octokit } from "@octokit/rest";
 
 export const handler: Handler = async (event, context) => {
-  console.log("got to function 2");
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 500,

@@ -19,7 +19,6 @@ export const MarkdownPreview: Component<{ markdown: string }> = (props) => {
           const supported =
             match?.[1] && (fileTypes as readonly string[]).includes(match[1]);
           if (!inline && supported) {
-            console.log(String(children));
             const codemirror = createCodemirror({
               language: match[1] as FileType,
               startingDoc: String(children).replace(/\n$/, ""),

@@ -70,20 +70,20 @@ export function Repl(props: Props) {
     terminal.dispose();
   });
 
-  let container: WebContainer;
+  const [container, setContainer] = createSignal<WebContainer>();
 
   async function loadFiles(files: FileState[]) {
-    if (container) {
+    if (container()) {
       // await container.fs.rm("app", { force: true, recursive: true });
-      await container.loadFiles(treeFromFiles(files));
+      await container().loadFiles(treeFromFiles(files));
     }
   }
 
   async function removeFiles(pathNames: string[]) {
-    if (container) {
+    if (container()) {
       for (const pathName of pathNames) {
         try {
-          await container.fs.rm(pathName);
+          await container().fs.rm(pathName);
         } catch (e) {
           console.error(e);
         }
@@ -93,8 +93,8 @@ export function Repl(props: Props) {
 
   async function runCommand(commandString) {
     const [command, ...args] = commandString.split(" ");
-    if (container) {
-      const result = await container.run(
+    if (container()) {
+      const result = await container().run(
         {
           command,
           args,
@@ -120,51 +120,45 @@ export function Repl(props: Props) {
     props.fileSystem.fileList.filter((file) => file.saved > lastUpdated())
   );
 
+  async function diffAndReload() {
+    if (props.fileSystem.isEmpty || !isPackage() || !container()) {
+      return;
+    }
+
+    const filePaths = new Set(props.fileSystem.fileList.map((f) => f.pathName));
+
+    const toRemove = Object.keys(currentFiles).filter((s) => !filePaths.has(s));
+
+    const toUpdate = props.fileSystem.fileList.filter(
+      (file) =>
+        !currentFiles[file.pathName] || currentFiles[file.pathName] !== file.doc
+    );
+
+    updateCurrentFiles();
+    setLastUpdated(Date.now());
+
+    await removeFiles(toRemove);
+    await loadFiles(toUpdate);
+
+    if (toUpdate.some((file) => file.pathName === "package.json")) {
+      await runCommand("npm install");
+      await runCommand("npm run dev");
+    }
+  }
+
   createEffect(
-    on([() => props.fileSystem, savedFiles], async () => {
-      if (props.fileSystem.isEmpty || !isPackage()) {
-        return;
-      }
-
-      const filePaths = new Set(
-        props.fileSystem.fileList.map((f) => f.pathName)
-      );
-
-      const toRemove = Object.keys(currentFiles).filter(
-        (s) => !filePaths.has(s)
-      );
-
-      const toUpdate = props.fileSystem.fileList.filter(
-        (file) =>
-          !currentFiles[file.pathName] ||
-          currentFiles[file.pathName] !== file.doc
-      );
-
-      updateCurrentFiles();
-      setLastUpdated(Date.now());
-
-      await removeFiles(toRemove);
-      await loadFiles(toUpdate);
-
-      if (toUpdate.some((file) => file.pathName === "package.json")) {
-        await runCommand("npm install");
-        await runCommand("npm run dev");
-      }
-    })
+    on([() => props.fileSystem, savedFiles, container], diffAndReload)
   );
 
   onMount(async () => {
-    container = await bootWebContainer;
-    console.log("wc booted");
+    setContainer(await bootWebContainer);
 
-    container.on("server-ready", (_, url) => {
-      console.log(url);
+    container().on("server-ready", (_, url) => {
       setMagicURL(url);
     });
 
     updateCurrentFiles();
     setLastUpdated(Date.now());
-    await loadFiles(props.fileSystem.fileList);
   });
 
   // terminal.onData((str, arg2) => {

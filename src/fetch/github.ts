@@ -8,7 +8,6 @@ export type RepoFile = {
 export async function fetchRepo(
   degitString: string
 ): Promise<{ files: RepoFile[] }> {
-  console.log("fetchRepo called");
   const {
     data: { session },
   } = await supabase.auth.getSession();
