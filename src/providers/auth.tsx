@@ -28,7 +28,6 @@ export const AuthProvider: ParentComponent = (props) => {
   const location = useLocation();
   const [session, setSession] = createSignal<Session>(null);
 
-  let currentData: ProjectData;
   const [signinTrigger, setSigninTrigger] = createSignal<"in" | "out" | false>(
     false
   );
@@ -66,7 +65,7 @@ export const AuthProvider: ParentComponent = (props) => {
 
   const actions: Actions = {
     signin(saveData: ProjectData) {
-      currentData = saveData;
+      //TODO: persist this saveData in localStorage so that we don't lose it upon redirect
       setSigninTrigger("in");
     },
     signout() {

@@ -91,7 +91,7 @@ const SlideStart: Component<{ project: ProjectState }> = (props) => {
 
   const fromPrevious = (slideIndex: number) => {
     currentSlide().setFilesFromSlide(
-      props.project.slides[slideIndex].serialized
+      props.project.slides[slideIndex].serialize()
     );
   };
 

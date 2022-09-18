@@ -27,7 +27,7 @@ export function DefaultProjectData() {
   });
 
   const slideOne = createSlideState({
-    fs: testFS.serialized,
+    fs: testFS.serialize(),
     md: `# Testing
 more stuff
 ## Asdf
@@ -39,10 +39,10 @@ asfasdf
   `,
   });
 
-  const slideTwo = createSlideState({ fs: fs2.serialized, md: `# Slide Two` });
+  const slideTwo = createSlideState({ fs: fs2.serialize(), md: `# Slide Two` });
 
   const project = createProjectState({
-    slides: [slideOne.serialized, slideTwo.serialized],
+    slides: [slideOne.serialize(), slideTwo.serialize()],
     title: "Test Project",
   });
 

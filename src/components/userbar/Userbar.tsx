@@ -29,7 +29,9 @@ const Userbar: Component<{
         when={authState.session?.user}
         children={
           <>
-            <div class="ml-2">{authState.session.user.email}</div>
+            <div class="ml-2">
+              {authState.session.user.user_metadata.preferred_username}
+            </div>
             <button
               class={"mr-a " + theme.userbarButton()}
               onClick={authActions.signout}
@@ -64,7 +66,7 @@ const Userbar: Component<{
         fallback={
           <button
             class={theme.userbarButton()}
-            onClick={[authActions.signin, props.project.serialized]}
+            onClick={[authActions.signin, props.project.serialize()]}
           >
             Log In
           </button>

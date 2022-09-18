@@ -58,14 +58,6 @@ export function createFileSystem(data?: FileSystemData) {
     data?.currentFileId || data?.files?.find((f) => f.opened)?.id
   );
 
-  // const filesSaved = createMemo(() => {
-  //   const mappedEntries = Object.entries(files).map(([id, file]) => [
-  //     id,
-  //     file.saved,
-  //   ]);
-  //   return Object.fromEntries(mappedEntries);
-  // });
-
   const serialize = (): FileSystemData => ({
     currentFileId: currentFileId(),
     files: Object.values(files).map((file) => file.serialized),
@@ -100,10 +92,6 @@ export function createFileSystem(data?: FileSystemData) {
     get currentFileId() {
       return currentFileId();
     },
-    reset() {
-      setFiles(fromData(data));
-      setCurrentFileId(data.currentFileId);
-    },
     setCurrentFileId,
     addFile,
     removeFile,
@@ -112,8 +100,6 @@ export function createFileSystem(data?: FileSystemData) {
 }
 
 export type FileSystemState = ReturnType<typeof createFileSystem>;
-// const mapWithPath = (file: FileState) =>
-//   file.codeLinks.map((codeLink) => ({ ...codeLink, pathName: file.pathName }));
 
 export type SlideData = Readonly<{
   fs: FileSystemData;
@@ -126,12 +112,10 @@ export function createSlideState(data?: Partial<SlideData>) {
 
   const [getMarkdown, setMarkdown] = createSignal(data?.md || "");
 
-  // const [getSaved, setSaved] = createSignal(0);
-
-  // const save = () => setSaved(Date.now());
+  const [frozenData, setFrozenData] = createSignal<FileSystemData>(data?.fs);
 
   const serialize = (): SlideData => ({
-    fs: getFileSystem().serialized,
+    fs: getFileSystem().serialize(),
     md: getMarkdown(),
   });
 
@@ -143,9 +127,12 @@ export function createSlideState(data?: Partial<SlideData>) {
       return getMarkdown();
     },
     serialize,
+    freeze() {
+      setFrozenData(getFileSystem().serialize());
+    },
     reset() {
-      if (data?.fs) {
-        setFileSystem(createFileSystem(data.fs));
+      if (frozenData()) {
+        setFileSystem(createFileSystem(frozenData()));
       }
     },
     setFilesFromSlide(slide: SlideData) {
@@ -193,7 +180,6 @@ export function createProjectState(
   const [slideIndex, setSlideIndex] = createSignal(0);
 
   const [preview, setPreview] = createSignal(mode === "preview");
-  const [frozenData, setFrozenData] = createSignal<SlideData[]>(data.slides);
 
   const serialize = (): ProjectData => {
     return {
@@ -237,11 +223,11 @@ export function createProjectState(
     },
     setPreviewMode(isPreview: boolean) {
       if (isPreview) {
-        setFrozenData(serialized().slides);
+        slides.forEach((slide) => slide.freeze());
         setPreview(true);
         return;
       }
-      setSlides(frozenData().map(createSlideState));
+      slides.forEach((slide) => slide.reset());
       setPreview(false);
     },
   };
