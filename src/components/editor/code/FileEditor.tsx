@@ -1,21 +1,9 @@
-import { EditorSelection, Extension } from "@codemirror/state";
-import { EditorView, lineNumbers } from "@codemirror/view";
-import {
-  Component,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-} from "solid-js";
 import { FileState, getFileType, isFilePath } from "@/state";
+import { lineNumbers } from "@codemirror/view";
+import { Component, onCleanup } from "solid-js";
 
-import { injectExtensions } from "../../../codemirror/codeLinks";
 import createCodemirror from "../../../codemirror/createCodemirror";
 import { useTheme, useThemeExtension } from "../../../providers/theme";
-import { useConductor } from "../../../providers/conductor";
-import { usePrefersDark } from "@solid-primitives/media";
 
 interface Props {
   fileState: FileState;

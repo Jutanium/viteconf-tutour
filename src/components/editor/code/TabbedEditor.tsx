@@ -1,26 +1,14 @@
-import { Extension } from "@codemirror/state";
+import { useTheme } from "@/providers/theme";
+import { FilePath, FileState, FileSystemState } from "@/state/";
 import {
   Component,
-  createComputed,
   createEffect,
   createMemo,
   createSignal,
   on,
-  mapArray,
-  onMount,
 } from "solid-js";
-import { Dynamic } from "solid-js/web";
-import { FileEditor } from "./FileEditor";
-import {
-  FilePath,
-  FileState,
-  FileSystemState,
-  isFilePath,
-} from "@/state/state";
-import { useTheme } from "@/providers/theme";
-import { ConductorProvider, useConductor } from "@/providers/conductor";
-import { indentWithTab } from "@codemirror/commands";
 import EditPath from "./EditPath";
+import { FileEditor } from "./FileEditor";
 import TreeView from "./TreeView";
 
 const TabListItem: Component<{

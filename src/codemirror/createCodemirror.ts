@@ -1,16 +1,15 @@
+import { FileType } from "@/state";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { json } from "@codemirror/lang-json";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
-import { ChangeSet, Compartment, Extension } from "@codemirror/state";
 import { languages } from "@codemirror/language-data";
+import { Compartment, Extension } from "@codemirror/state";
+import { ViewUpdate } from "@codemirror/view";
 import { EditorView } from "codemirror";
 import { Accessor, createEffect, on } from "solid-js";
-import { FileType } from "@/state";
 import baseExtensions from "./baseExtensions";
-import { ViewUpdate } from "@codemirror/view";
-import { indentWithTab } from "@codemirror/commands";
 
 const languageExtensions: { [Language in FileType]: () => Extension } = {
   js: () => javascript(),

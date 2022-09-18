@@ -7,12 +7,13 @@ import {
   FileData,
   FilePath,
   FileState,
+  FileType,
   getFileType,
   isFilePath,
 } from "./fileState";
 
 export { isFilePath, getFileType };
-export type { FileState, FilePath, FileData };
+export type { FileState, FilePath, FileData, FileType };
 
 /* Each state factory exposes a serialized getter that returns
  * a corresponding data type. This in turn can be passed as an argument

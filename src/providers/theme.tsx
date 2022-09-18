@@ -132,10 +132,13 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const useThemeExtension = () => {
   const theme = useTheme();
+
   return createMemo(() => {
-    const prefersDark = usePrefersDark();
-    return prefersDark()
-      ? theme.codemirror.darkTheme
-      : theme.codemirror.lightTheme;
+    //TODO: properly implement light mode by matching tailwind styles to codemirror styles
+    // const prefersDark = usePrefersDark();
+    // return prefersDark()
+    //   ? theme.codemirror.darkTheme
+    //   : theme.codemirror.lightTheme;
+    return theme.codemirror.darkTheme;
   });
 };
