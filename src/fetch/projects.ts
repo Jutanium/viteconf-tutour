@@ -1,4 +1,4 @@
-import { ProjectData } from "@/state/state";
+import { ProjectData } from "@/state";
 import { supabase } from "./supabaseClient";
 
 export const getProjectById = async (id: string) => {

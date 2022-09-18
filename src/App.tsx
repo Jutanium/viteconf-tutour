@@ -1,9 +1,10 @@
 import { Route, Routes } from "solid-app-router";
 import { Component, createEffect, createMemo, ErrorBoundary } from "solid-js";
-import ProjectEditor, {
+import ProjectEditor from "./components/editor/ProjectEditor";
+import {
   DefaultProjectData,
   LoadProjectData,
-} from "./ProjectEditor";
+} from "./components/editor/ProjectEditor.data";
 import { AuthProvider } from "./providers/auth";
 import { ThemeProvider } from "./providers/theme";
 

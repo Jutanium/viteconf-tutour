@@ -1,4 +1,5 @@
 import { presetForms } from "@julr/unocss-preset-forms";
+import { presetIcons } from "unocss";
 import { transformerVariantGroup } from "unocss";
 import { defineConfig, presetTypography, presetUno } from "unocss";
 
@@ -37,6 +38,7 @@ export default defineConfig({
           "padding-bottom": "0.2rem",
           "border-bottom": "2px solid #3E4451",
           "font-size": "1.75rem",
+          filter: "brightness(1.3)",
         },
         h2: {
           "font-size": "1.4rem",
@@ -60,6 +62,7 @@ export default defineConfig({
       },
     }),
     presetForms(),
+    presetIcons(),
   ],
   transformers: [transformerVariantGroup()],
 });

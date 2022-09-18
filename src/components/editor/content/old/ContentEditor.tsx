@@ -1,6 +1,6 @@
 import { Extension } from "@codemirror/state";
 import { Component, createEffect, createSignal } from "solid-js";
-import { SlideState } from "../../../../state/state";
+import { SlideState } from "../../../../state";
 
 import { MarkdownEditor } from "../MarkdownEditor";
 import { MarkdownPreview } from "../MarkdownPreview";

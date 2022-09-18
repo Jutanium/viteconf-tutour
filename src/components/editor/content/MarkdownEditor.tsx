@@ -4,7 +4,7 @@ import { tags } from "@lezer/highlight";
 import { EditorView } from "codemirror";
 import { Component, onMount } from "solid-js";
 import createCodemirror from "../../../codemirror/createCodemirror";
-import { useTheme } from "../../../providers/theme";
+import { useTheme, useThemeExtension } from "../../../providers/theme";
 
 const markdownHighlighting = HighlightStyle.define([
   {
@@ -40,7 +40,7 @@ export const MarkdownEditor: Component<{
     language: "md",
     rootClass: theme.codemirror.root("content"),
     staticExtension: [syntaxHighlighting(markdownHighlighting), fontTheme],
-    reactiveExtension: () => theme.codemirror.themeExtension(),
+    reactiveExtension: useThemeExtension(),
     startingDoc: props.startingMarkdown,
     onUpdate: (transaction, view) => props.updateMarkdown(view.state.doc),
   });

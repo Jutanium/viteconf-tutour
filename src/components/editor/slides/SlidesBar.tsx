@@ -1,5 +1,5 @@
 import { useTheme } from "@/providers/theme";
-import { SlideState } from "@/state/state";
+import { SlideState } from "@/state";
 import { Component } from "solid-js";
 
 const SlidesBar: Component<{

@@ -20,56 +20,12 @@ import {
 import { useTheme } from "@/providers/theme";
 import { ConductorProvider, useConductor } from "@/providers/conductor";
 import { indentWithTab } from "@codemirror/commands";
-
-const EditPath: Component<{
-  initial?: FilePath;
-  onSubmit: (validPath: FilePath | false) => void;
-}> = (props) => {
-  let ref!: HTMLInputElement;
-  const theme = useTheme();
-
-  const [inputPath, setInputPath] = createSignal<string>(
-    props.initial || "new.js"
-  );
-
-  function submit(e) {
-    const newPath = inputPath();
-    props.onSubmit(isFilePath(newPath) ? newPath : false);
-  }
-
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      ref.blur();
-    }
-  }
-
-  onMount(() => {
-    ref.focus();
-    if (!props.initial) {
-      ref.select();
-      return;
-    }
-    ref.setSelectionRange(0, inputPath().indexOf("."));
-  });
-
-  return (
-    <input
-      ref={ref}
-      class={theme.editPath()}
-      spellcheck={false}
-      size={inputPath().length}
-      onBlur={submit}
-      onKeyDown={onKeyDown}
-      onInput={(e) => setInputPath(e.currentTarget.value)}
-      type="text"
-      value={inputPath()}
-    />
-  );
-};
+import EditPath from "./EditPath";
+import TreeView from "./TreeView";
 
 const TabListItem: Component<{
   index: number;
-  pathName?: FilePath;
+  pathName?: string;
   selected: boolean;
   editing: boolean;
   tabClicked?: () => void;
@@ -113,8 +69,13 @@ export const TabbedEditor: Component<Props> = (props) => {
 
   const [renaming, setRenaming] = createSignal("");
   const [isAdding, setAdding] = createSignal(false);
+  const [treeViewShown, setTreeViewShown] = createSignal(false);
 
-  const openedFiles = createMemo(() =>
+  createEffect(() => {
+    console.log(treeViewShown());
+  });
+
+  const openedFiles = createMemo<FileState[]>(() =>
     props.fileSystem.fileList.filter((f) => f.opened)
   );
 
@@ -135,18 +96,25 @@ export const TabbedEditor: Component<Props> = (props) => {
   }
 
   function closeFile(id: string, index: number) {
-    // TODO: when we have a file system browser, we should just close, not delete.
     setRenaming("");
-    if (props.fileSystem.currentFileId === id) {
-      const afterRemove = openedFiles().filter((f) => f.id !== id);
-      if (afterRemove.length >= 1) {
-        props.fileSystem.setCurrentFileId(
-          afterRemove[index > 0 ? index - 1 : 0].id
-        );
-      }
-    }
-    props.fileSystem.removeFile(id);
+    props.fileSystem.fileList.find((f) => f.id === id).close();
   }
+
+  createEffect(
+    on(openedFiles, (files, prevFiles) => {
+      if (
+        prevFiles &&
+        files.length < prevFiles.length &&
+        files.length >= 1 &&
+        !files.find((f) => f.id === props.fileSystem.currentFileId)
+      ) {
+        const index = prevFiles.findIndex(
+          (f) => f.id === props.fileSystem.currentFileId
+        );
+        props.fileSystem.setCurrentFileId(files[index > 0 ? index - 1 : 0].id);
+      }
+    })
+  );
 
   function addFile(newPath: FilePath | false) {
     if (!isAdding()) return;
@@ -160,17 +128,29 @@ export const TabbedEditor: Component<Props> = (props) => {
   return (
     <div class={theme.tabbedEditorRoot()}>
       <div role="tablist" class={theme.tablist()}>
+        {/* <div class="h-full w-8 flex items-center justify-center hover:bg-oneDark-selection transition transition-colors">
+          <button class="i-mdi-folder text-oneDark-ivory" />
+        </div> */}
+        <button
+          class={theme.tablistFolder(treeViewShown())}
+          onClick={() => setTreeViewShown((shown) => !shown)}
+        >
+          <img class="i-mdi-folder"></img>
+          <span class="hidden">Open File Tree View</span>
+        </button>
         <For each={openedFiles()}>
           {(fileState, i) => (
-            <TabListItem
-              index={i()}
-              pathName={fileState.pathName}
-              selected={fileState.id === props.fileSystem.currentFileId}
-              editing={fileState.id === renaming()}
-              tabClicked={() => tabClicked(fileState.id)}
-              closeClicked={() => closeFile(fileState.id, i())}
-              edited={renamed}
-            ></TabListItem>
+            <>
+              <TabListItem
+                index={i()}
+                pathName={fileState.pathName}
+                selected={fileState.id === props.fileSystem.currentFileId}
+                editing={fileState.id === renaming()}
+                tabClicked={() => tabClicked(fileState.id)}
+                closeClicked={() => closeFile(fileState.id, i())}
+                edited={renamed}
+              ></TabListItem>
+            </>
           )}
         </For>
         <Show when={isAdding()}>
@@ -186,13 +166,18 @@ export const TabbedEditor: Component<Props> = (props) => {
           +
         </button>
       </div>
-      <For each={props.fileSystem.fileList}>
-        {(fileState, i) => (
-          <Show when={fileState.id === props.fileSystem.currentFileId}>
-            <FileEditor fileState={fileState} />
-          </Show>
-        )}
-      </For>
+      <div class="flex flex-row">
+        <Show when={treeViewShown()}>
+          <TreeView fileSystem={props.fileSystem} />
+        </Show>
+        <For each={props.fileSystem.fileList}>
+          {(fileState, i) => (
+            <Show when={fileState.id === props.fileSystem.currentFileId}>
+              <FileEditor fileState={fileState} />
+            </Show>
+          )}
+        </For>
+      </div>
     </div>
   );
 };

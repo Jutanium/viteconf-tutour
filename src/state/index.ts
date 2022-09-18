@@ -1,112 +1,37 @@
-import { fetchRepo, RepoFile } from "@/data/github";
-import { moveCompletionSelection } from "@codemirror/autocomplete";
+import type { RepoFile } from "@/fetch/github";
 import { Text } from "@codemirror/state";
+import { createSignal } from "solid-js";
+import { createStore } from "solid-js/store";
 import {
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-  on,
-} from "solid-js";
-import { createStore, Store } from "solid-js/store";
+  createFileState,
+  FileData,
+  FilePath,
+  FileState,
+  getFileType,
+  isFilePath,
+} from "./fileState";
+
+export { isFilePath, getFileType };
+export type { FileState, FilePath, FileData };
 
 /* Each state factory exposes a serialized getter that returns
  * a corresponding data type. This in turn can be passed as an argument
  * to the state factory to deserialize it.
  */
 
-const fileTypes = ["ts", "js", "tsx", "jsx", "json", "md", "html", "css"];
-export type FileType = typeof fileTypes[number];
-
-export type FilePath = `${string}.${FileType}`;
-
-export function isFilePath(path: string): path is FilePath {
-  return fileTypes.some((type) => path.endsWith(`.${type}`));
-}
-
-export function getFileType(path: FilePath): FileType {
-  const parts = path.split(".");
-  return parts[parts.length - 1] as FileType;
-}
 // TODO: reimplement CodeLinks. They probably make more sense being stored in the SlideState, and use a Context to interact them beneath.
-export interface CodeLink {
-  from: number;
-  to?: number;
-  startLine?: number;
-  endLine?: number;
-  id: string;
-  name: string;
-}
+// export interface CodeLink {
+//   from: number;
+//   to?: number;
+//   startLine?: number;
+//   endLine?: number;
+//   id: string;
+//   name: string;
+// }
 
-export interface CodeLinkWithPath extends CodeLink {
-  pathName: FilePath;
-}
-
-export type FileData = Readonly<{
-  id: string;
-  doc: string;
-  path: string;
-  opened: boolean;
-}>;
-
-function createFileState({ id, doc, path, opened }: FileData) {
-  const [getDocument, setDocument] = createSignal(doc);
-  const [getPath, setPath] = createSignal(path);
-  const [getOpened, setOpened] = createSignal(opened);
-
-  const serialized = () => {
-    return {
-      id,
-      opened: getOpened(),
-      doc: getDocument(),
-      path: getPath(),
-    };
-  };
-
-  const [saved, setSaved] = createSignal(0);
-  const save = () => setSaved(Date.now());
-  save();
-  // const [state, setState] = createStore<FileData>({
-  //   doc,
-  //   pathName,
-  //   codeLinks: Object.fromEntries(
-  //     codeLinks.map((codeLink) => [codeLink.id, codeLink])
-  //   ),
-  // });
-  return {
-    get doc() {
-      return getDocument();
-    },
-    get pathName() {
-      return getPath();
-    },
-    get serialized() {
-      return serialized();
-    },
-    get opened() {
-      return getOpened();
-    },
-    get saved() {
-      return saved();
-    },
-    id,
-    save,
-    close() {
-      setOpened(false);
-    },
-    setDoc(newDoc: Text) {
-      const string = newDoc.sliceString(0);
-      setDocument(string);
-    },
-    setPathName(newPath: FilePath) {
-      if (getPath() === newPath) return false;
-      setPath(newPath);
-      save();
-    },
-  };
-}
-
-export type FileState = ReturnType<typeof createFileState>;
+// export interface CodeLinkWithPath extends CodeLink {
+//   pathName: FilePath;
+// }
 
 export type FileSystemData = Readonly<{
   currentFileId?: string;
@@ -164,7 +89,7 @@ export function createFileSystem(data?: FileSystemData) {
   };
 
   return {
-    get fileList() {
+    get fileList(): FileState[] {
       return Object.values(files);
     },
     get isEmpty() {
@@ -251,7 +176,7 @@ export type ProjectData = Readonly<{
 }>;
 
 export function createProjectState(
-  data?: ProjectData,
+  data: ProjectData,
   savedId?: string,
   createdBy?: string,
   mode: "preview" | "edit" = "preview"
@@ -260,13 +185,13 @@ export function createProjectState(
   const [title, setTitle] = createSignal(data?.title || "");
 
   const [slides, setSlides] = createStore<SlideState[]>(
-    data?.slides.map(createSlideState) || []
+    data.slides.map(createSlideState) || []
   );
 
   const [slideIndex, setSlideIndex] = createSignal(0);
 
   const [preview, setPreview] = createSignal(mode === "preview");
-  const [frozenData, setFrozenData] = createSignal<SlideData[]>(data?.slides);
+  const [frozenData, setFrozenData] = createSignal<SlideData[]>(data.slides);
 
   const serialized = (): ProjectData => {
     return {

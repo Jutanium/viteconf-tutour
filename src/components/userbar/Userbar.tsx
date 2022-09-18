@@ -6,12 +6,12 @@ import {
   createSignal,
   ErrorBoundary,
 } from "solid-js";
-import { supabase } from "@/data/supabaseClient";
+import { supabase } from "@/fetch/supabaseClient";
 import { useAuth } from "@/providers/auth";
 import { useTheme } from "@/providers/theme";
 import { useNavigate } from "solid-app-router";
-import { ProjectState } from "@/state/state";
-import { saveProject } from "@/data/projects";
+import { ProjectState } from "@/state";
+import { saveProject } from "@/fetch/projects";
 
 const Userbar: Component<{
   project: ProjectState;
@@ -59,28 +59,30 @@ const Userbar: Component<{
                 Save
               </Show>
             </button>
-            <Show when={props.saveable}>
-              <div class="flex justify-center items-center gap-1 mr-2 font-bold">
-                <input
-                  id="preview"
-                  type="checkbox"
-                  class="w-6 h-6 text-oneDark-coral focus:ring-0 rounded-md"
-                  checked={props.project.previewMode}
-                  onChange={(e) => {
-                    props.project.setPreviewMode(!props.project.previewMode);
-                  }}
-                ></input>
-                <label for="preview">Preview</label>
-              </div>
-            </Show>
           </>
         }
         fallback={
-          <button class={theme.userbarButton()} onClick={authActions.signin}>
+          <button
+            class={theme.userbarButton()}
+            onClick={[authActions.signin, props.project.serialized]}
+          >
             Log In
           </button>
         }
       />
+      <form class={theme.userbarPreviewForm()}>
+        {/* TODO: should be a toggle switch, not a checkbox! */}
+        <input
+          id="preview"
+          type="checkbox"
+          class={theme.userbarPreviewToggle()}
+          checked={props.project.previewMode}
+          onChange={(e) => {
+            props.project.setPreviewMode(!props.project.previewMode);
+          }}
+        ></input>
+        <label for="preview">Preview</label>
+      </form>
     </div>
   );
 };

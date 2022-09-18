@@ -1,6 +1,6 @@
-import { fetchRepo, RepoFile } from "@/data/github";
+import { fetchRepo, RepoFile } from "@/fetch/github";
 import { useTheme } from "@/providers/theme";
-import { ProjectState } from "@/state/state";
+import { ProjectState } from "@/state";
 import {
   Component,
   createSignal,

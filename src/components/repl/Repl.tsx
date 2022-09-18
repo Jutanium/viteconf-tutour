@@ -10,8 +10,13 @@ import {
   onMount,
 } from "solid-js";
 import "xterm/css/xterm.css";
-import { FileState, FileSystemState } from "@/state/state";
-import { FileSystemTree, load, WebContainer } from "@webcontainer/api";
+import { FileState, FileSystemState } from "@/state";
+import {
+  DirectoryEntry,
+  FileSystemTree,
+  load,
+  WebContainer,
+} from "@webcontainer/api";
 
 // https://xtermjs.org/docs/api/vtfeatures/
 
@@ -34,7 +39,7 @@ function treeFromFiles(files: FileState[]): FileSystemTree {
         segment[piece] = x;
         segment = x.directory;
       } else {
-        segment = segment[piece].directory;
+        segment = (segment[piece] as DirectoryEntry).directory;
       }
     }
     segment[pieces[pieces.length - 1]] = {

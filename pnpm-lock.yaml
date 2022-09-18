@@ -15,6 +15,7 @@ specifiers:
   '@codemirror/theme-one-dark': ^6.0.0
   '@codemirror/view': ^6.0.3
   '@fontsource/open-sans': ^4.5.11
+  '@iconify-json/mdi': ^1.1.32
   '@julr/unocss-preset-forms': ^0.0.2
   '@lezer/highlight': ^1.0.0
   '@netlify/functions': ^1.2.0
@@ -22,8 +23,8 @@ specifiers:
   '@solid-primitives/media': ^2.0.0
   '@solid-primitives/scheduled': ^1.0.0
   '@supabase/supabase-js': 2.0.0-rc.8
-  '@thisbeyond/solid-dnd': ^0.7.1
   '@types/node': ^18.7.14
+  '@unocss/preset-icons': ^0.45.21
   '@unocss/preset-typography': ^0.44.7
   '@unocss/reset': ^0.44.3
   '@unocss/transformer-variant-group': ^0.45.14
@@ -65,7 +66,6 @@ dependencies:
   '@solid-primitives/media': 2.0.0_solid-js@1.5.3
   '@solid-primitives/scheduled': 1.0.0_solid-js@1.5.3
   '@supabase/supabase-js': 2.0.0-rc.8
-  '@thisbeyond/solid-dnd': 0.7.1_solid-js@1.5.3
   '@unocss/reset': 0.44.3
   '@webcontainer/api': 0.0.5
   codemirror: 6.0.1
@@ -78,7 +78,9 @@ dependencies:
   xterm-addon-fit: 0.5.0_xterm@4.19.0
 
 devDependencies:
+  '@iconify-json/mdi': 1.1.32
   '@types/node': 18.7.14
+  '@unocss/preset-icons': 0.45.21
   '@unocss/preset-typography': 0.44.7
   '@unocss/transformer-variant-group': 0.45.14
   prettier: 2.7.1
@@ -617,6 +619,12 @@ packages:
   /@fontsource/open-sans/4.5.11:
     resolution: {integrity: sha512-nG0gmbx4pSr8wltdG/ZdlS6OrsMK40Wt6iyuLTKHEf0TQfzKRMlWaskZHdeuWCwS6WUgqHKMf9KSwGdxPfapOg==}
     dev: false
+
+  /@iconify-json/mdi/1.1.32:
+    resolution: {integrity: sha512-2Hpzh7rdp136d3NRYYaL8jh4TBJ+8s2lFx2ifFXt3KsMgOP9p3DXE9LtgebLQQGRyEZxUHl9sXK059MGgBLpCg==}
+    dependencies:
+      '@iconify/types': 1.1.0
+    dev: true
 
   /@iconify/types/1.1.0:
     resolution: {integrity: sha512-Jh0llaK2LRXQoYsorIH8maClebsnzTcve+7U3rQUSnC11X4jtPnFuyatqFLvMxZ8MLG8dB4zfHsbPfuvxluONw==}
@@ -1221,14 +1229,6 @@ packages:
       - supports-color
     dev: false
 
-  /@thisbeyond/solid-dnd/0.7.1_solid-js@1.5.3:
-    resolution: {integrity: sha512-+hlm84MfCNtZOi12tUf0WL2aBYyIhOCTA+lbT3hiJXmVnMRws0Rq1Y6WjQ5A43Xn/gvzzO9K7O+WK+t9UHTR4Q==}
-    peerDependencies:
-      solid-js: ^1.5
-    dependencies:
-      solid-js: 1.5.3
-    dev: false
-
   /@types/aws-lambda/8.10.102:
     resolution: {integrity: sha512-BT05v46n9KtSHa9SgGuOvm49eSruJ9utD8iNXpdpuUVYk8wOcqmm1LEzpNRkrXxD0CULc38sdLpk6q3Wa2WOwg==}
     dev: false
@@ -1318,6 +1318,10 @@ packages:
     resolution: {integrity: sha512-8tkFg/0QRmAcVJldT3v9yQfMNGoAmpRb6rQzOSa4AZy4u3zhRmKodtq8ZR6NnrlIYdR9NT01pmteQwICvSNP4Q==}
     dev: true
 
+  /@unocss/core/0.45.21:
+    resolution: {integrity: sha512-9yvgEYHFy6NFQwiQ0fEMg3QUGvcHfXbSmZszupa8ojpbR7UM26Ng+RY/Tyx1zh9HBaS7N+73z7u6gcygc7mUJA==}
+    dev: true
+
   /@unocss/inspector/0.44.3:
     resolution: {integrity: sha512-iOfUqa89d/S+YLHQV0ERjyv9Nz4H9vV8c0cZgtwScgJSkrX9Gf/XQ8A1osv9Ues97bfotLIdDSfzVbk76MEZdQ==}
     dependencies:
@@ -1337,6 +1341,16 @@ packages:
       ohmyfetch: 0.4.18
     transitivePeerDependencies:
       - supports-color
+
+  /@unocss/preset-icons/0.45.21:
+    resolution: {integrity: sha512-7DyE2eE/pprJYVUGSD3Hlrq/me2I8jJryd9QDoB8aEOgWmmhUGn2f9A34jU0109LtUH1QBIolufVMq3i/fJUag==}
+    dependencies:
+      '@iconify/utils': 1.0.33
+      '@unocss/core': 0.45.21
+      ohmyfetch: 0.4.18
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /@unocss/preset-mini/0.44.3:
     resolution: {integrity: sha512-VHsUEMtuLGHZeN7xwSeY3z+fBewwzUzD9vDcdW9QLyhpxDsDOKY4eueBQ5xFPah2ymEKlGsgF1xCmhhyR6q7wQ==}

@@ -3,17 +3,19 @@ import { EditorView, lineNumbers } from "@codemirror/view";
 import {
   Component,
   createEffect,
+  createMemo,
   createSignal,
   on,
   onCleanup,
   onMount,
 } from "solid-js";
-import { FileState, getFileType, isFilePath } from "@/state/state";
+import { FileState, getFileType, isFilePath } from "@/state";
 
 import { injectExtensions } from "../../../codemirror/codeLinks";
 import createCodemirror from "../../../codemirror/createCodemirror";
-import { useTheme } from "../../../providers/theme";
+import { useTheme, useThemeExtension } from "../../../providers/theme";
 import { useConductor } from "../../../providers/conductor";
+import { usePrefersDark } from "@solid-primitives/media";
 
 interface Props {
   fileState: FileState;
@@ -30,7 +32,7 @@ export const FileEditor: Component<Props> = (props) => {
     language: getFileType(props.fileState.pathName),
     rootClass: theme?.codemirror.root(props.fileState),
     staticExtension: [lineNumbers(), theme.codemirror.baseTheme],
-    reactiveExtension: () => theme.codemirror.themeExtension(),
+    reactiveExtension: useThemeExtension(),
     startingDoc: props.fileState.doc,
     onUpdate: (updates, view) => {
       // console.log("updating", updates);

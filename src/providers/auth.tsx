@@ -7,9 +7,10 @@ import {
   createEffect,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { supabase } from "@/data/supabaseClient";
+import { supabase } from "@/fetch/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import { useLocation } from "solid-app-router";
+import { ProjectData } from "@/state";
 
 interface AuthState {
   session: Session;
@@ -17,7 +18,7 @@ interface AuthState {
 }
 
 interface Actions {
-  signin: () => void;
+  signin: (currentData: ProjectData) => void;
   signout: () => void;
 }
 
@@ -27,6 +28,7 @@ export const AuthProvider: ParentComponent = (props) => {
   const location = useLocation();
   const [session, setSession] = createSignal<Session>(null);
 
+  let currentData: ProjectData;
   const [signinTrigger, setSigninTrigger] = createSignal<"in" | "out" | false>(
     false
   );
@@ -36,7 +38,7 @@ export const AuthProvider: ParentComponent = (props) => {
       const redirectTo =
         (import.meta.env.DEV ? "http://localhost:8888" : "https://tutour.dev") +
         location.pathname;
-      console.log(redirectTo);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
@@ -63,7 +65,8 @@ export const AuthProvider: ParentComponent = (props) => {
   });
 
   const actions: Actions = {
-    signin() {
+    signin(saveData: ProjectData) {
+      currentData = saveData;
       setSigninTrigger("in");
     },
     signout() {

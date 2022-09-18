@@ -1,4 +1,4 @@
-import { FileState } from "@/state/state";
+import { FileState } from "@/state";
 import {
   createContext,
   useContext,
@@ -7,7 +7,6 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Extension } from "@codemirror/state";
-import { defaultDark } from "../codemirror/defaultDark";
 import { defaultLight } from "../codemirror/defaultLight";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "codemirror";
@@ -24,33 +23,56 @@ const cmDarkTheme = [
 
 const cmLightTheme = defaultLight;
 
-//Made this a function so it can use a memo inside of it, might be better to separate out that memo
-export const defaultTheme = () => ({
+const baseButton =
+  "px-2 py-1 border-1 border-rounded transition dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection text-oneDark-ivory)";
+
+export const defaultTheme = {
   fileEditorRoot: () => "w-full h-full overflow-y-scroll",
-  tabbedEditorRoot: () => "w-full h-full flex-shrink flex flex-col",
-  tablist: () => "w-full flex dark:bg-oneDark-background overflow-x-scroll",
-  tablistItem: (selected: boolean, index: number) => {
-    const base = `shrink-0 font-semibold border-b-1 font-sans px-2 pt-1.5 pb-1.5 text-md border-r-1 border-oneDark-selection`;
-    const highlighted = selected
-      ? `bg-gray-200 border-b-oneDark-chalky dark:bg-oneDark-highlightBackground`
-      : `dark:bg-oneDark-background`;
-    const dark = `dark:text-oneDark-ivory`;
-    const alternate =
-      !selected &&
-      (index % 2 === 0
-        ? "dark:border-oneDark-selection"
-        : "dark:border-oneDark-highlightBackground");
-    return `${base} ${dark} ${highlighted}`;
-  },
-  tablistItemClose: () => "pl-1.5 hover:text-yellow-500 h-full",
-  tablistAdd: () => "w-6 dark:text-white hover:(font-bold text-yellow-500)",
-  editPath: () => "bg-transparent outline-none h-6",
-  userbar: () =>
-    "w-full font-sans text-sm flex justify-end items-center gap-1 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
-  userbarButton: () =>
-    "font-bold my-0.5 mx-1 px-1 pt-1 pb-1.1 border-1 border-rounded dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection)",
   fileUnsupported: () =>
     "w-full p-4 dark:text-white dark:bg-oneDark-background",
+  tabbedEditorRoot: () => "w-full h-full flex-shrink flex flex-col",
+  tablist: () =>
+    "w-full pb-1 flex items-center dark:bg-oneDark-background overflow-x-scroll",
+  tablistItem: (selected: boolean, index: number) => {
+    const base = `shrink-0 mt-1.5 font-semibold border-b-1 font-sans px-2 py-1 text-sm border-oneDark-selection transition`;
+    const highlighted = selected
+      ? ` border-b-oneDark-chalky dark:bg-oneDark-highlightBackground`
+      : `dark:(bg-oneDark-background hover:bg-oneDark-highlightBackground)`;
+    const dark = `dark:text-oneDark-ivory`;
+    return `${base} ${dark} ${highlighted}`;
+  },
+  tablistFolder: (selected: boolean) =>
+    `mt-1.5 p-1 border-oneDark-selection ${
+      selected ? "border-b-1 mr-50" : "border-b-0"
+    } text-oneDark-ivory text-xl rounded-t-md hover:bg-oneDark-selection transition`,
+  tablistItemClose: () => "pl-1.5 hover:text-yellow-500 h-full",
+  tablistAdd: () =>
+    "w-6 mt-1 dark:text-white hover:(font-bold text-yellow-500)",
+  editPath: () => "text-sm bg-transparent outline-none h-0",
+  treeViewRoot: () =>
+    "mt-1 w-60 text-oneDark-ivory font-sans text-sm border-oneDark-selection border-r-1",
+  treeViewFileRow: () => "flex w-full gap-1 items-center group",
+  treeViewFilename: (current, opened, supported) => {
+    let classes = "border-l-1 pl-1 transition ";
+    if (opened) {
+      classes += `font-bold hover:bg-oneDark-highlightBackground ${
+        current ? "border-oneDark-chalky " : "border-oneDark-selection "
+      }`;
+    } else classes += "border-transparent ";
+    if (!supported) {
+      classes += "line-through ";
+    }
+    return classes;
+  },
+  treeViewFileDelete: () =>
+    "i-mdi-delete ml-a hidden group-hover:display-block",
+  userbar: () =>
+    "w-full font-sans text-sm flex justify-end items-center gap-1 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
+  userbarButton: () => baseButton + "font-bold my-0.5 mx-1",
+  userbarPreviewForm: () =>
+    "flex justify-center items-center gap-1 mr-2 font-bold",
+  userbarPreviewToggle: () =>
+    "w-4 h-4 text-oneDark-coral focus:ring-0 rounded-md",
   slidesRoot: () =>
     "w-full h-full dark:(bg-oneDark-background border-oneDark-selection)",
   slidesBar: () =>
@@ -66,9 +88,8 @@ export const defaultTheme = () => ({
   slideStartBody: () => "h-90 flex flex-col gap-2 items-start justify-center",
   slideStartForm: () => "mx-2 space-x-2",
   slideStartInput: () =>
-    "bg-oneDark-selection text-oneDark-chalky px-2 outline-oneDark-ivory outline-1",
-  slideStartButton: () =>
-    "px-2 border-1 border-rounded dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection text-oneDark-ivory)",
+    "bg-oneDark-selection h-8 text-oneDark-chalky px-2 outline-oneDark-ivory outline-1",
+  slideStartButton: () => baseButton,
   mdContainer: (selected?: boolean) =>
     `ml-2 border-l-4 ${
       selected
@@ -80,27 +101,23 @@ export const defaultTheme = () => ({
     baseTheme: [
       EditorView.theme({
         "&": {
-          fontSize: "1rem",
+          fontSize: "0.9rem",
         },
       }),
     ],
     darkTheme: cmDarkTheme,
     lightTheme: cmLightTheme,
-    themeExtension: createMemo(() => {
-      const prefersDark = usePrefersDark();
-      return prefersDark() ? cmDarkTheme : cmLightTheme;
-    }),
   },
-});
+};
 
-export type ThemeConfig = ReturnType<typeof defaultTheme>;
+export type ThemeConfig = typeof defaultTheme;
 
 const ThemeContext = createContext<ThemeConfig>();
 
 export const ThemeProvider: ParentComponent<{ theme?: ThemeConfig }> = (
   props
 ) => {
-  const [state, setState] = createStore(props.theme || defaultTheme());
+  const [state, setState] = createStore(props.theme || defaultTheme);
 
   // Potential for functionality to pick themes at runtime, save and load, etc
 
@@ -112,3 +129,13 @@ export const ThemeProvider: ParentComponent<{ theme?: ThemeConfig }> = (
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
+export const useThemeExtension = () => {
+  const theme = useTheme();
+  return createMemo(() => {
+    const prefersDark = usePrefersDark();
+    return prefersDark()
+      ? theme.codemirror.darkTheme
+      : theme.codemirror.lightTheme;
+  });
+};
