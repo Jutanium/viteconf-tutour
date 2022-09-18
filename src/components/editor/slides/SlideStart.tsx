@@ -55,7 +55,7 @@ const GitHubForm: Component<{
     >
       <form class={theme.slideStartForm()} onSubmit={ghFormSubmit}>
         <label class="font-bold" for="degitString">
-          Start from GitHub:
+          Load files from GitHub:
         </label>
         <input
           ref={inputRef}
@@ -106,32 +106,39 @@ const SlideStart: Component<{ project: ProjectState }> = (props) => {
 
   return (
     <div class={theme.slideStartRoot()}>
-      <div class={theme.slideStartBody()}>
-        <Show when={props.project.slideIndex > 0}>
-          <div class={theme.slideStartForm()}>
-            <span class="font-bold">Start from a previous slide:</span>
-            <SlidesBar
-              array={previousSlides()}
-              filter={(slide) => !slide.fileSystem.isEmpty}
-              onClick={fromPrevious}
-            />
-          </div>
-        </Show>
-        <ErrorBoundary
-          fallback={(err) => (
-            <GitHubForm onSuccess={ghFormSuccess} error={err.message} />
-          )}
-        >
-          <GitHubForm onSuccess={ghFormSuccess} />
-        </ErrorBoundary>
-        <Show when={props.project.slides.length > 0}>
-          <div class={theme.slideStartForm()}>
-            <button class={theme.slideStartButton()} onClick={removeSlide}>
-              Remove Slide
-            </button>
-          </div>
-        </Show>
-      </div>
+      <Show when={!props.project.previewMode}>
+        <div class={theme.slideStartBody()}>
+          <Show
+            when={
+              props.project.slideIndex > 0 &&
+              previousSlides().some((s) => !s.fileSystem.isEmpty)
+            }
+          >
+            <div class={theme.slideStartForm()}>
+              <span class="font-bold">Copy files from a previous slide:</span>
+              <SlidesBar
+                array={previousSlides()}
+                filter={(slide) => !slide.fileSystem.isEmpty}
+                onClick={fromPrevious}
+              />
+            </div>
+          </Show>
+          <ErrorBoundary
+            fallback={(err) => (
+              <GitHubForm onSuccess={ghFormSuccess} error={err.message} />
+            )}
+          >
+            <GitHubForm onSuccess={ghFormSuccess} />
+          </ErrorBoundary>
+          <Show when={props.project.slides.length > 0}>
+            <div class={theme.slideStartForm()}>
+              <button class={theme.slideStartButton()} onClick={removeSlide}>
+                Remove Slide
+              </button>
+            </div>
+          </Show>
+        </div>
+      </Show>
     </div>
   );
 };
