@@ -122,7 +122,7 @@ export function Repl(props: Props) {
 
   createEffect(
     on([() => props.fileSystem, savedFiles], async () => {
-      if (props.fileSystem.isEmpty) {
+      if (props.fileSystem.isEmpty || !isPackage()) {
         return;
       }
 

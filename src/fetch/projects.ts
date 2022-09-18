@@ -17,7 +17,7 @@ export const getProjectById = async (id: string) => {
   return {
     id: created.id,
     userId: created.user_id,
-    projectData: JSON.parse(atob(created.data)) as ProjectData,
+    projectData: JSON.parse(created.data) as ProjectData,
   };
 };
 
@@ -49,8 +49,8 @@ export const saveProject = async (project: ProjectData, projectId?: string) => {
   if (!user?.id) {
     return false;
   }
-  //Gets around weird unicode stuff that seeps in when importing files from GitHub
-  const stringified = btoa(JSON.stringify(project));
+
+  const stringified = JSON.stringify(project);
 
   const { data, error } = await supabase
     .from("projects")
