@@ -60,20 +60,21 @@ const FolderTree: Component<{
 
   return (
     <>
-      <Show when={folderName()}>
-        <div class="flex items-center gap-1">
-          <img class="i-mdi-folder text-sm"></img>
-          <span>{folderName()}</span>
-        </div>
-      </Show>
-      <ul class="px-4">
+      <div class={theme.treeViewRow()}>
+        <img class="i-mdi-folder text-sm"></img>
+        <span>{folderName()}</span>
+        <button
+          class={theme.treeViewDelete()}
+          onClick={(e) => {
+            props.list.forEach(({ id }) => props.fileSystem.removeFile(id));
+          }}
+        ></button>
+      </div>
+      <ul class={theme.treeViewIndent()}>
         <For each={list()}>
           {(item) =>
             "pathName" in item ? (
-              <li
-                onClick={() => fileClicked(item)}
-                class={theme.treeViewFileRow()}
-              >
+              <li onClick={() => fileClicked(item)} class={theme.treeViewRow()}>
                 <button
                   class={theme.treeViewFilename(
                     props.fileSystem.currentFileId === item.id,
@@ -84,7 +85,7 @@ const FolderTree: Component<{
                   {item.pathName.replace(props.folderPath + "/", "")}
                 </button>
                 <button
-                  class={theme.treeViewFileDelete()}
+                  class={theme.treeViewDelete()}
                   onClick={(e) => {
                     props.fileSystem.removeFile(item.id);
                   }}

@@ -50,8 +50,9 @@ export const defaultTheme = {
     "w-6 mt-1 dark:text-white hover:(font-bold text-yellow-500)",
   editPath: () => "text-sm bg-transparent outline-none h-0",
   treeViewRoot: () =>
-    "mt-1 w-60 text-oneDark-ivory font-sans text-sm border-oneDark-selection border-r-1",
-  treeViewFileRow: () => "flex w-full gap-1 items-center group",
+    "mt-1 px-1 w-60 text-oneDark-ivory font-sans text-sm border-oneDark-selection border-r-1",
+  treeViewIndent: () => "px-4",
+  treeViewRow: () => "flex w-full gap-1 items-center group",
   treeViewFilename: (current, opened, supported) => {
     let classes = "border-l-1 pl-1 transition ";
     if (opened) {
@@ -64,8 +65,7 @@ export const defaultTheme = {
     }
     return classes;
   },
-  treeViewFileDelete: () =>
-    "i-mdi-delete ml-a hidden group-hover:display-block",
+  treeViewDelete: () => "i-mdi-delete ml-a hidden group-hover:display-block",
   userbar: () =>
     "w-full font-sans text-sm flex justify-end items-center gap-1 border-b-1 dark:(border-oneDark-selection  bg-oneDark-background text-oneDark-ivory)",
   userbarButton: () => baseButton + "font-bold my-0.5 mx-1",
