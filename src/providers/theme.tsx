@@ -27,7 +27,7 @@ const baseButton =
   "px-2 py-1 border-1 border-rounded transition dark:(border-oneDark-selection bg-oneDark-background hover:bg-oneDark-selection text-oneDark-ivory)";
 
 export const defaultTheme = {
-  fileEditorRoot: () => "w-full h-full overflow-y-scroll",
+  fileEditorRoot: () => "w-full h-full overflow-y-scroll max-h-95vh",
   fileUnsupported: () =>
     "w-full p-4 dark:text-white dark:bg-oneDark-background",
   tabbedEditorRoot: () => "w-full h-full flex-shrink flex flex-col",
