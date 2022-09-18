@@ -19,6 +19,7 @@ const TabListItem: Component<{
   tabClicked?: () => void;
   closeClicked: () => void;
   edited: (newPath) => void;
+  closeable: boolean;
 }> = (props) => {
   const theme = useTheme();
 
@@ -37,13 +38,15 @@ const TabListItem: Component<{
           <EditPath initial={props.pathName} onSubmit={props.edited} />
         </Show>
       </button>
-      <button
-        class={theme.tablistItemClose()}
-        onClick={props.closeClicked}
-        onMouseDown={mouseDown}
-      >
-        ✕
-      </button>
+      <Show when={props.closeable}>
+        <button
+          class={theme.tablistItemClose()}
+          onClick={props.closeClicked}
+          onMouseDown={mouseDown}
+        >
+          ✕
+        </button>
+      </Show>
     </div>
   );
 };
@@ -134,6 +137,7 @@ export const TabbedEditor: Component<Props> = (props) => {
                 pathName={fileState.pathName}
                 selected={fileState.id === props.fileSystem.currentFileId}
                 editing={fileState.id === renaming()}
+                closeable={openedFiles().length > 1}
                 tabClicked={() => tabClicked(fileState.id)}
                 closeClicked={() => closeFile(fileState.id, i())}
                 edited={renamed}

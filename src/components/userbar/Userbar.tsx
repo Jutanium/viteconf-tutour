@@ -57,7 +57,7 @@ const Userbar: Component<{
               class={theme.userbarButton()}
               onClick={props.saveButtonClicked}
             >
-              <Show when={props.saveable} fallback="Fork to Edit">
+              <Show when={props.saveable} fallback="Fork">
                 Save
               </Show>
             </button>

@@ -2,8 +2,8 @@ import { FileState, getFileType, isFilePath } from "@/state";
 import { lineNumbers } from "@codemirror/view";
 import { Component, onCleanup } from "solid-js";
 
-import createCodemirror from "../../../codemirror/createCodemirror";
-import { useTheme, useThemeExtension } from "../../../providers/theme";
+import createCodemirror from "@/codemirror/createCodemirror";
+import { useTheme, useThemeExtension } from "@/providers/theme";
 
 interface Props {
   fileState: FileState;

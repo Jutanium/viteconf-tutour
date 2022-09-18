@@ -12,6 +12,7 @@ export const MarkdownPreview: Component<{ markdown: string }> = (props) => {
     <SolidMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
+        // @ts-ignore (There seems to be some className typing issues from the SolidMarkdown port)
         code({ node, inline, className, children, ...props }) {
           // Follows https://github.com/remarkjs/react-markdown#use-custom-components-syntax-highlight
           const match = /language-(\w+)/.exec(className || "");
