@@ -9,40 +9,10 @@ import { createMemo, createResource } from "solid-js";
 //Todo: load this from somewhere
 //Todo: use localstorage to save data between logging in
 export function DefaultProjectData() {
-  const testFS = createFileSystem();
-  testFS.addFile({
-    doc: "beginning\n\n\n<div></div>\n",
-    path: "testFile.html",
-  });
-
-  testFS.addFile({
-    doc: "\n\n\nconsole.log('hi')\n",
-    path: "testScript.js",
-  });
-
-  const fs2 = createFileSystem();
-  fs2.addFile({
-    doc: "<div>big div</div>",
-    path: "another.html",
-  });
-
-  const slideOne = createSlideState({
-    fs: testFS.serialize(),
-    md: `# Testing
-more stuff
-## Asdf
-etc
-### aasdfasdf
-asdf
-#### asdfasdf
-asfasdf
-  `,
-  });
-
-  const slideTwo = createSlideState({ fs: fs2.serialize(), md: `# Slide Two` });
+  const slideOne = createSlideState({});
 
   const project = createProjectState({
-    slides: [slideOne.serialize(), slideTwo.serialize()],
+    slides: [slideOne.serialize()],
     title: "Test Project",
   });
 

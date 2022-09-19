@@ -46,7 +46,7 @@ const GitHubForm: Component<{
     }
   });
 
-  const regexp = /\w+\/\w+(?:\/\w+)?/;
+  const regexp = /.+\/.+(?:\/.+)?/;
 
   return (
     <Show
