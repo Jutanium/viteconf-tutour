@@ -28,7 +28,7 @@ const Slides: Component<{ project: ProjectState }> = (props) => {
           </button>
         </Show>
       </div>
-      <div class="w-full h-full max-h-90vh overflow-y-scroll">
+      <div class="w-full h-full pt-4 max-h-90vh overflow-y-scroll">
         <For each={props.project.slides}>
           {(slide, index) => (
             <div

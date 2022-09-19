@@ -68,9 +68,19 @@ const ProjectEditor: Component = () => {
     })
   );
 
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      setSaveData(project().serialize());
+    }
+  }
+
   return (
     <Show when={project()}>
-      <div class="dark flex h-screen w-full bg-oneDark-background">
+      <div
+        class="dark flex h-screen w-full bg-oneDark-background"
+        onKeyDown={onKeyDown}
+      >
         <div class="w-1/3 flex flex-col border-r-1 border-oneDark-selection">
           <Userbar
             project={project()}

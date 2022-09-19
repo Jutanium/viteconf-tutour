@@ -98,7 +98,7 @@ export const defaultTheme = {
         : "border-oneDark-selection hover:border-gray-500"
     }`,
   mdPreview: () =>
-    "markdown text-oneDark-ivory markdown-invert max-w-full h-full w-full min-h-8 font-sans px-3 py-2 dark:(bg-oneDark-background)",
+    "markdown text-oneDark-ivory markdown-invert max-w-full h-full w-full min-h-4 font-sans px-3 dark:(bg-oneDark-background)",
   mdPreviewCode: () => "border-l-2 pl-1 border-oneDark-selection",
   codemirror: {
     root: (file: FileState | "content") => "w-full h-full outline-none",
