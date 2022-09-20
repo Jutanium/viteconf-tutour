@@ -11,6 +11,11 @@
     to = "/index.html"
     status = 200
 
+  [[redirects]]
+    from = "/repo"
+    to = "https://github.com/Jutanium/tutour"
+    status = 200
+
   ## (optional) Settings for Netlify Dev
   ## https://github.com/netlify/cli/blob/main/docs/netlify-dev.md#project-detection
   #[dev]
