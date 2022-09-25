@@ -1,11 +1,12 @@
 import { ProjectData } from "@/state";
 import { supabase } from "./supabaseClient";
 
+const table = import.meta.env.VITE_SUPABASE_TABLE;
 export const getProjectById = async (id: string) => {
   const {
     data: [created],
     error,
-  } = await supabase.from("projects").select("*").eq("id", id);
+  } = await supabase.from(table).select("*").eq("id", id);
 
   if (error) {
     console.error(error);
@@ -22,7 +23,7 @@ export const getProjectById = async (id: string) => {
 };
 
 export const getProjects = async () => {
-  const { data, error } = await supabase.from("projects").select("*");
+  const { data, error } = await supabase.from(table).select("*");
 
   if (error) {
     console.error(error);
@@ -30,16 +31,6 @@ export const getProjects = async () => {
 
   return data;
 };
-
-// export const insertProject = async (project: any) => {
-//   const { data, error } = await supabase.from("project").upsert(project);
-
-//   if (error) {
-//     console.error(error);
-//   }
-
-//   return data;
-// };
 
 export const saveProject = async (project: ProjectData, projectId?: string) => {
   const {
@@ -53,11 +44,10 @@ export const saveProject = async (project: ProjectData, projectId?: string) => {
   const stringified = JSON.stringify(project);
 
   const { data, error } = await supabase
-    .from("projects")
+    .from(table)
     .upsert({
       ...(projectId && { id: projectId }),
       data: stringified,
-      title: project.title,
       user_id: user.id,
     })
     .select();
