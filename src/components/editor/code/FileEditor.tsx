@@ -23,21 +23,9 @@ export const FileEditor: Component<Props> = (props) => {
     reactiveExtension: useThemeExtension(),
     startingDoc: props.fileState.doc,
     onUpdate: (updates, view) => {
-      // console.log("updating", updates);
       props.fileState.setDoc(view.state.doc);
     },
   });
-
-  // createEffect(() => {
-  //   console.log(props.fileState.data.doc);
-  // });
-
-  const tooltipButton = (addCodeLink: () => void) =>
-    (
-      <div class="p-1 text-white ">
-        <button onClick={addCodeLink}>Link</button>
-      </div>
-    ) as HTMLElement;
 
   const widget = (codeLinkId: string) => {
     const clicked = () => {
@@ -45,8 +33,6 @@ export const FileEditor: Component<Props> = (props) => {
     };
     return (<button onClick={clicked}>💬</button>) as HTMLElement;
   };
-
-  // injectExtensions({ view, tooltipButton, fileState: props.fileState, widget });
 
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) {

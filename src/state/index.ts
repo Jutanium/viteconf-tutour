@@ -15,24 +15,10 @@ import {
 export { isFilePath, getFileType };
 export type { FileState, FilePath, FileData, FileType };
 
-/* Each state factory exposes a serialized getter that returns
+/* Each state factory exposes a serialize function that returns
  * a corresponding data type. This in turn can be passed as an argument
  * to the state factory to deserialize it.
  */
-
-// TODO: reimplement CodeLinks. They probably make more sense being stored in the SlideState, and use a Context to interact them beneath.
-// export interface CodeLink {
-//   from: number;
-//   to?: number;
-//   startLine?: number;
-//   endLine?: number;
-//   id: string;
-//   name: string;
-// }
-
-// export interface CodeLinkWithPath extends CodeLink {
-//   pathName: FilePath;
-// }
 
 export type FileSystemData = Readonly<{
   currentFileId?: string;

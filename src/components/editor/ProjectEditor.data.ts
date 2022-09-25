@@ -6,8 +6,8 @@ import {
 } from "@/state";
 import { createMemo, createResource } from "solid-js";
 
-//Todo: load this from somewhere
-//Todo: use localstorage to save data between logging in
+//TODO: load an example instead?
+//TODO: use localstorage to save your current workspace after logging in
 export function DefaultProjectData() {
   const slideOne = createSlideState({});
 
@@ -16,6 +16,7 @@ export function DefaultProjectData() {
     title: "Test Project",
   });
 
+  project.setPreviewMode(false);
   return createMemo(() => project);
 }
 
