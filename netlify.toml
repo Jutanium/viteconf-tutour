@@ -10,7 +10,7 @@
   [[redirects]]
     from = "/repo"
     to = "https://github.com/Jutanium/tutour"
-    status = 200
+    status = 301
 
   [[redirects]]
     from = "/*"
