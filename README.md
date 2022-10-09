@@ -8,3 +8,5 @@ It uses a slide system: write Markdown and tie it to a specific file system stat
 You can use this to guide the reader through building a project, give a tour through a codebase, or present challenges and solutions.
 
 It's built with [Solid](https://www.solidjs.com/) and uses Codemirror for editing. It has basic GitHub OAuth authentication through Supabase, which then allows you to import code from GitHub. For now, it uses the Supabase client SDK and a single supabase table to save and load projects.
+
+[**See an example**](https://www.tutour.dev/p/61)!
