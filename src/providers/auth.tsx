@@ -9,7 +9,7 @@ import {
 import { createStore } from "solid-js/store";
 import { supabase } from "@/fetch/supabaseClient";
 import { Session } from "@supabase/supabase-js";
-import { useLocation } from "solid-app-router";
+import { useLocation } from "@solidjs/router";
 import { ProjectData } from "@/state";
 
 interface AuthState {

@@ -12,7 +12,7 @@ import { useTheme } from "../../providers/theme";
 import { TabbedEditor } from "./code/TabbedEditor";
 import { Repl } from "../repl/Repl";
 import Userbar from "@/components/userbar/Userbar";
-import { useNavigate, useRouteData } from "solid-app-router";
+import { useNavigate, useRouteData } from "@solidjs/router";
 import { saveProject } from "../../fetch/projects";
 import Slides from "./slides/Slides";
 import SlideStart from "./slides/SlideStart";

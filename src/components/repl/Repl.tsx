@@ -14,8 +14,8 @@ import { FileState, FileSystemState } from "@/state";
 import {
   DirectoryEntry,
   FileSystemTree,
-  load,
   WebContainer,
+  WebContainerProcess,
 } from "@webcontainer/api";
 
 // https://xtermjs.org/docs/api/vtfeatures/
@@ -23,8 +23,6 @@ import {
 interface Props {
   fileSystem: FileSystemState;
 }
-
-const bootWebContainer = load().then((x) => x.boot());
 
 function treeFromFiles(files: FileState[]): FileSystemTree {
   const tree = {} as FileSystemTree;
@@ -72,10 +70,13 @@ export function Repl(props: Props) {
 
   const [container, setContainer] = createSignal<WebContainer>();
 
+  let running: WebContainerProcess;
+  let currentFiles: { [path: string]: string } = {};
+
   async function loadFiles(files: FileState[]) {
     if (container()) {
       // await container.fs.rm("app", { force: true, recursive: true });
-      await container().loadFiles(treeFromFiles(files));
+      await container().mount(treeFromFiles(files));
     }
   }
 
@@ -94,22 +95,23 @@ export function Repl(props: Props) {
   async function runCommand(commandString) {
     const [command, ...args] = commandString.split(" ");
     if (container()) {
-      const result = await container().run(
-        {
-          command,
-          args,
-        },
-        {
-          output: (data) => {
-            terminal.write(data);
-          },
+      const process = await container().spawn(command, args, {
+        output: true,
+      });
+
+      const reader = process.output.getReader();
+      reader.read().then(function processText({ done, value }) {
+        if (done) {
+          return;
         }
-      );
-      await result.onExit;
+        terminal.write(value);
+        return reader.read().then(processText);
+      });
+
+      return process;
     }
   }
 
-  let currentFiles: { [path: string]: string } = {};
   function updateCurrentFiles() {
     currentFiles = Object.fromEntries(
       props.fileSystem.fileList.map((f) => [f.pathName, f.doc])
@@ -141,8 +143,10 @@ export function Repl(props: Props) {
     await loadFiles(toUpdate);
 
     if (toUpdate.some((file) => file.pathName === "package.json")) {
-      await runCommand("npm install");
-      await runCommand("npm run dev");
+      if (running) running.kill();
+      const installing = await runCommand("npm install");
+      await installing.exit;
+      running = await runCommand("npm run dev");
     }
   }
 
@@ -151,31 +155,16 @@ export function Repl(props: Props) {
   );
 
   onMount(async () => {
-    setContainer(await bootWebContainer);
+    setContainer(await WebContainer.boot());
 
-    container().on("server-ready", (_, url) => {
+    container().on("server-ready", (port, url) => {
+      console.log(url);
       setMagicURL(url);
     });
 
     updateCurrentFiles();
     setLastUpdated(Date.now());
   });
-
-  // terminal.onData((str, arg2) => {
-  //   const charCode = str.charCodeAt(0);
-  //   console.log(str, charCode, arg2);
-
-  //   if (charCode === 127) {
-  //     terminal.write("\x9B1D");
-  //     terminal.write("\x9B1P");
-  //     return;
-  //   }
-
-  //   if (charCode === 13) {
-  //   }
-
-  //   terminal.write(str);
-  // });
 
   return (
     <Show when={isPackage()}>

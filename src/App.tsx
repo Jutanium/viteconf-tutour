@@ -1,4 +1,4 @@
-import { Route, Routes } from "solid-app-router";
+import { Route, Routes } from "@solidjs/router";
 import { Component, createEffect, createMemo, ErrorBoundary } from "solid-js";
 import ProjectEditor from "./components/editor/ProjectEditor";
 import {

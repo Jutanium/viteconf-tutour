@@ -4,7 +4,7 @@ import "@unocss/reset/tailwind.css";
 import { render } from "solid-js/web";
 
 import App from "./App";
-import { Router } from "solid-app-router";
+import { Router } from "@solidjs/router";
 
 render(
   () => (

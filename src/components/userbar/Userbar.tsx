@@ -9,7 +9,7 @@ import {
 import { supabase } from "@/fetch/supabaseClient";
 import { useAuth } from "@/providers/auth";
 import { useTheme } from "@/providers/theme";
-import { useNavigate } from "solid-app-router";
+import { useNavigate } from "@solidjs/router";
 import { ProjectState } from "@/state";
 import { saveProject } from "@/fetch/projects";
 
