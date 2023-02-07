@@ -62,16 +62,16 @@ export function Repl(props: Props) {
   const debouncedFit = debounce(() => fitAddon.fit(), 17);
   const resizeObserver = new ResizeObserver(() => debouncedFit());
 
+  const [container, setContainer] = createSignal<WebContainer>();
+
+  let running: WebContainerProcess;
+  let currentFiles: { [path: string]: string } = {};
+
   onCleanup(() => {
     resizeObserver.disconnect();
     fitAddon.dispose();
     terminal.dispose();
   });
-
-  const [container, setContainer] = createSignal<WebContainer>();
-
-  let running: WebContainerProcess;
-  let currentFiles: { [path: string]: string } = {};
 
   async function loadFiles(files: FileState[]) {
     if (container()) {
@@ -94,19 +94,19 @@ export function Repl(props: Props) {
 
   async function runCommand(commandString) {
     const [command, ...args] = commandString.split(" ");
+
     if (container()) {
       const process = await container().spawn(command, args, {
         output: true,
       });
 
-      const reader = process.output.getReader();
-      reader.read().then(function processText({ done, value }) {
-        if (done) {
-          return;
-        }
-        terminal.write(value);
-        return reader.read().then(processText);
-      });
+      process.output.pipeTo(
+        new WritableStream({
+          write(data) {
+            terminal.write(data);
+          },
+        })
+      );
 
       return process;
     }

@@ -8,7 +8,6 @@ import {
   createSignal,
 } from "solid-js";
 import { ProjectData, ProjectState } from "@/state";
-import { useTheme } from "../../providers/theme";
 import { TabbedEditor } from "./code/TabbedEditor";
 import { Repl } from "../repl/Repl";
 import Userbar from "@/components/userbar/Userbar";
@@ -20,9 +19,8 @@ import { useAuth } from "../../providers/auth";
 import "./fonts.ts";
 
 const ProjectEditor: Component = () => {
-  const theme = useTheme();
-
-  const project = useRouteData<Accessor<ProjectState>>();
+  const project = useRouteData<() => Accessor<ProjectState>>();
+  console.log("accessor", project);
   const [auth] = useAuth();
   const navigate = useNavigate();
 
