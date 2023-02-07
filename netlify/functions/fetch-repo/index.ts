@@ -9,7 +9,7 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  const { owner, repo, path, provider_token } = JSON.parse(event.body);
+  let { owner, repo, path, provider_token } = JSON.parse(event.body);
 
   if (typeof repo !== "string") {
     return {

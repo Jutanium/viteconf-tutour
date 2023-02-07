@@ -13,7 +13,11 @@ export async function fetchRepo(
   } = await supabase.auth.getSession();
   if (!session) throw new Error("Must be logged in");
 
-  const [owner, repo, path] = degitString.split("/");
+  const split = degitString.split("/");
+  const owner = split[0];
+  const repo = split[1];
+  const path = split.slice(2).join("/");
+
   if (!owner || !repo) throw new Error("Invalid degit string");
 
   const requestData: RequestInit = {

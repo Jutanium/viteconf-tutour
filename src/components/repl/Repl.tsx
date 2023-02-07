@@ -75,7 +75,8 @@ export function Repl(props: Props) {
 
   async function loadFiles(files: FileState[]) {
     if (container()) {
-      // await container.fs.rm("app", { force: true, recursive: true });
+      const tree = treeFromFiles(files);
+      console.log(tree);
       await container().mount(treeFromFiles(files));
     }
   }
