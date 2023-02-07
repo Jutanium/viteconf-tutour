@@ -19,6 +19,7 @@ const languageExtensions: { [Language in FileType]: () => Extension } = {
   css: () => css(),
   json: () => json(),
   html: () => html(),
+  astro: () => html(),
   md: () =>
     markdown({
       codeLanguages: languages,

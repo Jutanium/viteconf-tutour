@@ -10,8 +10,9 @@ export const fileTypes = [
   "md",
   "html",
   "css",
+  "astro",
 ] as const;
-export type FileType = typeof fileTypes[number];
+export type FileType = (typeof fileTypes)[number];
 
 export type FilePath = `${string}.${FileType}`;
 

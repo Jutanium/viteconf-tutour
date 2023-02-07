@@ -76,8 +76,7 @@ export function Repl(props: Props) {
   async function loadFiles(files: FileState[]) {
     if (container()) {
       const tree = treeFromFiles(files);
-      console.log(tree);
-      await container().mount(treeFromFiles(files));
+      await container().mount(tree);
     }
   }
 
@@ -159,7 +158,6 @@ export function Repl(props: Props) {
     setContainer(await WebContainer.boot());
 
     container().on("server-ready", (port, url) => {
-      console.log(url);
       setMagicURL(url);
     });
 
