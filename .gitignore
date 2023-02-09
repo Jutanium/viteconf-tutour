@@ -1,5 +1,7 @@
 node_modules
 dist
+.vscode
+.pnpm-debug.log
 # Local Netlify folder
 .netlify
 secrets.md
